@@ -46,7 +46,7 @@ namespace GCodeConverter
     {
         void create(TopologyModel topologyModel, MainWindow window);
     }
-
+    //Тест
     class CreateTypeA : ICreateType
     {
         public void create(TopologyModel topologyModel, MainWindow window)
