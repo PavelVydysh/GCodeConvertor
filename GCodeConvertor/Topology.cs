@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GConverterApp
+namespace GCodeConvertor
 {
-    internal class Topology
+    [Serializable]
+    public class Topology
     {
+        public Topology() { }
         public Topology(string name, float accuracy,
             int PlatformH, int PlatformW,
             int HeadIdentationX, int HeadIdentationY,
@@ -57,8 +59,8 @@ namespace GConverterApp
         }
 
         public String name { get; set; }
-        public float accuracy { get; }
-        public int[,] map { get; }
+        public float accuracy { get; set; }
+        public int[,] map { get; set; }
 
 
     }
