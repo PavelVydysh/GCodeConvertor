@@ -12,13 +12,13 @@ using System.Xml.Serialization;
 namespace GCodeConvertor
 {
     [Serializable]
-    [System.Xml.Serialization.XmlInclude(typeof(Topology))]
-    [System.Xml.Serialization.XmlInclude(typeof(Layer))]
+    [XmlInclude(typeof(Topology))]
+    [XmlInclude(typeof(Layer))]
     public class GlobalPreset
     {
-       public List<Layer> layers {get; set;}
+        public List<Layer> layers {get; set;}
 
-       public Topology topology { get; set; }
+        public Topology topology { get; set; }
 
         public GlobalPreset() { }
 
@@ -32,7 +32,7 @@ namespace GCodeConvertor
             try
             {
                 var serializer = new SharpSerializer();
-                serializer.Serialize(this, "D:\\global_preset.xml");
+                serializer.Serialize(this, "C:\\gcode-projects\\global_preset.xml");
                 MessageBox.Show("Пресет успешно сохранён",
                                 "Создание пресета",
                                 MessageBoxButton.OK,
