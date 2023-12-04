@@ -12,8 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
+using System.Drawing;
+using Polenter.Serialization;
 
-namespace GCodeConverter
+namespace GCodeConvertor
 {
     /// <summary>
     /// Логика взаимодействия для ProjectWindow.xaml
@@ -66,6 +68,46 @@ namespace GCodeConverter
         private void Canvas_(object sender, MouseButtonEventArgs e)
         {
 
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            int[,] array = { {1,2,3}, {4,5,6}, {7,8,9} };
+            Topology topology = new Topology();
+            topology.name = "Test";
+            topology.accuracy = 1;
+            topology.map = array;
+
+            Layer layer = new Layer();
+            layer.layerThread = new List<System.Drawing.Point > {new System.Drawing.Point(2,3), new System.Drawing.Point(12, 18), new System.Drawing.Point(20, 30) };
+            layer.heightLayer = 12;
+
+            Layer layer2 = new Layer();
+            layer2.layerThread = new List<System.Drawing.Point> { new System.Drawing.Point(5, 10), new System.Drawing.Point(10, 58), new System.Drawing.Point(64, 3) };
+            layer2.heightLayer = 24;
+
+            GlobalPreset globalPreset = new GlobalPreset(new List<Layer> { layer, layer2 }, topology);
+
+            globalPreset.saveGlobalPreset();
+
+            /*var serializer = new SharpSerializer();
+
+            GlobalPreset globalPreset1 = (GlobalPreset)serializer.Deserialize("D:\\global_preset.xml");
+            MessageBox.Show(globalPreset1.layers[1].heightLayer.ToString());
+            MessageBox.Show(globalPreset1.topology.map[1,0].ToString());*/
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            Layer layer = new Layer();
+            layer.layerThread = new List<System.Drawing.Point> { new System.Drawing.Point(2, 3), new System.Drawing.Point(12, 18), new System.Drawing.Point(20, 30) };
+            layer.heightLayer = 12;
+
+            Layer layer2 = new Layer();
+            layer2.layerThread = new List<System.Drawing.Point> { new System.Drawing.Point(5, 10), new System.Drawing.Point(10, 58), new System.Drawing.Point(64, 3) };
+            layer2.heightLayer = 24;
+
+            GCodeGenerator.generate(new List<Layer> { layer, layer2 });
         }
     }
 }
