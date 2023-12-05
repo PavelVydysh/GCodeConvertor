@@ -26,12 +26,14 @@
             <ColumnDefinition Width="*">
             </ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Button Content="Открыть" HorizontalAlignment="Center" Height="37" Margin="0,92,0,0" VerticalAlignment="Top" Width="250" Background="{x:Null}"/>
+        <Button Content="Открыть" HorizontalAlignment="Center" Height="37" Margin="0,92,0,0" VerticalAlignment="Top" Width="250" Background="{x:Null}" Click="OpenProject"/>
         <Button Content="Создать тип А" HorizontalAlignment="Center" Height="37" Margin="0,134,0,0" VerticalAlignment="Top" Width="250" Background="{x:Null}"/>
         <Button Content="Создать тип B" HorizontalAlignment="Center" Height="37" Margin="0,176,0,0" VerticalAlignment="Top" Width="250" Background="{x:Null}"/>
         <Button Content="FAQ" HorizontalAlignment="Center" Height="37" Margin="0,218,0,0" VerticalAlignment="Top" Width="250" Background="{x:Null}"/>
+
         <Label Grid.Column="1" Content="Название:" HorizontalAlignment="Left" Height="25" Margin="26,57,0,0" VerticalAlignment="Top" Width="97"/>
-        <TextBox Name="NameProject" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="184,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" ClipToBounds="True">
+        <!--Наименование проекта-->
+        <TextBox Name="NameProject" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="151,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" ClipToBounds="True">
             <TextBox.Text>
                 <Binding Path="NameProject">
                     <Binding.ValidationRules>
@@ -40,48 +42,156 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
+
         <Label Grid.Column="1" Content="Расположение:" HorizontalAlignment="Left" Height="25" Margin="26,104,0,0" VerticalAlignment="Top" Width="97"/>
-        <TextBox Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="184,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" ClipToBounds="True"/>
-        <Button Grid.Column="1" Content="Button" HorizontalAlignment="Left" Height="25" Margin="380,104,0,0" VerticalAlignment="Top" Width="31"/>
+        <!--Путь к проекту-->
+        <TextBox Name="PathProject" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="151,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" ClipToBounds="True">
+            <TextBox.Text>
+                <Binding Path="PathProject">
+                    <Binding.ValidationRules>
+                        <DataErrorValidationRule />
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <Button Grid.Column="1" Content="Выбрать" HorizontalAlignment="Left" Height="25" Margin="356,104,0,0" VerticalAlignment="Top" Width="50" Click="SetDefaultFolder"/>
 
         <Canvas Grid.Column="1" HorizontalAlignment="Center" Height="226" Margin="0,134,0,0" VerticalAlignment="Top" Width="430" Background="White">
+
             <Label Content="Размер платформы:" HorizontalAlignment="Left" Height="30" VerticalAlignment="Center" Width="123" Canvas.Left="24" Canvas.Top="25"/>
+            <!--Размер платформы ширина-->
             <Label Content="H" Height="30" Width="24" Canvas.Left="168" Canvas.Top="25" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBox HorizontalAlignment="Left" Height="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="183" Canvas.Top="29" Text="100"/>
+            <TextBox Name="PlatformH" HorizontalAlignment="Left" Height="20" TextWrapping="Wrap" VerticalAlignment="Top" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="183" Canvas.Top="29">
+                <TextBox.Text>
+                    <Binding Path="PlatformH" UpdateSourceTrigger="PropertyChanged">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Label Content="мм" Height="30" Width="27" Canvas.Left="229" Canvas.Top="25" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+            <!--Размер платформы длина-->
             <Label Content="W" Height="30" Width="24" Canvas.Left="274" Canvas.Top="25" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="29" Text="100" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBox Name="PlatformW" HorizontalAlignment="Left" Height="20" TextWrapping="Wrap" VerticalAlignment="Center" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="29">
+                <TextBox.Text>
+                    <Binding Path="PlatformW">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
             <Label Content="мм" Height="30" Width="27" Canvas.Left="337" Canvas.Top="25" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="Отступы для головки:" Height="30" Width="139" Canvas.Left="24" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="X" Height="30" Width="24" Canvas.Left="168" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="182" Canvas.Top="76" Text="20" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label Content="мм" Height="30" Width="28" Canvas.Left="228" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label Content="Y" Height="30" Width="24" Canvas.Left="276" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="76" Text="20" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="мм" Height="30" Width="26" Canvas.Left="337" Canvas.Top="72" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="Диаметр сопла:" Height="30" Width="139" Canvas.Left="24" Canvas.Top="111" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="182" Canvas.Top="115" Text="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="мм" Height="30" Width="28" Canvas.Left="228" Canvas.Top="111" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="Отступ начальной иглы:" Height="30" Width="156" Canvas.Left="24" Canvas.Top="161" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="X" Height="30" Width="24" Canvas.Left="167" Canvas.Top="161" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="182" Canvas.Top="165" Text="10" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Label Content="мм" Height="30" Width="27" Canvas.Left="228" Canvas.Top="161" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Label Content="Y" Height="30" Width="24" Canvas.Left="276" Canvas.Top="161" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="290" Canvas.Top="165" Text="10" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="мм" Height="30" Width="27" Canvas.Left="336" Canvas.Top="161" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="Шаг между иглами:" Height="30" Width="156" Canvas.Left="24" Canvas.Top="196" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Label Content="X" Height="30" Width="24" Canvas.Left="167" Canvas.Top="196" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="182" Canvas.Top="200" Text="10" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Label Content="мм" Height="30" Width="27" Canvas.Left="228" Canvas.Top="196" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-            <Label Content="Y" Height="30" Width="24" Canvas.Left="276" Canvas.Top="196" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="290" Canvas.Top="200" Text="10" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Content="мм" Height="30" Width="27" Canvas.Left="336" Canvas.Top="196" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <Label Content="Отступы для головки:" Height="30" Width="139" Canvas.Left="24" Canvas.Top="59" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <!--Отступы головки X-->
+            <Label Content="X" Height="30" Width="24" Canvas.Left="168" Canvas.Top="59" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBox Name="HeadIdentationX" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="183" Canvas.Top="64" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <TextBox.Text>
+                    <Binding Path="HeadIdentationX">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="28" Canvas.Left="229" Canvas.Top="59" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.741,0.543"/>
+            <!--Отступы головки Y-->
+            <Label Content="Y" Height="30" Width="24" Canvas.Left="277" Canvas.Top="60" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.583,0.49"/>
+            <TextBox Name="HeadIdentationY" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="64" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBox.Text>
+                    <Binding Path="HeadIdentationY">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="26" Canvas.Left="338" Canvas.Top="59" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <Label Content="Диаметр сопла:" Height="30" Width="139" Canvas.Left="24" Canvas.Top="94" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <!--Диаметр головки-->
+            <TextBox Name="NozzleDiameter" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="183" Canvas.Top="99" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBox.Text>
+                    <Binding Path="NozzleDiameter">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="28" Canvas.Left="229" Canvas.Top="94" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <Label Content="Точность:" Height="30" Width="139" Canvas.Left="24" Canvas.Top="129" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <!--Точность-->
+            <TextBox Name="Accuracy" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="183" Canvas.Top="134" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBox.Text>
+                    <Binding Path="Accuracy">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+
+            <Label Content="Отступ начальной иглы:" Height="30" Width="156" Canvas.Left="26" Canvas.Top="167" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label Content="X" Height="30" Width="24" Canvas.Left="169" Canvas.Top="167" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <!--Отступ начальной иглы X-->
+            <TextBox Name="StartNeedleOffsetX" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="184" Canvas.Top="172" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBox.Text>
+                    <Binding Path="StartNeedleOffsetX">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="27" Canvas.Left="229" Canvas.Top="167" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.389,0.418"/>
+
+            <Label Content="Y" Height="30" Width="24" Canvas.Left="278" Canvas.Top="167" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <!--Отступ начальной иглы Y-->
+            <TextBox Name="StartNeedleOffsetY" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="172" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBox.Text>
+                    <Binding Path="StartNeedleOffsetY">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="27" Canvas.Left="337" Canvas.Top="167" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <Label Content="Шаг между иглами:" Height="30" Width="156" Canvas.Left="26" Canvas.Top="197" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <Label Name="StepNeedlesX" Content="X" Height="30" Width="24" Canvas.Left="169" Canvas.Top="197" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <!--Шаг между иглами по оси X-->
+            <TextBox Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="184" Canvas.Top="202" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <TextBox.Text>
+                    <Binding Path="StepNeedlesX">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="27" Canvas.Left="229" Canvas.Top="197" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.519,0.285"/>
+            <Label Content="Y" Height="30" Width="24" Canvas.Left="278" Canvas.Top="197" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+            <!--Шаг между иглами по оси Y-->
+            <TextBox Name="StepNeedlesY" Height="20" TextWrapping="Wrap" Width="46" RenderTransformOrigin="0.464,0.252" Canvas.Left="291" Canvas.Top="202" HorizontalAlignment="Left" VerticalAlignment="Top">
+                <TextBox.Text>
+                    <Binding Path="StepNeedlesY">
+                        <Binding.ValidationRules>
+                            <DataErrorValidationRule />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
+            </TextBox>
+            <Label Content="мм" Height="30" Width="27" Canvas.Left="337" Canvas.Top="196" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
         </Canvas>
         <Separator Height="20" Width="450" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Margin="0,142,0,0"/>
-        <Separator Height="20" Width="450" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Margin="0,273,0,0"/>
-        <Button x:Name="createButton" Grid.Column="1" Content="Создать" HorizontalAlignment="Left" Height="28" Margin="313,391,0,0" VerticalAlignment="Top" Width="98" Click="CreateProjectA"/>
-
-
+        <Separator Height="20" Width="450" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1" Margin="0,288,0,0"/>
+        <Button x:Name="createButton" Grid.Column="1" Content="Создать" HorizontalAlignment="Left" Height="28" Margin="332,409,0,0" VerticalAlignment="Top" Width="98" Click="CreateProjectA"/>
     </Grid>
 </Window>

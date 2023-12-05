@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor"
         mc:Ignorable="d"
-        Title="ProjectWindow" Height="1080" Width="1920" WindowState="Maximized">
+        Title="{Binding topology.name}" Height="1080" Width="1920" WindowState="Maximized">
     <DockPanel Name="dockPanel" LastChildFill="True" >
         <Menu Height="25"  VerticalAlignment="Top" Background="LightGray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
