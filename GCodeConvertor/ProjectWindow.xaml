@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor"
         mc:Ignorable="d"
-        Title="{Binding topology.name}" Height="1080" Width="1920" WindowState="Maximized">
+        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized">
     <DockPanel Name="dockPanel" LastChildFill="True" >
         <Menu Height="25"  VerticalAlignment="Top" Background="LightGray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
@@ -30,25 +30,33 @@
             <Canvas Height="1038" Width="250" Background="White">
                 <Button Content="Сохранить пресет" Height="46" Canvas.Left="20" Canvas.Top="46" Width="184" Click="Button_Click"/>
                 <Button Content="Генерировать Gcode" Height="45" Canvas.Left="20" Canvas.Top="119" Width="184" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Button_Click_1"/>
+                <CheckBox Name="manyCheck" Content="Многослойная" Canvas.Left="61" Canvas.Top="190" Checked="manyCheck_Checked" Unchecked="manyCheck_Unchecked"/>
+                <Label Content="Количество слоев" Canvas.Left="20" Canvas.Top="228"/>
+                <Label Content="Высота слоя" Canvas.Left="20" Canvas.Top="259" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <TextBox Name="layerZ" IsEnabled="False" Canvas.Left="134" TextWrapping="Wrap" Text="" Canvas.Top="263" Width="93" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <TextBox Name="layerZ_Count" IsEnabled="False" Canvas.Left="134" TextWrapping="Wrap" Text="" Canvas.Top="232" Width="93" HorizontalAlignment="Center" VerticalAlignment="Top"/>
             </Canvas>
         </ScrollViewer>
-        <Canvas Name="CanvasMain" MouseMove="Canvas_OnMouseMove">
-            <Canvas.Background>
-                <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" 
-                                     ViewportUnits="Absolute">
-                    <DrawingBrush.Drawing>
-                        <GeometryDrawing>
-                            <GeometryDrawing.Geometry>
-                                <RectangleGeometry Rect="0,0,50,50"/>
-                            </GeometryDrawing.Geometry>
-                            <GeometryDrawing.Pen>
-                                <Pen Brush="Gray" Thickness="1"/>
-                            </GeometryDrawing.Pen>
-                        </GeometryDrawing>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
-            </Canvas.Background>
-        </Canvas>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Canvas Name="CanvasMain" Width="800" Height="800" Loaded="CanvasMain_Loaded">
+                <Canvas.Background>
+                    <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" 
+                              ViewportUnits="Absolute">
+                        <DrawingBrush.Drawing>
+                            <GeometryDrawing>
+                                <GeometryDrawing.Geometry>
+                                    <RectangleGeometry Rect="0,0,50,50"/>
+                                </GeometryDrawing.Geometry>
+                                <GeometryDrawing.Pen>
+                                    <Pen Brush="Gray" Thickness="1"/>
+                                </GeometryDrawing.Pen>
+                            </GeometryDrawing>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Canvas.Background>
+            </Canvas>
+        </ScrollViewer>
+       
 
     </DockPanel>
 </Window>
