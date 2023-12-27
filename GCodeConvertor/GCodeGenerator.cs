@@ -37,13 +37,18 @@ namespace GCodeConvertor
 
         private static async Task saveAsync(String gcode)
         {
-            using (StreamWriter writer = new StreamWriter(ProjectSettings.preset.topology.path + "\\" +
-                                                            ProjectSettings.preset.topology.name+".txt", false))
+
+            string currentDatetime = "_" + DateTime.Now.ToString().Replace(".", "_").Replace(":", "-").Replace(" ", "_");
+
+            string pathToFile = ProjectSettings.preset.topology.path + "\\" +
+                                                            ProjectSettings.preset.topology.name + currentDatetime + ".txt";
+
+            using (StreamWriter writer = new StreamWriter(pathToFile, false))
             {
                 await writer.WriteLineAsync(gcode);
             }
 
-            MessageBox.Show("GCode сгенерирован и помещён в файл...",
+            MessageBox.Show($"GCode сгенерирован и помещён в файл. \n {pathToFile}",
                                 "Создание GCode`а",
                                 MessageBoxButton.OK,
                                 MessageBoxImage.Information);

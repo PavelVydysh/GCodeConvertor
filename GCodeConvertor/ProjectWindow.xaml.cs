@@ -217,41 +217,48 @@ namespace GCodeConvertor
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Layer layer = new Layer();
-            layer.layerThread = layerPoints;
-            
-            if ((bool)!manyCheck.IsChecked)
+            if(drawingState == DrawingStates.SET_END_POINT)
             {
-                GCodeGenerator.generate(new List<Layer> { layer });
+                Layer layer = new Layer();
+                layer.layerThread = layerPoints;
+
+                if ((bool)!manyCheck.IsChecked)
+                {
+                    GCodeGenerator.generate(new List<Layer> { layer });
+                }
+                else
+                {
+                    List<Layer> layers = new List<Layer>();
+                    for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
+                    {
+                        Layer currentLayer = new Layer();
+                        currentLayer.layerThread = layerPoints;
+
+                        currentLayer.heightLayer = int.Parse(layerZ.Text) * i;
+
+                        layers.Add(currentLayer);
+                    }
+                    GCodeGenerator.generate(layers);
+                }
             }
             else
             {
-                List<Layer> layers = new List<Layer>();
-                for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
-                {
-                    Layer currentLayer = new Layer();
-                    currentLayer.layerThread = layerPoints;
-
-                    currentLayer.heightLayer = int.Parse(layerZ.Text) * i;
-
-                    layers.Add(currentLayer);
-                }
-                GCodeGenerator.generate(layers);
+                MessageBox.Show("Закончите слой для генерации g-code'а!", "Невозможно сгенерировать g-code!");
             }
         }
 
-        bool AreLinesIntersecting(System.Windows.Point l1p1, 
-            System.Windows.Point l1p2, 
-            System.Windows.Point l2p1, 
-            System.Windows.Point l2p2) 
-        { 
-            double q1 = (l1p1.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p1.X - l2p1.X) * (l2p2.Y - l2p1.Y); 
-            double q2 = (l1p2.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p2.X - l2p1.X) * (l2p2.Y - l2p1.Y);
-            double q3 = (l2p1.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p1.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
-            double q4 = (l2p2.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p2.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
+        //bool AreLinesIntersecting(System.Windows.Point l1p1, 
+        //    System.Windows.Point l1p2, 
+        //    System.Windows.Point l2p1, 
+        //    System.Windows.Point l2p2) 
+        //{ 
+        //    double q1 = (l1p1.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p1.X - l2p1.X) * (l2p2.Y - l2p1.Y); 
+        //    double q2 = (l1p2.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p2.X - l2p1.X) * (l2p2.Y - l2p1.Y);
+        //    double q3 = (l2p1.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p1.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
+        //    double q4 = (l2p2.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p2.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
             
-            return (q1 * q2 < 0) && (q3 * q4 < 0); 
-        }
+        //    return (q1 * q2 < 0) && (q3 * q4 < 0); 
+        //}
 
         private void manyCheck_Checked(object sender, RoutedEventArgs e)
         {
@@ -303,6 +310,13 @@ namespace GCodeConvertor
                     CanvasMain.Children.Add(rectangle);
                 }
             }
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow mw = new MainWindow();
+            mw.Show();
+            this.Close();
         }
     }
 }

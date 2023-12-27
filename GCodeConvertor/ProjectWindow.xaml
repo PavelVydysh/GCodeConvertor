@@ -13,7 +13,7 @@
                     <DockPanel HorizontalAlignment="Stretch"/>
                 </ItemsPanelTemplate>
             </Menu.ItemsPanel>
-            <MenuItem Header="File">
+            <MenuItem Header="File" Click="MenuItem_Click">
                 <MenuItem Header="New Project" ></MenuItem>
                 <MenuItem Header="Open Project" >
                     <MenuItem Header="WinForms"></MenuItem>

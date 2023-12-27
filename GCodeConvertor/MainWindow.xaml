@@ -45,7 +45,7 @@
 
         <Label Grid.Column="1" Content="Расположение:" HorizontalAlignment="Left" Height="25" Margin="26,104,0,0" VerticalAlignment="Top" Width="97"/>
         <!--Путь к проекту-->
-        <TextBox Name="PathProject" Grid.Column="1" HorizontalAlignment="Left" Height="25" Margin="151,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="196" ClipToBounds="True">
+        <TextBox Name="PathProject" Grid.Column="1" HorizontalAlignment="Left" Height="38" Margin="151,98,0,0" VerticalAlignment="Top" Width="196" ClipToBounds="True" IsEnabled="False" TextWrapping="Wrap">
             <TextBox.Text>
                 <Binding Path="PathProject">
                     <Binding.ValidationRules>
@@ -54,7 +54,7 @@
                 </Binding>
             </TextBox.Text>
         </TextBox>
-        <Button Grid.Column="1" Content="Выбрать" HorizontalAlignment="Left" Height="25" Margin="356,104,0,0" VerticalAlignment="Top" Width="50" Click="SetDefaultFolder"/>
+        <Button Grid.Column="1" Content="Выбрать" HorizontalAlignment="Left" Height="36" Margin="356,98,0,0" VerticalAlignment="Top" Width="50" Click="SetDefaultFolder"/>
 
         <Canvas Grid.Column="1" HorizontalAlignment="Center" Height="226" Margin="0,134,0,0" VerticalAlignment="Top" Width="430" Background="White">
 
