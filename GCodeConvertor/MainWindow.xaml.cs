@@ -1,4 +1,5 @@
-﻿using GCodeConverter;
+﻿using GCodeConvertor;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,19 +42,49 @@ namespace GCodeConvertor
         {
             this.createType = createType;
         }
+
+        private void OpenProject(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "GCD files(*.gcd)|*.gcd",
+                
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string pathToPreset = openFileDialog.FileName;
+                ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                ProjectWindow pw = new ProjectWindow();
+                pw.Show();
+                this.Close();
+            }
+        }
+
+        private void SetDefaultFolder(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            if (dialog.ShowDialog(this).GetValueOrDefault())
+            {
+                topologyModel.PathProject = dialog.SelectedPath;
+            }
+        }
     }
 
     interface ICreateType
     {
         void create(TopologyModel topologyModel, MainWindow window);
+
+        //void setDefaultValues(TopologyModel topologyModel);
     }
     //Тест
     class CreateTypeA : ICreateType
     {
         public void create(TopologyModel topologyModel, MainWindow window)
         {
-            if (String.IsNullOrEmpty(topologyModel.error))
+            if (string.IsNullOrEmpty(topologyModel.error))
             {
+                ProjectSettings.preset = new GlobalPreset(topologyModel);
                 ProjectWindow pw = new ProjectWindow();
                 pw.Show();
                 window.Close();
@@ -66,6 +97,7 @@ namespace GCodeConvertor
                                 MessageBoxImage.Error);
             }
         }
+
     }
 
     class CreateTypeB : ICreateType
@@ -74,5 +106,6 @@ namespace GCodeConvertor
         {
 
         }
+
     }
 }
