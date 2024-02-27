@@ -13,12 +13,15 @@ namespace GCodeConvertor
     {
         public static void generate(List<Layer> layers)
         {
+            float lastHeight = 0;
             String gcode = "";
             foreach (Layer layer in layers)
             {
                 if (layer.heightLayer != 0)
                 {
-                    gcode += "G1 Z" + layer.heightLayer + "\n";
+                    lastHeight += layer.heightLayer;
+                    gcode += "G1 Z" + lastHeight + "\n";
+
                 }
 
                 foreach (System.Windows.Point point in layer.layerThread)

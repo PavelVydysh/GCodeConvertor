@@ -31,10 +31,45 @@
                 <Button Content="Сохранить пресет" Height="46" Canvas.Left="20" Canvas.Top="46" Width="184" Click="Button_Click"/>
                 <Button Content="Генерировать Gcode" Height="45" Canvas.Left="20" Canvas.Top="119" Width="184" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Button_Click_1"/>
                 <CheckBox Name="manyCheck" Content="Многослойная" Canvas.Left="61" Canvas.Top="190" Checked="manyCheck_Checked" Unchecked="manyCheck_Unchecked"/>
-                <Label Content="Количество слоев" Canvas.Left="20" Canvas.Top="228"/>
-                <Label Content="Высота слоя" Canvas.Left="20" Canvas.Top="259" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <TextBox Name="layerZ" IsEnabled="False" Canvas.Left="134" TextWrapping="Wrap" Text="" Canvas.Top="263" Width="93" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <TextBox Name="layerZ_Count" IsEnabled="False" Canvas.Left="134" TextWrapping="Wrap" Text="" Canvas.Top="232" Width="93" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <Label Content="Множитель" Canvas.Left="34" Canvas.Top="212" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox Name="layerZ_Count" IsEnabled="False" Canvas.Left="110" TextWrapping="Wrap" Text="" Canvas.Top="216" Width="93" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <ListBox x:Name="layerListBox" Height="385" Canvas.Left="33" Canvas.Top="333" Width="175" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" SelectionChanged="layerListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- !!!!!!Label (первая строка) -->
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Stretch">
+
+                                    <!-- Label -->
+                                    <Label Name="labelLayer" Content="{Binding LabelContent}" VerticalAlignment="Center"/>
+
+                                    <!-- Spacer (расширение пространства) -->
+                                    <Grid Grid.Row="0" HorizontalAlignment="Stretch"/>
+
+                                    <!-- Кнопка в правом верхнем углу -->
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                    <!-- TextBox (вторая строка) -->
+                                    <TextBox Text="{Binding TextBoxContent}" VerticalAlignment="Center" Width="30" PreviewTextInput="TextBox_PreviewTextInput"/>
+
+                                    <!-- Button (вторая строка) -->
+                                    <Button Content="Ок" Click="editLayerHeight" VerticalAlignment="Center" Margin="10,0,0,0" Tag="{Binding LabelContent}"/>
+                                </StackPanel>
+                                <Button Content="X" Click="deleteLayer" VerticalAlignment="Top" Margin="130,0,3,0" Tag="{Binding LabelContent}"/>
+                                <CheckBox x:Name="enableLayer" IsChecked="True" Margin="142,5,3,-5" Grid.Row="1" Checked="enableLayer_Checked" Tag="{Binding LabelContent}" Unchecked="enableLayer_Unchecked"/>
+                                <Button Content="up" Click="moveLayerUp" VerticalAlignment="Top" Margin="90,1,43,0" Tag="{Binding LabelContent}"/>
+                                <Button Content="dn" Click="moveLayerDown" VerticalAlignment="Center" Margin="90,0,43,0" Tag="{Binding LabelContent}" Grid.Row="1"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Button x:Name="AddLayerButton" Content="+" Height="21" Canvas.Left="34" Canvas.Top="309" Width="25" HorizontalAlignment="Left" VerticalAlignment="Center" Click="createLayer"/>
             </Canvas>
         </ScrollViewer>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
