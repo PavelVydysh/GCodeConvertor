@@ -17,6 +17,7 @@ using Polenter.Serialization;
 using System.Security.Policy;
 using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
+using Microsoft.Win32;
 
 namespace GCodeConvertor
 {
@@ -63,6 +64,7 @@ namespace GCodeConvertor
             ItemsList = new ObservableCollection<CustomItem>();
             layerListBox.ItemsSource = ItemsList;
         }
+
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -258,19 +260,6 @@ namespace GCodeConvertor
             }
         }
 
-        //bool AreLinesIntersecting(System.Windows.Point l1p1, 
-        //    System.Windows.Point l1p2, 
-        //    System.Windows.Point l2p1, 
-        //    System.Windows.Point l2p2) 
-        //{ 
-        //    double q1 = (l1p1.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p1.X - l2p1.X) * (l2p2.Y - l2p1.Y); 
-        //    double q2 = (l1p2.Y - l2p1.Y) * (l2p2.X - l2p1.X) - (l1p2.X - l2p1.X) * (l2p2.Y - l2p1.Y);
-        //    double q3 = (l2p1.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p1.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
-        //    double q4 = (l2p2.Y - l1p1.Y) * (l1p2.X - l1p1.X) - (l2p2.X - l1p1.X) * (l1p2.Y - l1p1.Y); 
-            
-        //    return (q1 * q2 < 0) && (q3 * q4 < 0); 
-        //}
-
         private void manyCheck_Checked(object sender, RoutedEventArgs e)
         {
             layerZ_Count.IsEnabled = true;
@@ -308,7 +297,6 @@ namespace GCodeConvertor
                     rectangle.MouseLeftButtonDown += Rectangle_MouseLeftButtonDown;
                     rectangle.Height = size;
                     rectangle.Width = size;
-                    rectangle.Stroke = new SolidColorBrush(Colors.Black);
                     rectangle.StrokeThickness = 1;
 
                     if(ProjectSettings.preset.topology.map[j, i] == 3)
@@ -552,5 +540,107 @@ namespace GCodeConvertor
             mw.Show();
             this.Close();
         }
+
+        private double minScale = 1;
+
+        private System.Windows.Point startPoint;
+        private bool isDragging = false;
+        private double translationFactor = 1.0;
+
+        private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                var canvas = sender as Canvas;
+
+                // Сохраняем текущий масштаб канваса и прокрутку
+                var previousScale = ((MatrixTransform)canvas.RenderTransform).Matrix.M11;
+
+                // Получаем позицию курсора относительно Canvas
+                var mousePosition = e.GetPosition(canvas);
+
+                // Вычисляем коэффициент масштабирования
+                double scale = e.Delta > 0 ? 1.1 : 0.9;
+                scale = previousScale * scale;
+
+                if (scale >= minScale)
+                {
+                    Matrix matrix = new Matrix();
+                    matrix.ScaleAtPrepend(scale, scale, mousePosition.X, mousePosition.Y);
+                    canvas.RenderTransform = new MatrixTransform(matrix);
+                }
+
+                // Применяем масштабирование к канвасу
+
+
+                // Предотвращаем дальнейшее распространение события
+                e.Handled = true;
+            }
+        }
+
+        private void Canvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle)
+            {
+                var canvas = sender as Canvas;
+                startPoint = e.GetPosition(canvas);
+                isDragging = true;
+                canvas.CaptureMouse();
+            }
+        }
+
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDragging && startPoint != null)
+            {
+                var canvas = sender as Canvas;
+                var position = e.GetPosition(canvas);
+
+                // Вычисляем разницу между текущей и начальной позицией мыши, умножая на фактор скорости
+                double dx = (position.X - startPoint.X) * translationFactor;
+                double dy = (position.Y - startPoint.Y) * translationFactor;
+
+                // Получаем текущую матрицу трансформации канваса
+                Matrix matrix = ((MatrixTransform)canvas.RenderTransform).Matrix;
+
+                // Проверяем, не выходит ли канвас за пределы контейнера
+                matrix.Translate(dx, dy);
+
+                // Устанавливаем новую матрицу трансформации
+                canvas.RenderTransform = new MatrixTransform(matrix);
+
+                // Обновляем начальную позицию мыши
+                startPoint = position;
+            }
+        }
+
+        private void Canvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Middle && isDragging)
+            {
+                var canvas = sender as Canvas;
+                isDragging = false;
+                canvas.ReleaseMouseCapture();
+            }
+        }
+
+        private void MenuItem_Click_1(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "GCD files(*.gcd)|*.gcd",
+
+            };
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string pathToPreset = openFileDialog.FileName;
+                ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                ProjectWindow pw = new ProjectWindow();
+                pw.Show();
+                this.Close();
+            }
+        }
+
     }
 }

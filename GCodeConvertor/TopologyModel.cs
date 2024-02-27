@@ -136,7 +136,7 @@ namespace GCodeConvertor
 
                 }
 
-                if (!Errors.ContainsKey(columnName))
+                if (error != string.Empty)
                 {
                     Errors.Add(columnName, error);
                 }

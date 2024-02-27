@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized">
     <DockPanel Name="dockPanel" LastChildFill="True" >
-        <Menu Height="25"  VerticalAlignment="Top" Background="LightGray" DockPanel.Dock="Top">
+        <Menu Height="25"  VerticalAlignment="Top" Background="Gray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
                     <DockPanel HorizontalAlignment="Stretch"/>
@@ -15,17 +15,21 @@
             </Menu.ItemsPanel>
             <MenuItem Header="File" Click="MenuItem_Click">
                 <MenuItem Header="New Project" ></MenuItem>
-                <MenuItem Header="Open Project" >
-                    <MenuItem Header="WinForms"></MenuItem>
-                    <MenuItem Header="WPF" ></MenuItem>
-                </MenuItem>
+                <MenuItem Header="Open Project" Click="MenuItem_Click_1" ></MenuItem>
                 <Separator />
                 <MenuItem Header="Exit" ></MenuItem>
             </MenuItem>
-            <MenuItem Header="Edit" ></MenuItem>
-            <MenuItem Header="View" ></MenuItem>
             <MenuItem Header="Menu" Click="openMenu" HorizontalAlignment="Right"></MenuItem>
         </Menu>
+        <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="100" Background="LightGray">
+            <Grid>
+                <Label Content="Инструменты"/>
+                <RadioButton Content="Рисовать" Margin="0,34,0,-34"/>
+                <RadioButton Content="Переместить" Margin="0,52,0,-52"/>
+            </Grid>
+            
+
+        </ScrollViewer>
         <ScrollViewer Name="RightMenu" DockPanel.Dock="Right" RenderTransformOrigin="1,1" Panel.ZIndex="9999" Width="250">
             <Canvas Height="1038" Width="250" Background="White">
                 <Button Content="Сохранить пресет" Height="46" Canvas.Left="20" Canvas.Top="46" Width="184" Click="Button_Click"/>
@@ -73,7 +77,8 @@
             </Canvas>
         </ScrollViewer>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Canvas Name="CanvasMain" Width="800" Height="800" Loaded="CanvasMain_Loaded">
+            <Canvas Name="CanvasMain" Width="800" Height="800" Loaded="CanvasMain_Loaded" PreviewMouseWheel="Canvas_MouseWheel"
+                    MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
                 <Canvas.Background>
                     <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" 
                               ViewportUnits="Absolute">
@@ -91,7 +96,8 @@
                 </Canvas.Background>
             </Canvas>
         </ScrollViewer>
-       
+        
+
 
     </DockPanel>
 </Window>
