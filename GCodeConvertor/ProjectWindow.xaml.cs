@@ -701,32 +701,104 @@ namespace GCodeConvertor
         {
             int position = 0;
             List<System.Windows.Point> points = new List<System.Windows.Point>();
+            bool isInsert = false;
+            List<UIElement> wrongElements = new List<UIElement>();
+            int wrongIndex = 0;
 
             foreach (Ellipse el in layerEllipses)
             {
+                if (isInsert)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Gray);
+                    wrongElements.Add(el);
+                }
                 CanvasMain.Children.Add(el);
                 points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
 
                 if (position != 0)
                 {
+                    if (!isInsert)
+                    {
+                        LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(Canvas.GetLeft(layerEllipses[position - 1]), Canvas.GetTop(layerEllipses[position - 1])), new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
+
+                        foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                        {
+                            RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
+                            isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
+                            if (isInsert)
+                            {
+                                el.Fill = new SolidColorBrush(Colors.Gray);
+                                wrongIndex = layerEllipses.IndexOf(el);
+                                wrongElements.Add(el);
+                                break;
+                            }
+                        }
+                    }
+                    
                     Line lineAdd = new Line();
                     lineAdd.Fill = new SolidColorBrush(Colors.Red);
                     lineAdd.Visibility = System.Windows.Visibility.Visible;
                     lineAdd.StrokeThickness = 4;
-                    lineAdd.Stroke = System.Windows.Media.Brushes.Red;
                     lineAdd.X1 = Canvas.GetLeft(layerEllipses[position-1]);
                     lineAdd.Y1 = Canvas.GetTop(layerEllipses[position-1]);
                     lineAdd.X2 = Canvas.GetLeft(el);
                     lineAdd.Y2 = Canvas.GetTop(el);
+                    if (isInsert)
+                    {
+                        lineAdd.Stroke = System.Windows.Media.Brushes.Gray;
+                        wrongElements.Add(lineAdd);
+                    }
+                    else
+                    {
+                        lineAdd.Stroke = System.Windows.Media.Brushes.Red;
+                    }
                     CanvasMain.Children.Add(lineAdd);
                 }
 
                 position++;
             }
 
+            if (isInsert)
+            {
+                MessageBoxResult result = MessageBox.Show("При удалении точки, сопло проходит через иглу. Отмените удаление, чтобы вернуть траекторию в исходное состояние, " +
+                                                      "либо подтвердите удаление. При подтверждении удаления, путь, отмеченный серым цветом, будет удален.", "Конфликт при удалении", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
+                    points.RemoveRange(wrongIndex, points.Count - wrongIndex);
+                    foreach (UIElement el in wrongElements)
+                    {
+                        CanvasMain.Children.Remove(el);
+                    }
+                    MessageBox.Show(layerEllipses.Count.ToString());
+                    if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
+                    {
+                        drawingState = DrawingStates.DRAWING;
+                        currentDotX = (int)points[points.Count - 1].X;
+                        currentDotY = (int)points[points.Count - 1].Y;
+                    }
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    clearTable();
+                    loadActiveLayer(null);
+                }
+            }
+
+            if (drawingState == DrawingStates.SET_END_POINT && !((Canvas.GetTop(layerEllipses[0]) == Canvas.GetTop(layerEllipses[layerEllipses.Count - 1])) && (Canvas.GetLeft(layerEllipses[0]) == Canvas.GetLeft(layerEllipses[layerEllipses.Count - 1]))))
+            {
+                drawingState = DrawingStates.DRAWING;
+            }
+
+            if (drawingState == DrawingStates.DRAWING)
+            {
+                currentDotX = (int)points[points.Count - 1].X;
+                currentDotY = (int)points[points.Count - 1].Y;
+            }
+
             activeLayer.layerThread = points;
             storage.getLayerByName(activeLayer.name).layerThread = points;
-            MessageBox.Show(activeLayer.layerThread.Count.ToString());
         }
 
         private void clearTable() 
@@ -745,6 +817,10 @@ namespace GCodeConvertor
         private void Ellipse_MouseRightDown(object sender, MouseButtonEventArgs e)
         {
             Ellipse ellipse = (Ellipse)sender;
+            if (layerEllipses[0].Equals(ellipse))
+            {
+                return;
+            }
             if (selectedEllipses.Contains(ellipse))
             {
                 selectedEllipses.Remove(ellipse);
