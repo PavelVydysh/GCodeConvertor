@@ -684,7 +684,6 @@ namespace GCodeConvertor
             {
                 case Key.Delete:
                     {
-                        MessageBox.Show(selectedEllipses.Count() + " " + layerEllipses.Count());
                         foreach (Ellipse el in selectedEllipses)
                         {
                             layerEllipses.RemoveAll(item => item.Equals(el));
