@@ -18,6 +18,7 @@ using System.Security.Policy;
 using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
+using Point = System.Windows.Point;
 
 namespace GCodeConvertor
 {
@@ -33,6 +34,9 @@ namespace GCodeConvertor
             SET_END_POINT
         }
 
+        private double ELLIPSE_SIZE = 5;
+        private double LINE_SIZE = 2;
+
         private List<System.Windows.Shapes.Rectangle> rectangles = new List<System.Windows.Shapes.Rectangle>();
 
         private DrawingStates drawingState;
@@ -47,11 +51,16 @@ namespace GCodeConvertor
         Line line;
 
         List<System.Windows.Point> layerPoints;
+        List<Ellipse> layerEllipses;
+        List<Ellipse> selectedEllipses;
         Layer activeLayer;
 
         LayerStorage storage;
 
         ObservableCollection<CustomItem> ItemsList { get; set; }
+
+        Point startPointSelectionRect;
+        System.Windows.Shapes.Rectangle selectionRect;
         public ProjectWindow()
         {
             InitializeComponent();
@@ -60,11 +69,15 @@ namespace GCodeConvertor
             drawingState = DrawingStates.SET_START_POINT;
             layerPoints = new List<System.Windows.Point>();
             storage = new LayerStorage();
+            layerEllipses = new List<Ellipse>();
+            selectedEllipses = new List<Ellipse>();
+            PreviewKeyDown += Window_KeyDown;
 
             ItemsList = new ObservableCollection<CustomItem>();
             layerListBox.ItemsSource = ItemsList;
         }
 
+       
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -96,8 +109,10 @@ namespace GCodeConvertor
                     }
                     break;
                 case DrawingStates.SET_END_POINT:
-                    MessageBox.Show("Слой является законченным");
-                    break;
+                    {
+                        MessageBox.Show("Слой является законченным");
+                        break;
+                    }
 
             }
 
@@ -131,16 +146,18 @@ namespace GCodeConvertor
                 if (!isInsert)
                 {
                     Ellipse ellipse = new Ellipse();
-                    ellipse.Height = 5;
-                    ellipse.Width = 5;
+                    ellipse.Height = ELLIPSE_SIZE;
+                    ellipse.Width = ELLIPSE_SIZE;
                     ellipse.Fill = new SolidColorBrush(Colors.Red);
-                    Canvas.SetLeft(ellipse, endX);
-                    Canvas.SetTop(ellipse, endY);
+                    ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                    Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
+                    Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
+                    layerEllipses.Add(ellipse);
                     ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                     line.Fill = new SolidColorBrush(Colors.Red);
                     line.Visibility = System.Windows.Visibility.Visible;
-                    line.StrokeThickness = 4;
+                    line.StrokeThickness = LINE_SIZE;
                     line.Stroke = System.Windows.Media.Brushes.Red;
                     line.X1 = currentDotX;
                     line.Y1 = currentDotY;
@@ -155,7 +172,7 @@ namespace GCodeConvertor
                     layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                     (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                    activeLayer.layerThread.Add(new System.Windows.Point(e.GetPosition(CanvasMain).X, e.GetPosition(CanvasMain).Y));
+                    activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
                 }
             }
             else
@@ -166,23 +183,20 @@ namespace GCodeConvertor
                 currentDotY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
 
                 Ellipse ellipse = new Ellipse();
-                ellipse.Height = 5;
-                ellipse.Width = 5;
+                ellipse.Height = ELLIPSE_SIZE;
+                ellipse.Width = ELLIPSE_SIZE;
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
-                Canvas.SetLeft(ellipse, currentDotX);
-                Canvas.SetTop(ellipse, currentDotY);
+                ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                Canvas.SetLeft(ellipse, currentDotX - ELLIPSE_SIZE / 2);
+                Canvas.SetTop(ellipse, currentDotY - ELLIPSE_SIZE / 2);
+                layerEllipses.Add(ellipse);
                 ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                 layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                 (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                activeLayer.layerThread.Add(new System.Windows.Point(e.GetPosition(CanvasMain).X, e.GetPosition(CanvasMain).Y));
+                activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
             }
-        }
-
-        private void checkLineForDots()
-        {
-
         }
 
         private void openMenu(object sender, RoutedEventArgs e)
@@ -323,6 +337,9 @@ namespace GCodeConvertor
                 return;
             }
 
+            layerEllipses.Clear();
+            selectedEllipses.Clear();
+            drawArrow = false;
             Layer layer = new Layer();
             storage.addLayer(layer);
             //layerListBox.Items.Add(layer.name);
@@ -358,6 +375,7 @@ namespace GCodeConvertor
 
             CustomItem selectedItemListBox = (CustomItem)layerListBox.SelectedItem;
             activeLayer = storage.getLayerByName(selectedItemListBox.LabelContent);
+            selectedEllipses.Clear();
             loadActiveLayer(sender);
         }
 
@@ -375,22 +393,26 @@ namespace GCodeConvertor
 
         private void loadActiveLayer(object sender)
         {
+            layerEllipses.Clear();
             if (activeLayer.layerThread != null)
             {
+                int position = 0;
                 System.Windows.Point startPoint;
                 System.Windows.Point endPoint;
 
                 foreach (System.Windows.Point point in activeLayer.layerThread)
                 {
                     Ellipse ellipse = new Ellipse();
-                    ellipse.Height = 5;
-                    ellipse.Width = 5;
+                    ellipse.Height = ELLIPSE_SIZE;
+                    ellipse.Width = ELLIPSE_SIZE;
                     ellipse.Fill = new SolidColorBrush(Colors.Red);
+                    ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
                     Canvas.SetLeft(ellipse, point.X);
                     Canvas.SetTop(ellipse, point.Y);
+                    layerEllipses.Add(ellipse);
                     CanvasMain.Children.Add(ellipse);
 
-                    if (activeLayer.layerThread.IndexOf(point) == 0)
+                    if (position == 0)
                     {
                         startPoint = point;
                     }
@@ -401,6 +423,7 @@ namespace GCodeConvertor
                         CanvasMain.Children.Add(lineToAdd);
                         startPoint = endPoint;
                     }
+                    position++;
                 }
             }
         }
@@ -410,12 +433,12 @@ namespace GCodeConvertor
             Line lineAdd = new Line();
             lineAdd.Fill = new SolidColorBrush(Colors.Red);
             lineAdd.Visibility = System.Windows.Visibility.Visible;
-            lineAdd.StrokeThickness = 4;
+            lineAdd.StrokeThickness = LINE_SIZE;
             lineAdd.Stroke = System.Windows.Media.Brushes.Red;
-            lineAdd.X1 = startPoint.X;
-            lineAdd.Y1 = startPoint.Y;
-            lineAdd.X2 = endPoint.X;
-            lineAdd.Y2 = endPoint.Y;
+            lineAdd.X1 = startPoint.X + ELLIPSE_SIZE / 2;
+            lineAdd.Y1 = startPoint.Y + ELLIPSE_SIZE / 2;
+            lineAdd.X2 = endPoint.X + ELLIPSE_SIZE / 2;
+            lineAdd.Y2 = endPoint.Y + ELLIPSE_SIZE / 2;
             return lineAdd;
         }
 
@@ -642,5 +665,342 @@ namespace GCodeConvertor
             }
         }
 
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.A))
+            {
+                selectAllEllipses();
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Delete))
+            {
+                hardDelete();
+            }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.I))
+            {
+                selectInterval();
+            }
+
+            switch (e.Key)
+            {
+                case Key.Delete:
+                    {
+                        foreach (Ellipse el in selectedEllipses)
+                        {
+                            layerEllipses.RemoveAll(item => item.Equals(el));
+                        }
+                        clearTable();
+                        repaintTable();
+                        selectedEllipses.Clear();
+                        break;
+                    }
+                case Key.Q: 
+                    {
+                        string s1 = "";
+                        string s2 = "";
+
+                        List<UIElement> elementsToRemove = CanvasMain.Children
+                        .OfType<UIElement>()
+                        .Where(e => e is Ellipse)
+                        .ToList();
+
+                        foreach (UIElement el in elementsToRemove) 
+                        {
+                            s1 += Canvas.GetLeft(el) + "-" + Canvas.GetTop(el) + " ";
+                        }
+
+                        foreach (System.Windows.Point p in activeLayer.layerThread)
+                        {
+                            s2 += p.X + "-" + p.Y + " ";
+                        }
+                        MessageBox.Show(s1 + " \n asdasdasd " + s2);
+                        break;
+                    }
+            }
+        }
+
+        private void selectInterval()
+        {
+            if (selectedEllipses.Count >= 2)
+            {
+                List<int> positions = new List<int>();
+                foreach (Ellipse el in selectedEllipses)
+                {
+                    positions.Add(layerEllipses.IndexOf(el));
+                }
+
+                int minPosition = positions.Min();
+                int maxPosition = positions.Max();
+
+                for (int i = minPosition + 1; i < maxPosition; i++)
+                {
+                    Ellipse el = layerEllipses[i];
+                    if (!selectedEllipses.Contains(el))
+                    {
+                        selectedEllipses.Add(el);
+                        el.Fill = new SolidColorBrush(Colors.Blue);
+                    }
+                }
+            }
+        }
+
+        private void hardDelete()
+        {
+            if (selectedEllipses.Count != 0)
+            {
+                List<int> positions = new List<int>();
+                foreach (Ellipse el in selectedEllipses)
+                {
+                    positions.Add(layerEllipses.IndexOf(el));
+                }
+                int start = positions.Min();
+                layerEllipses.RemoveRange(start, layerEllipses.Count - start);
+                clearTable();
+                repaintTable();
+                selectedEllipses.Clear();
+            }
+        }
+
+        private void selectAllEllipses()
+        {
+            if (layerEllipses.Skip(1).Except(selectedEllipses).Count() == 0)
+            {
+                foreach (Ellipse el in layerEllipses)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
+                selectedEllipses.Clear();
+                return;
+            }
+
+            foreach (Ellipse el in layerEllipses) 
+            {
+                if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
+                {
+                    selectedEllipses.Add(el);
+                    el.Fill = new SolidColorBrush(Colors.Blue);
+                }
+            }
+        }
+
+        private void repaintTable() 
+        {
+            int position = 0;
+            List<System.Windows.Point> points = new List<System.Windows.Point>();
+            bool isInsert = false;
+            List<UIElement> wrongElements = new List<UIElement>();
+            int wrongIndex = 0;
+
+            foreach (Ellipse el in layerEllipses)
+            {
+                if (isInsert)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Gray);
+                    wrongElements.Add(el);
+                }
+                CanvasMain.Children.Add(el);
+                points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
+
+                if (position != 0)
+                {
+                    if (!isInsert)
+                    {
+                        LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(Canvas.GetLeft(layerEllipses[position - 1]), Canvas.GetTop(layerEllipses[position - 1])), new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
+
+                        foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                        {
+                            RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
+                            isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
+                            if (isInsert)
+                            {
+                                el.Fill = new SolidColorBrush(Colors.Gray);
+                                wrongIndex = layerEllipses.IndexOf(el);
+                                wrongElements.Add(el);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    Line lineAdd = new Line();
+                    lineAdd.Fill = new SolidColorBrush(Colors.Red);
+                    lineAdd.Visibility = System.Windows.Visibility.Visible;
+                    lineAdd.StrokeThickness = LINE_SIZE;
+                    lineAdd.X1 = Canvas.GetLeft(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
+                    lineAdd.Y1 = Canvas.GetTop(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
+                    lineAdd.X2 = Canvas.GetLeft(el) + ELLIPSE_SIZE / 2;
+                    lineAdd.Y2 = Canvas.GetTop(el) + ELLIPSE_SIZE / 2;
+                    if (isInsert)
+                    {
+                        lineAdd.Stroke = System.Windows.Media.Brushes.Gray;
+                        wrongElements.Add(lineAdd);
+                    }
+                    else
+                    {
+                        lineAdd.Stroke = System.Windows.Media.Brushes.Red;
+                    }
+                    CanvasMain.Children.Add(lineAdd);
+                }
+
+                position++;
+            }
+
+            List<System.Windows.Point> currentPoints = activeLayer.layerThread;
+            activeLayer.layerThread = points;
+            storage.getLayerByName(activeLayer.name).layerThread = points;
+
+            if (isInsert)
+            {
+                MessageBoxResult result = MessageBox.Show("При удалении точки, сопло проходит через иглу. Отмените удаление, чтобы вернуть траекторию в исходное состояние, " +
+                                                      "либо подтвердите удаление. При подтверждении удаления, путь, отмеченный серым цветом, будет удален.", "Конфликт при удалении", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.OK)
+                {
+                    layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
+                    points.RemoveRange(wrongIndex, points.Count - wrongIndex);
+                    foreach (UIElement el in wrongElements)
+                    {
+                        CanvasMain.Children.Remove(el);
+                    }
+                    MessageBox.Show(layerEllipses.Count.ToString());
+                    if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
+                    {
+                        drawingState = DrawingStates.DRAWING;
+                        currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+                        currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+                    }
+
+                    //activeLayer.layerThread = points;
+                    //storage.getLayerByName(activeLayer.name).layerThread = points;
+                }
+                else if (result == MessageBoxResult.Cancel)
+                {
+                    activeLayer.layerThread = currentPoints;
+                    storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
+                    clearTable();
+                    loadActiveLayer(null);
+                }
+            }
+
+            if (drawingState == DrawingStates.SET_END_POINT && !((Canvas.GetTop(layerEllipses[0]) == Canvas.GetTop(layerEllipses[layerEllipses.Count - 1])) && (Canvas.GetLeft(layerEllipses[0]) == Canvas.GetLeft(layerEllipses[layerEllipses.Count - 1]))) || layerEllipses.Count == 1)
+            {
+                drawingState = DrawingStates.DRAWING;
+            }
+
+            if (drawingState == DrawingStates.DRAWING)
+            {
+                currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+                currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+            }
+        }
+
+        private void clearTable() 
+        {
+            List<UIElement> elementsToRemove = CanvasMain.Children
+            .OfType<UIElement>()
+            .Where(e => e is Line || e is Ellipse)
+            .ToList();
+
+            foreach (UIElement el in elementsToRemove)
+            {
+                CanvasMain.Children.Remove(el);
+            }
+        }
+
+        private void Ellipse_MouseRightDown(object sender, MouseButtonEventArgs e)
+        {
+            Ellipse ellipse = (Ellipse)sender;
+            if (layerEllipses[0].Equals(ellipse))
+            {
+                return;
+            }
+            if (selectedEllipses.Contains(ellipse))
+            {
+                selectedEllipses.Remove(ellipse);
+                ellipse.Fill = new SolidColorBrush(Colors.Red);
+            }
+            else
+            {
+                selectedEllipses.Add(ellipse);
+                ellipse.Fill = new SolidColorBrush(Colors.Blue);
+            }
+        }
+
+        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Pressed)
+            {
+                foreach (Ellipse el in layerEllipses)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
+                selectedEllipses.Clear();
+
+                startPoint = e.GetPosition(CanvasMain);
+                selectionRect = new System.Windows.Shapes.Rectangle
+                {
+                    StrokeThickness = 2,
+                    Fill = new SolidColorBrush(Colors.Blue) { Opacity = 0.3 },
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(selectionRect, startPoint.X);
+                Canvas.SetTop(selectionRect, startPoint.Y);
+                CanvasMain.Children.Add(selectionRect);
+                CanvasMain.CaptureMouse();
+            }
+        }
+
+        private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Released)
+            {
+                CanvasMain.ReleaseMouseCapture();
+                CanvasMain.Children.Remove(selectionRect);
+            }
+        }
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
+            {
+                Point currentPoint = e.GetPosition(CanvasMain);
+
+                double left = Math.Min(startPoint.X, currentPoint.X);
+                double top = Math.Min(startPoint.Y, currentPoint.Y);
+
+                double width = Math.Abs(startPoint.X - currentPoint.X);
+                double height = Math.Abs(startPoint.Y - currentPoint.Y);
+
+                selectionRect.Width = width;
+                selectionRect.Height = height;
+
+                Canvas.SetLeft(selectionRect, left);
+                Canvas.SetTop(selectionRect, top);
+                selectEllipsesInsideSelectionRectangle(left, top, width, height);
+            }
+        }
+
+        private void selectEllipsesInsideSelectionRectangle(double left, double top, double width, double height) 
+        {
+            foreach (Ellipse el in layerEllipses)
+            {
+                double ellipseLeft = Canvas.GetLeft(el);
+                double ellipseTop = Canvas.GetTop(el);
+
+                if (ellipseLeft >= left && ellipseLeft <= left + width &&
+                        ellipseTop >= top && ellipseTop <= top + height)
+                {
+                    if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
+                    {
+                        selectedEllipses.Add(el);
+                        el.Fill = new SolidColorBrush(Colors.Blue);
+                    }
+                }
+                else
+                {
+                    selectedEllipses.Remove(el);
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
+            }
+        }
     }
 }
