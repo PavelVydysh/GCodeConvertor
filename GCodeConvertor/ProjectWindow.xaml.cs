@@ -18,6 +18,7 @@ using System.Security.Policy;
 using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
+using Point = System.Windows.Point;
 
 namespace GCodeConvertor
 {
@@ -57,6 +58,9 @@ namespace GCodeConvertor
         LayerStorage storage;
 
         ObservableCollection<CustomItem> ItemsList { get; set; }
+
+        Point startPointSelectionRect;
+        System.Windows.Shapes.Rectangle selectionRect;
         public ProjectWindow()
         {
             InitializeComponent();
@@ -680,6 +684,7 @@ namespace GCodeConvertor
             {
                 case Key.Delete:
                     {
+                        MessageBox.Show(selectedEllipses.Count() + " " + layerEllipses.Count());
                         foreach (Ellipse el in selectedEllipses)
                         {
                             layerEllipses.RemoveAll(item => item.Equals(el));
@@ -917,6 +922,85 @@ namespace GCodeConvertor
             {
                 selectedEllipses.Add(ellipse);
                 ellipse.Fill = new SolidColorBrush(Colors.Blue);
+            }
+        }
+
+        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Pressed)
+            {
+                foreach (Ellipse el in layerEllipses)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
+                selectedEllipses.Clear();
+
+                startPoint = e.GetPosition(CanvasMain);
+                selectionRect = new System.Windows.Shapes.Rectangle
+                {
+                    StrokeThickness = 2,
+                    Fill = new SolidColorBrush(Colors.Blue) { Opacity = 0.3 },
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(selectionRect, startPoint.X);
+                Canvas.SetTop(selectionRect, startPoint.Y);
+                CanvasMain.Children.Add(selectionRect);
+                CanvasMain.CaptureMouse();
+            }
+        }
+
+        private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Released)
+            {
+                CanvasMain.ReleaseMouseCapture();
+                CanvasMain.Children.Remove(selectionRect);
+            }
+        }
+
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
+            {
+                Point currentPoint = e.GetPosition(CanvasMain);
+
+                double left = Math.Min(startPoint.X, currentPoint.X);
+                double top = Math.Min(startPoint.Y, currentPoint.Y);
+
+                double width = Math.Abs(startPoint.X - currentPoint.X);
+                double height = Math.Abs(startPoint.Y - currentPoint.Y);
+
+                selectionRect.Width = width;
+                selectionRect.Height = height;
+
+                Canvas.SetLeft(selectionRect, left);
+                Canvas.SetTop(selectionRect, top);
+                selectEllipsesInsideSelectionRectangle(left, top, width, height);
+            }
+        }
+
+        private void selectEllipsesInsideSelectionRectangle(double left, double top, double width, double height) 
+        {
+            foreach (Ellipse el in layerEllipses)
+            {
+                double ellipseLeft = Canvas.GetLeft(el);
+                double ellipseTop = Canvas.GetTop(el);
+
+                if (ellipseLeft >= left && ellipseLeft <= left + width &&
+                        ellipseTop >= top && ellipseTop <= top + height)
+                {
+                    if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
+                    {
+                        selectedEllipses.Add(el);
+                        el.Fill = new SolidColorBrush(Colors.Blue);
+                    }
+                }
+                else
+                {
+                    selectedEllipses.Remove(el);
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
             }
         }
     }
