@@ -671,6 +671,10 @@ namespace GCodeConvertor
             {
                 hardDelete();
             }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.I))
+            {
+                selectInterval();
+            }
 
             switch (e.Key)
             {
@@ -710,11 +714,28 @@ namespace GCodeConvertor
             }
         }
 
-        private void fillInterval()
+        private void selectInterval()
         {
             if (selectedEllipses.Count >= 2)
             {
-                
+                List<int> positions = new List<int>();
+                foreach (Ellipse el in selectedEllipses)
+                {
+                    positions.Add(layerEllipses.IndexOf(el));
+                }
+
+                int minPosition = positions.Min();
+                int maxPosition = positions.Max();
+
+                for (int i = minPosition + 1; i < maxPosition; i++)
+                {
+                    Ellipse el = layerEllipses[i];
+                    if (!selectedEllipses.Contains(el))
+                    {
+                        selectedEllipses.Add(el);
+                        el.Fill = new SolidColorBrush(Colors.Blue);
+                    }
+                }
             }
         }
 
@@ -722,16 +743,31 @@ namespace GCodeConvertor
         {
             if (selectedEllipses.Count != 0)
             {
-                Ellipse startEllipse = selectedEllipses[0];
-                int start = layerEllipses.IndexOf(startEllipse);
+                List<int> positions = new List<int>();
+                foreach (Ellipse el in selectedEllipses)
+                {
+                    positions.Add(layerEllipses.IndexOf(el));
+                }
+                int start = positions.Min();
                 layerEllipses.RemoveRange(start, layerEllipses.Count - start);
                 clearTable();
                 repaintTable();
+                selectedEllipses.Clear();
             }
         }
 
         private void selectAllEllipses()
         {
+            if (layerEllipses.Skip(1).Except(selectedEllipses).Count() == 0)
+            {
+                foreach (Ellipse el in layerEllipses)
+                {
+                    el.Fill = new SolidColorBrush(Colors.Red);
+                }
+                selectedEllipses.Clear();
+                return;
+            }
+
             foreach (Ellipse el in layerEllipses) 
             {
                 if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
