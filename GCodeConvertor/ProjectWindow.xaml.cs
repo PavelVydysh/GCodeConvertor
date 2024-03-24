@@ -61,6 +61,13 @@ namespace GCodeConvertor
 
         Point startPointSelectionRect;
         System.Windows.Shapes.Rectangle selectionRect;
+
+        //Для редактирования точек
+        private bool isDraggingEllipse;
+        private Point offset;
+
+        CustomLineStorage lineStorage;
+
         public ProjectWindow()
         {
             InitializeComponent();
@@ -75,6 +82,8 @@ namespace GCodeConvertor
 
             ItemsList = new ObservableCollection<CustomItem>();
             layerListBox.ItemsSource = ItemsList;
+
+            lineStorage = new CustomLineStorage();
         }
 
        
@@ -150,6 +159,8 @@ namespace GCodeConvertor
                     ellipse.Width = ELLIPSE_SIZE;
                     ellipse.Fill = new SolidColorBrush(Colors.Red);
                     ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                    ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+                    ellipse.MouseMove += Ellipse_MouseMove;
                     Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
                     Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
                     layerEllipses.Add(ellipse);
@@ -164,15 +175,21 @@ namespace GCodeConvertor
                     line.X2 = endX;
                     line.Y2 = endY;
                     CanvasMain.Children.Add(line);
-                    line = new Line();
 
                     currentDotX = endX;
                     currentDotY = endY;
+
+                    CustomLine cuLine = new CustomLine(line, layerEllipses[layerEllipses.Count - 2], ellipse);
+                    lineStorage.addLine(cuLine);
+
+                    line = new Line();
 
                     layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                     (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
                     activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+
+
                 }
             }
             else
@@ -187,6 +204,8 @@ namespace GCodeConvertor
                 ellipse.Width = ELLIPSE_SIZE;
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
                 ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+                ellipse.MouseMove += Ellipse_MouseMove;
                 Canvas.SetLeft(ellipse, currentDotX - ELLIPSE_SIZE / 2);
                 Canvas.SetTop(ellipse, currentDotY - ELLIPSE_SIZE / 2);
                 layerEllipses.Add(ellipse);
@@ -394,6 +413,7 @@ namespace GCodeConvertor
         private void loadActiveLayer(object sender)
         {
             layerEllipses.Clear();
+            lineStorage.clear();
             if (activeLayer.layerThread != null)
             {
                 int position = 0;
@@ -407,6 +427,8 @@ namespace GCodeConvertor
                     ellipse.Width = ELLIPSE_SIZE;
                     ellipse.Fill = new SolidColorBrush(Colors.Red);
                     ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                    ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+                    ellipse.MouseMove += Ellipse_MouseMove;
                     Canvas.SetLeft(ellipse, point.X);
                     Canvas.SetTop(ellipse, point.Y);
                     layerEllipses.Add(ellipse);
@@ -422,6 +444,8 @@ namespace GCodeConvertor
                         Line lineToAdd = buildLine(startPoint, endPoint);
                         CanvasMain.Children.Add(lineToAdd);
                         startPoint = endPoint;
+                        CustomLine cuLine = new CustomLine(lineToAdd, layerEllipses[layerEllipses.IndexOf(ellipse) - 1], ellipse);
+                        lineStorage.addLine(cuLine);
                     }
                     position++;
                 }
@@ -789,6 +813,7 @@ namespace GCodeConvertor
             bool isInsert = false;
             List<UIElement> wrongElements = new List<UIElement>();
             int wrongIndex = 0;
+            lineStorage.clear();
 
             foreach (Ellipse el in layerEllipses)
             {
@@ -838,6 +863,8 @@ namespace GCodeConvertor
                         lineAdd.Stroke = System.Windows.Media.Brushes.Red;
                     }
                     CanvasMain.Children.Add(lineAdd);
+                    CustomLine cuLine = new CustomLine(lineAdd, layerEllipses[position - 1], el);
+                    lineStorage.addLine(cuLine);
                 }
 
                 position++;
@@ -1001,6 +1028,87 @@ namespace GCodeConvertor
                     el.Fill = new SolidColorBrush(Colors.Red);
                 }
             }
+        }
+
+        Line fLine;
+        Line sLine;
+
+        private void Ellipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (isDraggingEllipse)
+            {
+                var nellipse = sender as Ellipse;
+                isDraggingEllipse = false;
+                nellipse.ReleaseMouseCapture();
+                clearTable();
+                repaintTable();
+                return;
+            }
+
+            var ellipse = sender as Ellipse;
+
+            if (ellipse.Equals(layerEllipses[0]))
+            {
+                return;
+            }
+
+            CustomLine[] cuLines = lineStorage.getLinesByEllipse(ellipse);
+            if (cuLines != null)
+            {
+                if (cuLines[0] != null)
+                {
+                    fLine = cuLines[0].line;
+                }
+
+                if (cuLines[1] != null)
+                {
+                    sLine = cuLines[1].line;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Внутренняя ошибка");
+            }
+
+            isDraggingEllipse = true;
+            offset = e.GetPosition(ellipse);
+            ellipse.CaptureMouse();
+        }
+
+        private void Ellipse_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDraggingEllipse)
+            {
+                var ellipse = sender as Ellipse;
+                var position = e.GetPosition(CanvasMain);
+                Canvas.SetLeft(ellipse, position.X - offset.X);
+                Canvas.SetTop(ellipse, position.Y - offset.Y);
+
+                if (fLine != null)
+                {
+                    UpdateLinePosition(fLine, ellipse, false);
+                }
+
+                if (sLine != null)
+                {
+                    UpdateLinePosition(sLine, ellipse, true);
+                }
+            }
+        }
+
+        private void UpdateLinePosition(Line lineL, Ellipse el, bool isSec)
+        {
+            var ellipseCenterX = Canvas.GetLeft(el) + el.Width / 2;
+            var ellipseCenterY = Canvas.GetTop(el) + el.Height / 2;
+
+            if (isSec)
+            {
+                lineL.X2 = ellipseCenterX;
+                lineL.Y2 = ellipseCenterY;
+                return;
+            }
+            lineL.X1 = ellipseCenterX;
+            lineL.Y1 = ellipseCenterY;
         }
     }
 }
