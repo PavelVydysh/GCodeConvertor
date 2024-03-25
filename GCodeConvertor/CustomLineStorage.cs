@@ -31,6 +31,24 @@ namespace GCodeConvertor
             return remLines;
         }
 
+        public CustomLine getLineByInnerLine(Line line) 
+        {
+            foreach (CustomLine customLine in lines)
+            {
+                if (customLine.line.Equals(line))
+                {
+                    return customLine;
+                }
+            }
+
+            return null;
+        }
+
+        public int indexOf(CustomLine line) 
+        {
+            return lines.IndexOf(line);
+        }
+
         public void clear() 
         {
             lines.Clear();
@@ -44,6 +62,21 @@ namespace GCodeConvertor
         public void addLine(CustomLine line) 
         {
             lines.Add(line);
+        }
+
+        public void addLine(CustomLine line, int index) 
+        {
+            lines.Insert(index, line);
+        }
+
+        public CustomLine getByIndex(int index) 
+        {
+            return lines[index];
+        }
+
+        public int size() 
+        {
+            return lines.Count;
         }
     }
 }

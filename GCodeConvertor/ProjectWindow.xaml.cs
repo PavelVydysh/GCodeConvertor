@@ -68,6 +68,9 @@ namespace GCodeConvertor
 
         CustomLineStorage lineStorage;
 
+        Line fLine;
+        Line sLine;
+
         public ProjectWindow()
         {
             InitializeComponent();
@@ -164,7 +167,6 @@ namespace GCodeConvertor
                     Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
                     Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
                     layerEllipses.Add(ellipse);
-                    ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                     line.Fill = new SolidColorBrush(Colors.Red);
                     line.Visibility = System.Windows.Visibility.Visible;
@@ -174,7 +176,9 @@ namespace GCodeConvertor
                     line.Y1 = currentDotY;
                     line.X2 = endX;
                     line.Y2 = endY;
+                    line.MouseRightButtonDown += Line_MouseRightButtonDown;
                     CanvasMain.Children.Add(line);
+                    ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                     currentDotX = endX;
                     currentDotY = endY;
@@ -432,7 +436,6 @@ namespace GCodeConvertor
                     Canvas.SetLeft(ellipse, point.X);
                     Canvas.SetTop(ellipse, point.Y);
                     layerEllipses.Add(ellipse);
-                    CanvasMain.Children.Add(ellipse);
 
                     if (position == 0)
                     {
@@ -447,6 +450,7 @@ namespace GCodeConvertor
                         CustomLine cuLine = new CustomLine(lineToAdd, layerEllipses[layerEllipses.IndexOf(ellipse) - 1], ellipse);
                         lineStorage.addLine(cuLine);
                     }
+                    CanvasMain.Children.Add(ellipse);
                     position++;
                 }
             }
@@ -463,6 +467,7 @@ namespace GCodeConvertor
             lineAdd.Y1 = startPoint.Y + ELLIPSE_SIZE / 2;
             lineAdd.X2 = endPoint.X + ELLIPSE_SIZE / 2;
             lineAdd.Y2 = endPoint.Y + ELLIPSE_SIZE / 2;
+            lineAdd.MouseRightButtonDown += Line_MouseRightButtonDown;
             return lineAdd;
         }
 
@@ -822,7 +827,6 @@ namespace GCodeConvertor
                     el.Fill = new SolidColorBrush(Colors.Gray);
                     wrongElements.Add(el);
                 }
-                CanvasMain.Children.Add(el);
                 points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
 
                 if (position != 0)
@@ -853,6 +857,7 @@ namespace GCodeConvertor
                     lineAdd.Y1 = Canvas.GetTop(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
                     lineAdd.X2 = Canvas.GetLeft(el) + ELLIPSE_SIZE / 2;
                     lineAdd.Y2 = Canvas.GetTop(el) + ELLIPSE_SIZE / 2;
+                    lineAdd.MouseRightButtonDown += Line_MouseRightButtonDown;
                     if (isInsert)
                     {
                         lineAdd.Stroke = System.Windows.Media.Brushes.Gray;
@@ -866,6 +871,7 @@ namespace GCodeConvertor
                     CustomLine cuLine = new CustomLine(lineAdd, layerEllipses[position - 1], el);
                     lineStorage.addLine(cuLine);
                 }
+                CanvasMain.Children.Add(el);
 
                 position++;
             }
@@ -1030,9 +1036,6 @@ namespace GCodeConvertor
             }
         }
 
-        Line fLine;
-        Line sLine;
-
         private void Ellipse_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (isDraggingEllipse)
@@ -1110,5 +1113,94 @@ namespace GCodeConvertor
             lineL.X1 = ellipseCenterX;
             lineL.Y1 = ellipseCenterY;
         }
+
+        private void Line_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!Keyboard.IsKeyDown(Key.LeftAlt))
+            {
+                return;
+            }
+
+            Line pressedLine = (Line)sender;
+            CustomLine customLine = lineStorage.getLineByInnerLine(pressedLine);
+
+            int position;
+            int canv_position;
+            int a;
+            //
+            Ellipse startEllipse;
+            Ellipse secondEllipse;
+            //
+            position = lineStorage.indexOf(customLine);
+            //
+            if (lineStorage.indexOf(customLine) == 0)
+            {
+                startEllipse = layerEllipses[0];
+            }
+            else 
+            {
+                startEllipse = lineStorage.getByIndex(position - 1).secondEllipse;
+            }
+
+            if (lineStorage.indexOf(customLine) == lineStorage.size() - 1)
+            {
+                secondEllipse = layerEllipses[layerEllipses.Count - 1];
+                a = layerEllipses.Count - 1;
+            }
+            else 
+            {
+                secondEllipse = lineStorage.getByIndex(position + 1).firstEllipse;
+                a = layerEllipses.IndexOf(secondEllipse);
+            }
+            //
+
+            canv_position = CanvasMain.Children.IndexOf(pressedLine);
+            lineStorage.remove(customLine);
+            CanvasMain.Children.Remove(pressedLine);
+
+            Ellipse ellipse = new Ellipse();
+            ellipse.Height = ELLIPSE_SIZE;
+            ellipse.Width = ELLIPSE_SIZE;
+            ellipse.Fill = new SolidColorBrush(Colors.Red);
+            ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+            ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+            ellipse.MouseMove += Ellipse_MouseMove;
+            Canvas.SetLeft(ellipse, e.GetPosition(CanvasMain).X - ELLIPSE_SIZE / 2);
+            Canvas.SetTop(ellipse, e.GetPosition(CanvasMain).Y - ELLIPSE_SIZE / 2);
+
+            layerEllipses.Insert(a, ellipse);
+            CanvasMain.Children.Add(ellipse);
+
+            Line lineAddF = new Line();
+            lineAddF.Fill = new SolidColorBrush(Colors.Red);
+            lineAddF.Visibility = System.Windows.Visibility.Visible;
+            lineAddF.StrokeThickness = LINE_SIZE;
+            lineAddF.X1 = Canvas.GetLeft(startEllipse) + ELLIPSE_SIZE / 2;
+            lineAddF.Y1 = Canvas.GetTop(startEllipse) + ELLIPSE_SIZE / 2;
+            lineAddF.X2 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
+            lineAddF.Y2 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
+            lineAddF.MouseRightButtonDown += Line_MouseRightButtonDown;
+
+            Line lineAddS = new Line();
+            lineAddS.Fill = new SolidColorBrush(Colors.Red);
+            lineAddS.Visibility = System.Windows.Visibility.Visible;
+            lineAddS.StrokeThickness = LINE_SIZE;
+            lineAddS.X1 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
+            lineAddS.Y1 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
+            lineAddS.X2 = Canvas.GetLeft(secondEllipse) + ELLIPSE_SIZE / 2;
+            lineAddS.Y2 = Canvas.GetTop(secondEllipse) + ELLIPSE_SIZE / 2;
+            lineAddS.MouseRightButtonDown += Line_MouseRightButtonDown;
+
+            CustomLine newFLine = new CustomLine(lineAddF, startEllipse, ellipse);
+            CustomLine newSLine = new CustomLine(lineAddS, ellipse, secondEllipse);
+
+            lineStorage.addLine(newSLine, position);
+            lineStorage.addLine(newFLine, position);
+
+            clearTable();
+            repaintTable();
+        }
+
+        
     }
 }
