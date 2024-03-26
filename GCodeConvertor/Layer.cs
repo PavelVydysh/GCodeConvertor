@@ -16,6 +16,7 @@ namespace GCodeConvertor
         public float heightLayer { get; set; }
 
         public List<System.Windows.Point> layerThread { get; set; }
+        public List<System.Windows.Point> layerPredictThread { get; set; }
 
         public bool enable { get; set; }
 
@@ -23,6 +24,7 @@ namespace GCodeConvertor
         {
             name = "Слой " + countOfLayers++;
             layerThread = new List<System.Windows.Point>();
+            layerPredictThread = new List<System.Windows.Point>();
             heightLayer = 12;
             enable = true;
         }

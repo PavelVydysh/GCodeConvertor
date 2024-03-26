@@ -18,6 +18,8 @@ using System.Security.Policy;
 using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
+using static System.Windows.Forms.AxHost;
+using Point = System.Windows.Point;
 
 namespace GCodeConvertor
 {
@@ -32,8 +34,10 @@ namespace GCodeConvertor
             DRAWING,
             SET_END_POINT
         }
+        private double ELLIPSE_SIZE = 5;
 
-        private List<System.Windows.Shapes.Rectangle> rectangles = new List<System.Windows.Shapes.Rectangle>();
+
+        private HashSet<System.Windows.Shapes.Rectangle> rectangles = new HashSet<System.Windows.Shapes.Rectangle>();
 
         private DrawingStates drawingState;
 
@@ -47,6 +51,7 @@ namespace GCodeConvertor
         Line line;
 
         List<System.Windows.Point> layerPoints;
+        List<Line> layerPredictedLines;
         Layer activeLayer;
 
         LayerStorage storage;
@@ -59,6 +64,7 @@ namespace GCodeConvertor
             line = new Line();
             drawingState = DrawingStates.SET_START_POINT;
             layerPoints = new List<System.Windows.Point>();
+            layerPredictedLines = new List<Line>();
             storage = new LayerStorage();
 
             ItemsList = new ObservableCollection<CustomItem>();
@@ -116,7 +122,7 @@ namespace GCodeConvertor
 
                 bool isInsert = false; 
 
-                LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(startX, startY), new System.Windows.Point(endX, endY));
+                LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(startX, startY), new System.Windows.Point(endX , endY));
 
                 foreach(System.Windows.Shapes.Rectangle rectangle in rectangles)
                 {
@@ -131,16 +137,16 @@ namespace GCodeConvertor
                 if (!isInsert)
                 {
                     Ellipse ellipse = new Ellipse();
-                    ellipse.Height = 5;
-                    ellipse.Width = 5;
+                    ellipse.Height = ELLIPSE_SIZE;
+                    ellipse.Width = ELLIPSE_SIZE;
                     ellipse.Fill = new SolidColorBrush(Colors.Red);
-                    Canvas.SetLeft(ellipse, endX);
-                    Canvas.SetTop(ellipse, endY);
+                    Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
+                    Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
                     ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                     line.Fill = new SolidColorBrush(Colors.Red);
                     line.Visibility = System.Windows.Visibility.Visible;
-                    line.StrokeThickness = 4;
+                    line.StrokeThickness = 2;
                     line.Stroke = System.Windows.Media.Brushes.Red;
                     line.X1 = currentDotX;
                     line.Y1 = currentDotY;
@@ -155,36 +161,188 @@ namespace GCodeConvertor
                     layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                     (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                    activeLayer.layerThread.Add(new System.Windows.Point(e.GetPosition(CanvasMain).X, e.GetPosition(CanvasMain).Y));
+                    activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+
                 }
             }
             else
             {
                 drawArrow = true;
 
-                currentDotX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
+                currentDotX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2 ;
                 currentDotY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
 
                 Ellipse ellipse = new Ellipse();
                 ellipse.Height = 5;
                 ellipse.Width = 5;
                 ellipse.Fill = new SolidColorBrush(Colors.Red);
-                Canvas.SetLeft(ellipse, currentDotX);
-                Canvas.SetTop(ellipse, currentDotY);
+                Canvas.SetLeft(ellipse, currentDotX - ELLIPSE_SIZE / 2);
+                Canvas.SetTop(ellipse, currentDotY - ELLIPSE_SIZE / 2);
                 ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
                 layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                 (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                activeLayer.layerThread.Add(new System.Windows.Point(e.GetPosition(CanvasMain).X, e.GetPosition(CanvasMain).Y));
+                activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+            }
+            foreach (var line in layerPredictedLines)
+            {
+                CanvasMain.Children.Remove(line);
+            }
+            activeLayer.layerPredictThread = getRubberBandPath(activeLayer.layerThread.ToArray());
+            System.Windows.Point startPoint;
+            System.Windows.Point endPoint;
+            for (int i = 0; i < activeLayer.layerPredictThread.Count; i++)
+            {
+                System.Windows.Point point = activeLayer.layerPredictThread[i];
+                Ellipse ellipse = new Ellipse();
+                ellipse.Height = ELLIPSE_SIZE;
+                ellipse.Width = ELLIPSE_SIZE;
+                ellipse.Fill = new SolidColorBrush(Colors.Blue);
+                Canvas.SetLeft(ellipse, point.X);
+                Canvas.SetTop(ellipse, point.Y);
+                CanvasMain.Children.Add(ellipse);
+
+                if (i == 0)
+                {
+                    startPoint = point;
+                }
+                else
+                {
+                    endPoint = point;
+                    Line lineToAdd = new Line();
+                    lineToAdd.Fill = new SolidColorBrush(Colors.Red);
+                    lineToAdd.Visibility = System.Windows.Visibility.Visible;
+                    lineToAdd.StrokeThickness = 2;
+                    lineToAdd.Stroke = System.Windows.Media.Brushes.Blue;
+                    lineToAdd.X1 = startPoint.X + ELLIPSE_SIZE / 2;
+                    lineToAdd.Y1 = startPoint.Y + ELLIPSE_SIZE / 2;
+                    lineToAdd.X2 = endPoint.X + ELLIPSE_SIZE / 2;
+                    lineToAdd.Y2 = endPoint.Y + ELLIPSE_SIZE / 2;
+                    CanvasMain.Children.Add(lineToAdd);
+                    layerPredictedLines.Add(lineToAdd);
+                    startPoint = endPoint;
+                }
             }
         }
 
-        private void checkLineForDots()
+        private List<Point> getRubberBandPath(Point[] route)
         {
+            var result = new List<Point>();
+            var sigmentStart = 0;
+            result.Add(route[0]);
+            Point point;
+            System.Windows.Shapes.Rectangle block = null;
+            bool isInsert;
+            for (int i = 1; i < route.GetLength(0); i++)
+            {
+                point = route[i];
+                
+                isInsert = false;
+                for( int j = sigmentStart; j<i; j++)
+                {
+                    LineGeometry lineGeometry = new LineGeometry(route[j], point);
 
+                    foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                    {
+                        //RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
+                        //var isBlock = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
+                        Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width/2, Canvas.GetTop(rectangle) + rectangle.Height/2);
+                        double distance = FindDistanceToSegment(rectangleCenter, route[j], point);
+
+                        Boolean isBlock = false;
+                        if (distance < rectangle.Width / 2) isBlock = true;
+                        if (isBlock)
+                        {
+                            isInsert = true;
+                            block = rectangle;
+                            sigmentStart =j;
+                            break;
+                          
+                        }
+                    }
+                }
+
+                if (isInsert)
+                {
+                    double minDistance = double.MaxValue; // должна быть дистанция между точкой и линией от route[sigmentStart] до route[i-1]
+                    //мб есть смысл построить вектор от центра иглы к route[sigmentStart] до route[i] и смотреть, какой угол ближе или смотреть по четвертям 
+                    double angle =- Math.Atan2(route[i].Y - route[sigmentStart].Y, route[i].X - route[sigmentStart].X);
+                    Point nearestPoint;
+                    if ((-Math.PI<angle&& angle<= -Math.PI/2 || 0 <= angle && angle < Math.PI / 2) &&FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) - size / 2), route[i], route[i-1]) < minDistance)
+                    {
+                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) - size / 2), route[i], route[i - 1]);
+                        nearestPoint = new Point(Canvas.GetLeft(block)-size/2 , Canvas.GetTop(block) - size / 2);
+                    }
+                    if ((-Math.PI/2 <= angle && angle < 0 || Math.PI/2 < angle && angle <= Math.PI) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2), route[i], route[i - 1]) < minDistance)
+                    {
+                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2), route[i], route[i - 1]);
+                        nearestPoint = new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2);
+                    }
+                    if ((0 < angle && angle <= Math.PI/2 || -Math.PI <= angle && angle < - Math.PI/2) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width  , Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]) < minDistance)
+                    {
+                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width  , Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]);
+                        nearestPoint = new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) + block.Height );
+                    }
+                    if ((Math.PI / 2 <= angle && angle < Math.PI || -Math.PI / 2 < angle && angle <= 0) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height), route[i], route[i - 1]) < minDistance)
+                    {
+                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]);
+                        nearestPoint = new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height );
+                    }
+                    result.Add(nearestPoint);
+                    sigmentStart = i - 1;
+                    route[sigmentStart] = nearestPoint;
+                }
+            }
+            if(result.Count>1) result.Add(route.Last());
+            return result;
         }
+        public static double DistanceFromPointToLine(Point point, Point l1, Point l2)
+        {
+            return Math.Abs((l2.X - l1.X) * (l1.Y - point.Y) - (l1.X - point.X) * (l2.Y - l1.Y)) /
+                    Math.Sqrt(Math.Pow(l2.X - l1.X, 2) + Math.Pow(l2.Y - l1.Y, 2));
+        }
+        private double FindDistanceToSegment(Point pt, Point p1, Point p2 )
+        {
+            Point closest;
+            double dx = p2.X - p1.X;
+            double dy = p2.Y - p1.Y;
+            if ((dx == 0) && (dy == 0))
+            {
+                // Это точка не отрезка.
+                closest = p1;
+                dx = pt.X - p1.X;
+                dy = pt.Y - p1.Y;
+                return Math.Sqrt(dx * dx + dy * dy);
+            }
 
+            // Вычислим t, который минимизирует расстояние.
+            double t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) /
+                (dx * dx + dy * dy);
+
+            // Посмотрим, представляет ли это один из сегментов
+            // конечные точки или точка в середине.
+            if (t < 0)
+            {
+                closest = new Point(p1.X, p1.Y);
+                dx = pt.X - p1.X;
+                dy = pt.Y - p1.Y;
+            }
+            else if (t > 1)
+            {
+                closest = new Point(p2.X, p2.Y);
+                dx = pt.X - p2.X;
+                dy = pt.Y - p2.Y;
+            }
+            else
+            {
+                closest = new Point(p1.X + t * dx, p1.Y + t * dy);
+                dx = pt.X - closest.X;
+                dy = pt.Y - closest.Y;
+            }
+
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
         private void openMenu(object sender, RoutedEventArgs e)
         {
 
@@ -280,13 +438,13 @@ namespace GCodeConvertor
                     System.Windows.Shapes.Rectangle rectangle = new System.Windows.Shapes.Rectangle();
                     if (ProjectSettings.preset.topology.map[j, i] == 1)
                     {
-                        rectangle.Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFBE98")) ;
+                        rectangle.Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFBE98"));
                     }
                     else if (ProjectSettings.preset.topology.map[j, i] == 2)
                     {
                         rectangle.Fill = new SolidColorBrush(Colors.Green);
                     }
-                    else if (ProjectSettings.preset.topology.map[j, i] == 3)
+                    else if (ProjectSettings.preset.topology.map[j, i] == 3 || ProjectSettings.preset.topology.map[j, i] == 4)
                     {
                         rectangle.Fill = new SolidColorBrush(Colors.Black);
                     }
@@ -301,7 +459,29 @@ namespace GCodeConvertor
 
                     if(ProjectSettings.preset.topology.map[j, i] == 3)
                     {
-                        rectangles.Add(rectangle);
+                        //int upHeight = 0;
+                        int downHeight = 0;
+                        //int leftWidth = 0;
+                        int rightWidth = 0;
+                        while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
+                        {
+                            ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
+                            rightWidth = 0;
+                            while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth+1] == 3)
+                            {
+                                ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth+1] = 4;
+                                rightWidth++;
+                            }
+                            downHeight++;
+                        }
+                        System.Windows.Shapes.Rectangle rectangleToAdd = new System.Windows.Shapes.Rectangle();
+                        rectangleToAdd.MouseLeftButtonDown += Rectangle_MouseLeftButtonDown;
+                        rectangleToAdd.Height = (downHeight) * size;
+                        rectangleToAdd.Width = (rightWidth +1) * size;
+                        rectangleToAdd.StrokeThickness = 1;
+                        Canvas.SetTop(rectangleToAdd, size * j);
+                        Canvas.SetLeft(rectangleToAdd, size * i);
+                        rectangles.Add(rectangleToAdd);
                     }
 
                     Canvas.SetTop(rectangle, size * j);
@@ -309,7 +489,14 @@ namespace GCodeConvertor
                     CanvasMain.Children.Add(rectangle);
                 }
             }
-            activeLayer = new Layer();
+            for (int i = 0; i < ProjectSettings.preset.topology.map.GetUpperBound(1) + 1; i++)
+            {
+                for (int j = 0; j < ProjectSettings.preset.topology.map.GetUpperBound(0) + 1; j++)
+                {
+                    if (ProjectSettings.preset.topology.map[j, i] == 4) ProjectSettings.preset.topology.map[j, i] = 3;
+                }
+            }
+                    activeLayer = new Layer();
             storage.addLayer(activeLayer);
             ItemsList.Add(new CustomItem(activeLayer.name, "12"));
             layerListBox.SelectedIndex = 0;
@@ -379,9 +566,9 @@ namespace GCodeConvertor
             {
                 System.Windows.Point startPoint;
                 System.Windows.Point endPoint;
-
-                foreach (System.Windows.Point point in activeLayer.layerThread)
+                for (int i = 0; i < activeLayer.layerThread.Count; i++)
                 {
+                    System.Windows.Point point = activeLayer.layerThread[i];
                     Ellipse ellipse = new Ellipse();
                     ellipse.Height = 5;
                     ellipse.Width = 5;
@@ -390,7 +577,7 @@ namespace GCodeConvertor
                     Canvas.SetTop(ellipse, point.Y);
                     CanvasMain.Children.Add(ellipse);
 
-                    if (activeLayer.layerThread.IndexOf(point) == 0)
+                    if (i == 0)
                     {
                         startPoint = point;
                     }
@@ -410,12 +597,12 @@ namespace GCodeConvertor
             Line lineAdd = new Line();
             lineAdd.Fill = new SolidColorBrush(Colors.Red);
             lineAdd.Visibility = System.Windows.Visibility.Visible;
-            lineAdd.StrokeThickness = 4;
+            lineAdd.StrokeThickness = 2;
             lineAdd.Stroke = System.Windows.Media.Brushes.Red;
-            lineAdd.X1 = startPoint.X;
-            lineAdd.Y1 = startPoint.Y;
-            lineAdd.X2 = endPoint.X;
-            lineAdd.Y2 = endPoint.Y;
+            lineAdd.X1 = startPoint.X + ELLIPSE_SIZE / 2;
+            lineAdd.Y1 = startPoint.Y + ELLIPSE_SIZE / 2;
+            lineAdd.X2 = endPoint.X + ELLIPSE_SIZE / 2;
+            lineAdd.Y2 = endPoint.Y + ELLIPSE_SIZE / 2;
             return lineAdd;
         }
 
