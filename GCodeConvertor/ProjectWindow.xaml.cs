@@ -28,7 +28,7 @@ namespace GCodeConvertor
 
     public partial class ProjectWindow : Window
     {
-        private enum DrawingStates{
+        public enum DrawingStates{
             SET_START_POINT,
             DRAWING,
             SET_END_POINT
@@ -70,6 +70,10 @@ namespace GCodeConvertor
 
         Line fLine;
         Line sLine;
+
+        //Для ctrl + z
+
+        Stack<Screen> screens = new Stack<Screen>();
 
         public ProjectWindow()
         {
@@ -191,15 +195,16 @@ namespace GCodeConvertor
                     layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                     (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                    activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+                    List<Point> currentPointsLayer = new List<Point>(activeLayer.layerThread);
+                    Screen screen = new Screen(drawingState, drawArrow, currentPointsLayer);
+                    screens.Push(screen);
 
+                    activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
 
                 }
             }
             else
             {
-                drawArrow = true;
-
                 currentDotX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
                 currentDotY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
 
@@ -217,6 +222,12 @@ namespace GCodeConvertor
 
                 layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                 (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
+
+                List<Point> currentPointsLayer = new List<Point>(activeLayer.layerThread);
+                Screen screen = new Screen(drawingState, drawArrow, currentPointsLayer);
+                screens.Push(screen);
+
+                drawArrow = true;
 
                 activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
             }
@@ -396,6 +407,7 @@ namespace GCodeConvertor
                 CanvasMain.Children.Remove(o as UIElement);
             }
 
+            screens.Clear();
             CustomItem selectedItemListBox = (CustomItem)layerListBox.SelectedItem;
             activeLayer = storage.getLayerByName(selectedItemListBox.LabelContent);
             selectedEllipses.Clear();
@@ -708,6 +720,26 @@ namespace GCodeConvertor
             {
                 selectInterval();
             }
+            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Z))
+            {
+                if (screens.Count == 0)
+                {
+                    return;
+                }
+
+                Screen screen = screens.Pop();
+                activeLayer.layerThread = screen.layerThread;
+                clearTable();
+                loadActiveLayer(null);
+                drawingState = screen.drawingState;
+                drawArrow = screen.drawArrow;
+
+                if (drawArrow)
+                {
+                    currentDotX = activeLayer.layerThread[activeLayer.layerThread.Count - 1].X + ELLIPSE_SIZE / 2;
+                    currentDotY = activeLayer.layerThread[activeLayer.layerThread.Count - 1].Y + ELLIPSE_SIZE / 2;
+                }
+            }
 
             switch (e.Key)
             {
@@ -813,6 +845,10 @@ namespace GCodeConvertor
 
         private void repaintTable() 
         {
+            List<Point> currentPointsLayer = new List<Point>(activeLayer.layerThread);
+            Screen screen = new Screen(drawingState, drawArrow, currentPointsLayer);
+            screens.Push(screen);
+
             int position = 0;
             List<System.Windows.Point> points = new List<System.Windows.Point>();
             bool isInsert = false;
@@ -906,6 +942,7 @@ namespace GCodeConvertor
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
+                    screens.Pop();
                     activeLayer.layerThread = currentPoints;
                     storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
                     clearTable();
@@ -984,7 +1021,7 @@ namespace GCodeConvertor
 
         private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Released)
+            if (e.ButtonState == MouseButtonState.Released)
             {
                 CanvasMain.ReleaseMouseCapture();
                 CanvasMain.Children.Remove(selectionRect);
@@ -1116,6 +1153,7 @@ namespace GCodeConvertor
 
         private void Line_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
+
             if (!Keyboard.IsKeyDown(Key.LeftAlt))
             {
                 return;
