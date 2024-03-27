@@ -31,9 +31,34 @@ namespace GCodeConvertor
 
         public GlobalPreset(List<Layer> layers, Topology topology) 
         {
-            this.layers = layers;
             this.topology = topology;
+            this.layers = layers;
         }
+
+        public void addLayer(Layer layer)
+        {
+            layers.Add(layer);
+        }
+
+        public Layer getLayerByName(string name)
+        {
+            foreach (Layer layer in layers)
+            {
+                if (layer.name == name)
+                {
+                    return layer;
+                }
+            }
+
+            return null;
+        }
+
+        public void removeLayerByName(string name)
+        {
+            Layer layerToRemove = getLayerByName(name);
+            layers.Remove(layerToRemove);
+        }
+
         public void savePreset() 
         {
             try

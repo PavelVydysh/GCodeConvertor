@@ -19,13 +19,14 @@ using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using Point = System.Windows.Point;
+using GCodeConvertor.WorkspaceInstruments;
 
 namespace GCodeConvertor
 {
     /// <summary>
     /// Логика взаимодействия для ProjectWindow.xaml
     /// </summary>
-
+    
     public partial class ProjectWindow : Window
     {
         private enum DrawingStates{
@@ -57,13 +58,20 @@ namespace GCodeConvertor
 
         LayerStorage storage;
 
+        ObservableCollection<InstrumentItem> workspaceInstruments { get; set; }
         ObservableCollection<CustomItem> ItemsList { get; set; }
+
+        List<Hotkey> hotkeys;
+        List<Key> pressedKeys;
 
         Point startPointSelectionRect;
         System.Windows.Shapes.Rectangle selectionRect;
         public ProjectWindow()
         {
             InitializeComponent();
+
+            PreviewKeyUp += Window_KeyUp;
+
             DataContext = ProjectSettings.preset;
             line = new Line();
             drawingState = DrawingStates.SET_START_POINT;
@@ -71,13 +79,49 @@ namespace GCodeConvertor
             storage = new LayerStorage();
             layerEllipses = new List<Ellipse>();
             selectedEllipses = new List<Ellipse>();
-            PreviewKeyDown += Window_KeyDown;
 
             ItemsList = new ObservableCollection<CustomItem>();
             layerListBox.ItemsSource = ItemsList;
+
+            activeLayer = new Layer();
+            storage.addLayer(activeLayer);
+
+            workspaceInstruments = new ObservableCollection<InstrumentItem>();
+            instrumentItemsList.ItemsSource = workspaceInstruments;
+
+            hotkeys = new List<Hotkey>();
+            pressedKeys = new List<Key>();
+
+            
         }
 
-       
+        private void setupInstruments(WorkspaceDrawingControl workspaceDrawingControl)
+        {
+            WorkspaceInstrument drawing = new DrawingWorkspaceInstrument(workspaceDrawingControl);
+            WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(workspaceDrawingControl);
+            WorkspaceInstrument moving = new MoveWorkspaceInstrument(workspaceDrawingControl);
+
+            InstrumentItem instrumentItem = new InstrumentItem("Проведение нити", drawing, workspaceDrawingControl);
+            workspaceInstruments.Add(instrumentItem);
+            InstrumentItem instrumentItem2 = new InstrumentItem("Приближение", zooming, workspaceDrawingControl);
+            workspaceInstruments.Add(instrumentItem2);
+            InstrumentItem instrumentItem3 = new InstrumentItem("Перемещение", moving, workspaceDrawingControl);
+            workspaceInstruments.Add(instrumentItem3);
+
+            List<Key> drawingHotkeys = new List<Key>();
+            drawingHotkeys.Add(Key.D);
+
+            List<Key> zoomingHotkeys = new List<Key>();
+            zoomingHotkeys.Add(Key.Z);
+
+            List<Key> movingHotkeys = new List<Key>();
+            movingHotkeys.Add(Key.M);
+
+            hotkeys.Add(new Hotkey(drawingHotkeys, drawing, workspaceDrawingControl));
+            hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, workspaceDrawingControl));
+            hotkeys.Add(new Hotkey(movingHotkeys, moving, workspaceDrawingControl));
+
+        }
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -172,7 +216,7 @@ namespace GCodeConvertor
                     layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                     (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                    activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+                    activeLayer.thread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
                 }
             }
             else
@@ -195,7 +239,7 @@ namespace GCodeConvertor
                 layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
                                                                 (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
 
-                activeLayer.layerThread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
+                activeLayer.thread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
             }
         }
 
@@ -323,10 +367,14 @@ namespace GCodeConvertor
                     CanvasMain.Children.Add(rectangle);
                 }
             }
-            activeLayer = new Layer();
-            storage.addLayer(activeLayer);
             ItemsList.Add(new CustomItem(activeLayer.name, "12"));
             layerListBox.SelectedIndex = 0;
+
+
+            WorkspaceDrawingControl wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+            wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
+            dockPanel.Children.Add(wdc);
+            setupInstruments(wdc);
         }
 
         private void createLayer(object sender, RoutedEventArgs e)
@@ -394,13 +442,13 @@ namespace GCodeConvertor
         private void loadActiveLayer(object sender)
         {
             layerEllipses.Clear();
-            if (activeLayer.layerThread != null)
+            if (activeLayer.thread != null)
             {
                 int position = 0;
                 System.Windows.Point startPoint;
                 System.Windows.Point endPoint;
 
-                foreach (System.Windows.Point point in activeLayer.layerThread)
+                foreach (System.Windows.Point point in activeLayer.thread)
                 {
                     Ellipse ellipse = new Ellipse();
                     ellipse.Height = ELLIPSE_SIZE;
@@ -450,15 +498,15 @@ namespace GCodeConvertor
             string textBoxValue = ((TextBox)((StackPanel)((Button)sender).Parent).Children[0]).Text;
             if (textBoxValue == "")
             {
-                ((TextBox)((StackPanel)((Button)sender).Parent).Children[0]).Text = storage.getLayerByName(layerName).heightLayer.ToString();
+                ((TextBox)((StackPanel)((Button)sender).Parent).Children[0]).Text = storage.getLayerByName(layerName).height.ToString();
                 return;
             }
             if (textBoxValue[0] == ',')
             {
-                ((TextBox)((StackPanel)((Button)sender).Parent).Children[0]).Text = storage.getLayerByName(layerName).heightLayer.ToString();
+                ((TextBox)((StackPanel)((Button)sender).Parent).Children[0]).Text = storage.getLayerByName(layerName).height.ToString();
                 return;
             }
-            storage.getLayerByName(layerName).heightLayer = float.Parse(textBoxValue);
+            storage.getLayerByName(layerName).height = float.Parse(textBoxValue);
         }
 
         private void deleteLayer(object sender, RoutedEventArgs e)
@@ -665,57 +713,19 @@ namespace GCodeConvertor
             }
         }
 
+        private void Window_KeyUp(object sender, KeyEventArgs e)
+        {
+            foreach (Hotkey hotkey in hotkeys)
+            {
+                hotkey.selectInstrument(pressedKeys);
+            }
+
+            pressedKeys.Remove(e.Key);
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.A))
-            {
-                selectAllEllipses();
-            }
-            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Delete))
-            {
-                hardDelete();
-            }
-            else if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.I))
-            {
-                selectInterval();
-            }
-
-            switch (e.Key)
-            {
-                case Key.Delete:
-                    {
-                        foreach (Ellipse el in selectedEllipses)
-                        {
-                            layerEllipses.RemoveAll(item => item.Equals(el));
-                        }
-                        clearTable();
-                        repaintTable();
-                        selectedEllipses.Clear();
-                        break;
-                    }
-                case Key.Q: 
-                    {
-                        string s1 = "";
-                        string s2 = "";
-
-                        List<UIElement> elementsToRemove = CanvasMain.Children
-                        .OfType<UIElement>()
-                        .Where(e => e is Ellipse)
-                        .ToList();
-
-                        foreach (UIElement el in elementsToRemove) 
-                        {
-                            s1 += Canvas.GetLeft(el) + "-" + Canvas.GetTop(el) + " ";
-                        }
-
-                        foreach (System.Windows.Point p in activeLayer.layerThread)
-                        {
-                            s2 += p.X + "-" + p.Y + " ";
-                        }
-                        MessageBox.Show(s1 + " \n asdasdasd " + s2);
-                        break;
-                    }
-            }
+            pressedKeys.Add(e.Key);
         }
 
         private void selectInterval()
@@ -843,9 +853,9 @@ namespace GCodeConvertor
                 position++;
             }
 
-            List<System.Windows.Point> currentPoints = activeLayer.layerThread;
-            activeLayer.layerThread = points;
-            storage.getLayerByName(activeLayer.name).layerThread = points;
+            List<System.Windows.Point> currentPoints = activeLayer.thread;
+            activeLayer.thread = points;
+            storage.getLayerByName(activeLayer.name).thread = points;
 
             if (isInsert)
             {
@@ -873,8 +883,8 @@ namespace GCodeConvertor
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
-                    activeLayer.layerThread = currentPoints;
-                    storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
+                    activeLayer.thread = currentPoints;
+                    storage.getLayerByName(activeLayer.name).thread = currentPoints;
                     clearTable();
                     loadActiveLayer(null);
                 }
@@ -1002,5 +1012,6 @@ namespace GCodeConvertor
                 }
             }
         }
+
     }
 }

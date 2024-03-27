@@ -5,26 +5,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Point = System.Windows.Point;
+
 namespace GCodeConvertor
 {
     [Serializable]
-    [System.Xml.Serialization.XmlInclude(typeof(System.Windows.Point))]
+    [System.Xml.Serialization.XmlInclude(typeof(Point))]
     public class Layer
     {
-        static int countOfLayers = 1;
-        public String name { get; set; }
-        public float heightLayer { get; set; }
+        private const string DEFAULT_NAME = "Без имени";
+        private const float DEFAULT_HEIGHT = 12;
 
-        public List<System.Windows.Point> layerThread { get; set; }
-
+        public string name { get; set; }
+        
+        public float height { get; set; }
+        
+        public List<Point> thread { get; set; }
+        
         public bool enable { get; set; }
-
-        public Layer()
+        
+        public Layer(string name, float height)
         {
-            name = "Слой " + countOfLayers++;
-            layerThread = new List<System.Windows.Point>();
-            heightLayer = 12;
+            this.name = name;
+            this.height = height;
+            thread = new List<Point>();
             enable = true;
         }
+
+        public Layer() : this(DEFAULT_NAME, DEFAULT_HEIGHT) { }
+        
     }
 }

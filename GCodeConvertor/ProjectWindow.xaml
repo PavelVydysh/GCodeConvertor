@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor"
         mc:Ignorable="d"
-        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseMove="Window_MouseMove">
+        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized" MouseRightButtonDown="Window_MouseRightButtonDown" MouseRightButtonUp="Window_MouseRightButtonUp" MouseMove="Window_MouseMove" PreviewKeyDown="Window_KeyDown">
     <DockPanel Name="dockPanel" LastChildFill="True" >
         <Menu Height="25"  VerticalAlignment="Top" Background="Gray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
@@ -17,18 +17,15 @@
                 <MenuItem Header="New Project" ></MenuItem>
                 <MenuItem Header="Open Project" Click="MenuItem_Click_1" ></MenuItem>
                 <Separator />
-                <MenuItem Header="Exit" ></MenuItem>
+                <MenuItem Header="Exit"></MenuItem>
             </MenuItem>
             <MenuItem Header="Menu" Click="openMenu" HorizontalAlignment="Right"></MenuItem>
         </Menu>
-        <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="100" Background="LightGray">
-            <Grid>
-                <Label Content="Инструменты"/>
-                <RadioButton Content="Рисовать" Margin="0,34,0,-34"/>
-                <RadioButton Content="Переместить" Margin="0,52,0,-52"/>
-            </Grid>
-            
-
+        <ScrollViewer   DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="100" Background="LightGray">
+            <ListBox x:Name="instrumentItemsList">
+                
+                
+            </ListBox>
         </ScrollViewer>
         <ScrollViewer Name="RightMenu" DockPanel.Dock="Right" RenderTransformOrigin="1,1" Panel.ZIndex="9999" Width="250">
             <Canvas Height="1038" Width="250" Background="White">
@@ -76,9 +73,10 @@
                 <Button x:Name="AddLayerButton" Content="+" Height="21" Canvas.Left="34" Canvas.Top="309" Width="25" HorizontalAlignment="Left" VerticalAlignment="Center" Click="createLayer"/>
             </Canvas>
         </ScrollViewer>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Canvas Name="CanvasMain" Width="800" Height="800" Loaded="CanvasMain_Loaded" PreviewMouseWheel="Canvas_MouseWheel"
-                    MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp">
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="0" Width="0">
+            <Canvas Name="CanvasMain" Width="0" Height="0" Loaded="CanvasMain_Loaded" PreviewMouseWheel="Canvas_MouseWheel"
+                    MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" Visibility="Hidden">
                 <Canvas.Background>
                     <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" 
                               ViewportUnits="Absolute">
@@ -96,7 +94,7 @@
                 </Canvas.Background>
             </Canvas>
         </ScrollViewer>
-        
+
 
 
     </DockPanel>

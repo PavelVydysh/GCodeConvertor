@@ -17,14 +17,14 @@ namespace GCodeConvertor
             String gcode = "";
             foreach (Layer layer in layers)
             {
-                if (layer.heightLayer != 0)
+                if (layer.height != 0)
                 {
-                    lastHeight += layer.heightLayer;
+                    lastHeight += layer.height;
                     gcode += "G1 Z" + lastHeight + "\n";
 
                 }
 
-                foreach (System.Windows.Point point in layer.layerThread)
+                foreach (System.Windows.Point point in layer.thread)
                 {
                     string x = point.X.ToString();
                     x = x.Replace(",", ".");

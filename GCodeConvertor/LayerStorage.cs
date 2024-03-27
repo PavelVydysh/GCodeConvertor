@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace GCodeConvertor
 {
+    //TODO: убрать
     internal class LayerStorage
     {
         public List<Layer> layers;
