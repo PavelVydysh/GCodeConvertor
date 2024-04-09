@@ -10,13 +10,13 @@ namespace GCodeConvertor.GScript
     public class DispatcherCommand
     {
 
-        public double size { get; }
+        public ProjectWindow pWindow { get; }
 
         private List<AbstractCommand> actualCommands;
 
-        public DispatcherCommand(double size)
+        public DispatcherCommand(ProjectWindow pWindow)
         {
-            this.size = size;
+            this.pWindow = pWindow;
             initializeCommands();
         }
 
@@ -24,11 +24,13 @@ namespace GCodeConvertor.GScript
         {
             actualCommands = new List<AbstractCommand>();
 
-            actualCommands.Add(new UpCommand("ВВЕРХ", size));
-            actualCommands.Add(new DownCommand("ВНИЗ", size));
-            actualCommands.Add(new LeftCommand("ВЛЕВО", size));
-            actualCommands.Add(new RightCommand("ВПРАВО", size));
-            actualCommands.Add(new DotCommand("ТОЧКА", size));
+            actualCommands.Add(new UpCommand("ВВЕРХ", pWindow.size));
+            actualCommands.Add(new DownCommand("ВНИЗ", pWindow.size));
+            actualCommands.Add(new LeftCommand("ВЛЕВО", pWindow.size));
+            actualCommands.Add(new RightCommand("ВПРАВО", pWindow.size));
+            actualCommands.Add(new DotCommand("ТОЧКА", pWindow.size));
+            actualCommands.Add(new DrawCommand("СТАРТ_РИСУНОК", pWindow.size));
+            actualCommands.Add(new NoStartDrawCommand("РИСУНОК", pWindow.size));
         }
 
         public List<Point> buildScript(string[] commands, Point lastPoint)
@@ -36,6 +38,7 @@ namespace GCodeConvertor.GScript
             List<Point> points = new List<Point>();
             Point prevPoint = lastPoint;
             Point currentPoint;
+            AbstractCommand executableCommand;
 
             foreach (string command in commands)
             {
@@ -50,7 +53,7 @@ namespace GCodeConvertor.GScript
                     throw new Exception(" Ошибка при предобработке:\nСинтаксическая ошибка: " + command);
                 }
 
-                AbstractCommand executableCommand = defineCommand(values[0]);
+                executableCommand = defineCommand(values[0]);
                 if (executableCommand == null)
                 {
                     throw new Exception(" Ошибка при предобработке:\nНеизвестная команда: " + command);
@@ -63,17 +66,32 @@ namespace GCodeConvertor.GScript
 
                     if (isInt)
                     {
-                        currentPoint = executableCommand.execute(prevPoint, secondInteger);
-                        
+                        List<Point> retPoints = executableCommand.execute(prevPoint, secondInteger);
+                        currentPoint = retPoints[retPoints.Count - 1];
+
                     }
                     else
                     {
                         throw new Exception(" Ошибка при предобработке:\nНеверный аргумент: " + command);
                     }
                 }
-                else
+                else if (executableCommand is DotCommand)
                 {
-                    currentPoint = executableCommand.execute(prevPoint, 0);
+                    List<Point> retPoints = executableCommand.execute(prevPoint, 0);
+                    currentPoint = retPoints[retPoints.Count - 1];
+                }
+                else if (executableCommand is DrawCommand || executableCommand is NoStartDrawCommand)
+                {
+                    if (points.Count != 0)
+                    {
+                        pWindow.appendScriptResult(points, true);
+                    }
+                    List<Point> retPoints = executableCommand.execute(prevPoint, 0, pWindow.activeLayer.layerThread);
+                    foreach (Point p in retPoints)
+                    {
+                        points.Add(p);
+                    }
+                    currentPoint = retPoints[retPoints.Count - 1];
                 }
 
                 if (currentPoint == prevPoint)

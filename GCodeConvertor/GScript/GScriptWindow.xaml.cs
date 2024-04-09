@@ -33,7 +33,7 @@ namespace GCodeConvertor.GScript
             InitializeComponent();
             this.pWindow = pWindow;
             commandReader = new CommandReader(this);
-            dispatcherCommand = new DispatcherCommand(pWindow.size);
+            dispatcherCommand = new DispatcherCommand(pWindow);
             UpdateLineNumbers();
             init();
         }
@@ -101,7 +101,7 @@ namespace GCodeConvertor.GScript
                 console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Предобработка скрипта завершена успешно." + "\n";
 
                 console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта начато." + "\n";
-                pWindow.appendScriptResult(points);
+                pWindow.appendScriptResult(points, true);
                 console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта завершно успешно." + "\n";
             }
             catch (Exception ex)
@@ -165,6 +165,24 @@ namespace GCodeConvertor.GScript
                 textBox.Text += "\n";
             }
             textBox.Text += "ТОЧКА;";
+        }
+
+        private void startDrawButton_Copy_Click(object sender, RoutedEventArgs e)
+        {
+            if (textBox.Text.Length != 0 && !textBox.Text[textBox.Text.Length - 1].Equals("\n"))
+            {
+                textBox.Text += "\n";
+            }
+            textBox.Text += "СТАРТ_РИСУНОК;";
+        }
+
+        private void drawButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (textBox.Text.Length != 0 && !textBox.Text[textBox.Text.Length - 1].Equals("\n"))
+            {
+                textBox.Text += "\n";
+            }
+            textBox.Text += "РИСУНОК;";
         }
     }
 }

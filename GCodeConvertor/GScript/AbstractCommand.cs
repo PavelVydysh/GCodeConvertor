@@ -19,6 +19,6 @@ namespace GCodeConvertor.GScript
             this.size = size;
         }
 
-        public abstract Point execute(Point prevPoint, int steps);
+        public abstract List<Point> execute(Point prevPoint, int steps, List<Point> points = null);
     }
 }

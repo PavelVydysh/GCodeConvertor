@@ -849,7 +849,7 @@ namespace GCodeConvertor
             }
         }
 
-        private void repaintTable() 
+        private void repaintTable(bool quiet = false) 
         {
             List<Point> currentPointsLayer = new List<Point>(activeLayer.layerThread);
             Screen screen = new Screen(drawingState, drawArrow, currentPointsLayer);
@@ -925,33 +925,40 @@ namespace GCodeConvertor
 
             if (wrongElements.Count != 0 && drawingState != DrawingStates.EDIT)
             {
-                MessageBoxResult result = MessageBox.Show("На указанном маршруте обнаружен конфликт: траектория сопла проходит через иглу.\n Нажмите \"Отмена\", чтобы вернуть траекторию в исходное состояние.\n" +
-                                                      "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.OK)
+                if (quiet)
                 {
                     drawingState = DrawingStates.EDIT;
-                    //layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
-                    //points.RemoveRange(wrongIndex, points.Count - wrongIndex);
-                    //foreach (UIElement el in wrongElements)
-                    //{
-                    //    CanvasMain.Children.Remove(el);
-                    //}
-                    //MessageBox.Show(layerEllipses.Count.ToString());
-                    //if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
-                    //{
-                    //    drawingState = DrawingStates.DRAWING;
-                    //    currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
-                    //    currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
-                    //}
                 }
-                else if (result == MessageBoxResult.Cancel)
+                else 
                 {
-                    screens.Pop();
-                    activeLayer.layerThread = currentPoints;
-                    storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
-                    clearTable();
-                    loadActiveLayer(null);
+                    MessageBoxResult result = MessageBox.Show("На указанном маршруте обнаружен конфликт: траектория сопла проходит через иглу.\n Нажмите \"Отмена\", чтобы вернуть траекторию в исходное состояние.\n" +
+                                                      "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.OK)
+                    {
+                        drawingState = DrawingStates.EDIT;
+                        //layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
+                        //points.RemoveRange(wrongIndex, points.Count - wrongIndex);
+                        //foreach (UIElement el in wrongElements)
+                        //{
+                        //    CanvasMain.Children.Remove(el);
+                        //}
+                        //MessageBox.Show(layerEllipses.Count.ToString());
+                        //if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
+                        //{
+                        //    drawingState = DrawingStates.DRAWING;
+                        //    currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+                        //    currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+                        //}
+                    }
+                    else if (result == MessageBoxResult.Cancel)
+                    {
+                        screens.Pop();
+                        activeLayer.layerThread = currentPoints;
+                        storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
+                        clearTable();
+                        loadActiveLayer(null);
+                    }
                 }
             }
             else if(wrongElements.Count == 0)
@@ -1261,7 +1268,7 @@ namespace GCodeConvertor
             GSWindow.Show();
         }
 
-        public void appendScriptResult(List<Point> points)
+        public void appendScriptResult(List<Point> points, bool quiet)
         {
             foreach (Point p in points)
             {
@@ -1280,7 +1287,7 @@ namespace GCodeConvertor
             }
 
             clearTable();
-            repaintTable();
+            repaintTable(quiet);
             
         }
     }
