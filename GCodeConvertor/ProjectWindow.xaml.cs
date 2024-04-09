@@ -19,6 +19,7 @@ using static System.Windows.Forms.LinkLabel;
 using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using Point = System.Windows.Point;
+using GCodeConvertor.GScript;
 
 namespace GCodeConvertor
 {
@@ -31,7 +32,8 @@ namespace GCodeConvertor
         public enum DrawingStates{
             SET_START_POINT,
             DRAWING,
-            SET_END_POINT
+            SET_END_POINT,
+            EDIT
         }
 
         private double ELLIPSE_SIZE = 5;
@@ -39,21 +41,21 @@ namespace GCodeConvertor
 
         private List<System.Windows.Shapes.Rectangle> rectangles = new List<System.Windows.Shapes.Rectangle>();
 
-        private DrawingStates drawingState;
+        public  DrawingStates drawingState;
 
         private int startPointX;
         private int startPointY;
 
         private double currentDotX;
         private double currentDotY;
-        double size;
+        public double size;
         private bool drawArrow = false;
         Line line;
 
         List<System.Windows.Point> layerPoints;
         List<Ellipse> layerEllipses;
         List<Ellipse> selectedEllipses;
-        Layer activeLayer;
+        public Layer activeLayer;
 
         LayerStorage storage;
 
@@ -129,7 +131,11 @@ namespace GCodeConvertor
                         MessageBox.Show("Слой является законченным");
                         break;
                     }
-
+                case DrawingStates.EDIT:
+                    {
+                        MessageBox.Show("Отредактируйте путь.");
+                        break;
+                    }
             }
 
             //startPointFlag
@@ -858,11 +864,11 @@ namespace GCodeConvertor
 
             foreach (Ellipse el in layerEllipses)
             {
-                if (isInsert)
-                {
-                    el.Fill = new SolidColorBrush(Colors.Gray);
-                    wrongElements.Add(el);
-                }
+                //if (isInsert)
+                //{
+                //    el.Fill = new SolidColorBrush(Colors.Gray);
+                //    wrongElements.Add(el);
+                //}
                 points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
 
                 if (position != 0)
@@ -877,9 +883,9 @@ namespace GCodeConvertor
                             isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
                             if (isInsert)
                             {
-                                el.Fill = new SolidColorBrush(Colors.Gray);
-                                wrongIndex = layerEllipses.IndexOf(el);
-                                wrongElements.Add(el);
+                                //el.Fill = new SolidColorBrush(Colors.Gray);
+                                //wrongIndex = layerEllipses.IndexOf(el);
+                                //wrongElements.Add(el);
                                 break;
                             }
                         }
@@ -910,35 +916,34 @@ namespace GCodeConvertor
                 CanvasMain.Children.Add(el);
 
                 position++;
+                isInsert = false;
             }
 
             List<System.Windows.Point> currentPoints = activeLayer.layerThread;
             activeLayer.layerThread = points;
             storage.getLayerByName(activeLayer.name).layerThread = points;
 
-            if (isInsert)
+            if (wrongElements.Count != 0 && drawingState != DrawingStates.EDIT)
             {
-                MessageBoxResult result = MessageBox.Show("При удалении точки, сопло проходит через иглу. Отмените удаление, чтобы вернуть траекторию в исходное состояние, " +
-                                                      "либо подтвердите удаление. При подтверждении удаления, путь, отмеченный серым цветом, будет удален.", "Конфликт при удалении", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                MessageBoxResult result = MessageBox.Show("На указанном маршруте обнаружен конфликт: траектория сопла проходит через иглу.\n Нажмите \"Отмена\", чтобы вернуть траекторию в исходное состояние.\n" +
+                                                      "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.OK)
                 {
-                    layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
-                    points.RemoveRange(wrongIndex, points.Count - wrongIndex);
-                    foreach (UIElement el in wrongElements)
-                    {
-                        CanvasMain.Children.Remove(el);
-                    }
-                    MessageBox.Show(layerEllipses.Count.ToString());
-                    if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
-                    {
-                        drawingState = DrawingStates.DRAWING;
-                        currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
-                        currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
-                    }
-
-                    //activeLayer.layerThread = points;
-                    //storage.getLayerByName(activeLayer.name).layerThread = points;
+                    drawingState = DrawingStates.EDIT;
+                    //layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
+                    //points.RemoveRange(wrongIndex, points.Count - wrongIndex);
+                    //foreach (UIElement el in wrongElements)
+                    //{
+                    //    CanvasMain.Children.Remove(el);
+                    //}
+                    //MessageBox.Show(layerEllipses.Count.ToString());
+                    //if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
+                    //{
+                    //    drawingState = DrawingStates.DRAWING;
+                    //    currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+                    //    currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+                    //}
                 }
                 else if (result == MessageBoxResult.Cancel)
                 {
@@ -947,6 +952,17 @@ namespace GCodeConvertor
                     storage.getLayerByName(activeLayer.name).layerThread = currentPoints;
                     clearTable();
                     loadActiveLayer(null);
+                }
+            }
+            else if(wrongElements.Count == 0)
+            {
+                if (!((Canvas.GetTop(layerEllipses[0]) == Canvas.GetTop(layerEllipses[layerEllipses.Count - 1])) && (Canvas.GetLeft(layerEllipses[0]) == Canvas.GetLeft(layerEllipses[layerEllipses.Count - 1]))) || layerEllipses.Count == 1)
+                {
+                    drawingState = DrawingStates.DRAWING;
+                }
+                else 
+                {
+                    drawingState = DrawingStates.SET_END_POINT;
                 }
             }
 
@@ -1239,6 +1255,33 @@ namespace GCodeConvertor
             repaintTable();
         }
 
-        
+        private void GScriptButton_Click(object sender, RoutedEventArgs e)
+        {
+            GScriptWindow GSWindow = new GScriptWindow(this);
+            GSWindow.Show();
+        }
+
+        public void appendScriptResult(List<Point> points)
+        {
+            foreach (Point p in points)
+            {
+                Ellipse ellipse = new Ellipse();
+                ellipse.Height = ELLIPSE_SIZE;
+                ellipse.Width = ELLIPSE_SIZE;
+                ellipse.Fill = new SolidColorBrush(Colors.Red);
+                ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+                ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+                ellipse.MouseMove += Ellipse_MouseMove;
+                Canvas.SetLeft(ellipse, p.X);
+                Canvas.SetTop(ellipse, p.Y);
+
+                layerEllipses.Add(ellipse);
+                CanvasMain.Children.Add(ellipse);
+            }
+
+            clearTable();
+            repaintTable();
+            
+        }
     }
 }

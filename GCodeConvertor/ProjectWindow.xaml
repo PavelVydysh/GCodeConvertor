@@ -27,7 +27,7 @@
                 <RadioButton Content="Рисовать" Margin="0,34,0,-34"/>
                 <RadioButton Content="Переместить" Margin="0,52,0,-52"/>
             </Grid>
-            
+
 
         </ScrollViewer>
         <ScrollViewer Name="RightMenu" DockPanel.Dock="Right" RenderTransformOrigin="1,1" Panel.ZIndex="9999" Width="250">
@@ -74,6 +74,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
                 <Button x:Name="AddLayerButton" Content="+" Height="21" Canvas.Left="34" Canvas.Top="309" Width="25" HorizontalAlignment="Left" VerticalAlignment="Center" Click="createLayer"/>
+                <Button x:Name="GScriptButton" Content="Скрипт" Canvas.Left="20" Canvas.Top="257" Click="GScriptButton_Click"/>
             </Canvas>
         </ScrollViewer>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
@@ -96,7 +97,7 @@
                 </Canvas.Background>
             </Canvas>
         </ScrollViewer>
-        
+
 
 
     </DockPanel>
