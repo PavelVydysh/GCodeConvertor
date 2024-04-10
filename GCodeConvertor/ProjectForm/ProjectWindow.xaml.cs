@@ -20,8 +20,10 @@ using System.Collections.ObjectModel;
 using Microsoft.Win32;
 using Point = System.Windows.Point;
 using GCodeConvertor.WorkspaceInstruments;
+using GCodeConvertor.ProjectForm.LayerElements;
+using GCodeConvertor.Project3D;
 
-namespace GCodeConvertor
+namespace GCodeConvertor.ProjectForm
 {
     /// <summary>
     /// Логика взаимодействия для ProjectWindow.xaml
@@ -81,7 +83,7 @@ namespace GCodeConvertor
             selectedEllipses = new List<Ellipse>();
 
             ItemsList = new ObservableCollection<CustomItem>();
-            layerListBox.ItemsSource = ItemsList;
+            //layerListBox.ItemsSource = ItemsList;
 
             activeLayer = new Layer();
             storage.addLayer(activeLayer);
@@ -92,7 +94,6 @@ namespace GCodeConvertor
             hotkeys = new List<Hotkey>();
             pressedKeys = new List<Key>();
 
-            
         }
 
         private void setupInstruments(WorkspaceDrawingControl workspaceDrawingControl)
@@ -213,10 +214,6 @@ namespace GCodeConvertor
                     currentDotX = endX;
                     currentDotY = endY;
 
-                    layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
-                                                                    (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
-
-                    activeLayer.thread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
                 }
             }
             else
@@ -236,10 +233,6 @@ namespace GCodeConvertor
                 layerEllipses.Add(ellipse);
                 ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
-                layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
-                                                                (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
-
-                activeLayer.thread.Add(new System.Windows.Point(currentDotX - ELLIPSE_SIZE / 2, currentDotY - ELLIPSE_SIZE / 2));
             }
         }
 
@@ -284,7 +277,6 @@ namespace GCodeConvertor
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
             ProjectSettings.preset.savePreset();
         }
 
@@ -295,7 +287,7 @@ namespace GCodeConvertor
                 List<Layer> layersToGenerate = new List<Layer>();
                 foreach (Layer layer in storage.layers)
                 {
-                    if (layer.enable)
+                    if (layer.isEnable)
                     {
                         layersToGenerate.Add(layer);
                     }
@@ -368,64 +360,67 @@ namespace GCodeConvertor
                 }
             }
             ItemsList.Add(new CustomItem(activeLayer.name, "12"));
-            layerListBox.SelectedIndex = 0;
+            //layerListBox.SelectedIndex = 0;
 
 
             WorkspaceDrawingControl wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
             wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
             dockPanel.Children.Add(wdc);
             setupInstruments(wdc);
+
+            LayerControl layerControl = new LayerControl(ProjectSettings.preset.layers, wdc);
+            putMeHere.Children.Add(layerControl);
         }
 
-        private void createLayer(object sender, RoutedEventArgs e)
-        {
-            if (drawingState != DrawingStates.SET_END_POINT)
-            {
-                MessageBox.Show("Текущий слой не закончен");
-                return;
-            }
+        //private void createLayer(object sender, RoutedEventArgs e)
+        //{
+        //    if (drawingState != DrawingStates.SET_END_POINT)
+        //    {
+        //        MessageBox.Show("Текущий слой не закончен");
+        //        return;
+        //    }
 
-            layerEllipses.Clear();
-            selectedEllipses.Clear();
-            drawArrow = false;
-            Layer layer = new Layer();
-            storage.addLayer(layer);
-            //layerListBox.Items.Add(layer.name);
-            CustomItem currentItem = new CustomItem(layer.name, "12");
-            ItemsList.Add(currentItem);
-            layerListBox.SelectedItem = currentItem;
-            activeLayer = layer;
-            drawingState = DrawingStates.SET_START_POINT;
-        }
+        //    layerEllipses.Clear();
+        //    selectedEllipses.Clear();
+        //    drawArrow = false;
+        //    Layer layer = new Layer();
+        //    storage.addLayer(layer);
+        //    //layerListBox.Items.Add(layer.name);
+        //    CustomItem currentItem = new CustomItem(layer.name, "12");
+        //    ItemsList.Add(currentItem);
+        //    layerListBox.SelectedItem = currentItem;
+        //    activeLayer = layer;
+        //    drawingState = DrawingStates.SET_START_POINT;
+        //}
 
-        private void layerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (drawingState != DrawingStates.SET_END_POINT && layerListBox.Items.Count != 1 && !((CustomItem)layerListBox.SelectedItem).Equals(getCustomItemEqualsLayer(activeLayer.name)))
-            {
-                layerListBox.SelectedItem = getCustomItemEqualsLayer(activeLayer.name);
-                MessageBox.Show("Текущий слой не закончен");
-                return;
-            }
+        //private void layerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (drawingState != DrawingStates.SET_END_POINT && layerListBox.Items.Count != 1 && !((CustomItem)layerListBox.SelectedItem).Equals(getCustomItemEqualsLayer(activeLayer.name)))
+        //    {
+        //        layerListBox.SelectedItem = getCustomItemEqualsLayer(activeLayer.name);
+        //        MessageBox.Show("Текущий слой не закончен");
+        //        return;
+        //    }
 
-            List<object> toRemove = new List<object>();
-            foreach (object o in CanvasMain.Children)
-            {
-                if (o is Ellipse || o is Line || o is LineGeometry)
-                {
-                    toRemove.Add(o);
-                }
-            }
+        //    List<object> toRemove = new List<object>();
+        //    foreach (object o in CanvasMain.Children)
+        //    {
+        //        if (o is Ellipse || o is Line || o is LineGeometry)
+        //        {
+        //            toRemove.Add(o);
+        //        }
+        //    }
 
-            foreach (object o in toRemove)
-            {
-                CanvasMain.Children.Remove(o as UIElement);
-            }
+        //    foreach (object o in toRemove)
+        //    {
+        //        CanvasMain.Children.Remove(o as UIElement);
+        //    }
 
-            CustomItem selectedItemListBox = (CustomItem)layerListBox.SelectedItem;
-            activeLayer = storage.getLayerByName(selectedItemListBox.LabelContent);
-            selectedEllipses.Clear();
-            loadActiveLayer(sender);
-        }
+        //    CustomItem selectedItemListBox = (CustomItem)layerListBox.SelectedItem;
+        //    activeLayer = storage.getLayerByName(selectedItemListBox.LabelContent);
+        //    selectedEllipses.Clear();
+        //    loadActiveLayer(sender);
+        //}
 
         private CustomItem getCustomItemEqualsLayer(string name)
         {
@@ -509,53 +504,53 @@ namespace GCodeConvertor
             storage.getLayerByName(layerName).height = float.Parse(textBoxValue);
         }
 
-        private void deleteLayer(object sender, RoutedEventArgs e)
-        {
-            if (ItemsList.Count == 1)
-            {
-                MessageBox.Show("Это единственный слой. Создайте еще один, чтобы удалить текущий.");
-                return;
-            }
+        //private void deleteLayer(object sender, RoutedEventArgs e)
+        //{
+        //    if (ItemsList.Count == 1)
+        //    {
+        //        MessageBox.Show("Это единственный слой. Создайте еще один, чтобы удалить текущий.");
+        //        return;
+        //    }
 
-            Button but = (Button)sender;
-            string layerName = but.Tag?.ToString();
+        //    Button but = (Button)sender;
+        //    string layerName = but.Tag?.ToString();
 
-            CustomItem selectedItem = (CustomItem)layerListBox.SelectedItem;
-            string currentLabelValue = selectedItem.LabelContent;
+        //    CustomItem selectedItem = (CustomItem)layerListBox.SelectedItem;
+        //    string currentLabelValue = selectedItem.LabelContent;
 
-            if (layerName.Equals(currentLabelValue))
-            {
-                int index = layerListBox.SelectedIndex;
-                if (index == 0)
-                {
-                    activeLayer = storage.layers[layerListBox.SelectedIndex + 1];
-                    layerListBox.SelectedIndex = index + 1;
-                }
-                else
-                {
-                    activeLayer = storage.layers[layerListBox.SelectedIndex - 1];
-                    layerListBox.SelectedIndex = index - 1;
-                }
-                drawingState = DrawingStates.SET_END_POINT;
-            }
+        //    if (layerName.Equals(currentLabelValue))
+        //    {
+        //        int index = layerListBox.SelectedIndex;
+        //        if (index == 0)
+        //        {
+        //            activeLayer = storage.layers[layerListBox.SelectedIndex + 1];
+        //            layerListBox.SelectedIndex = index + 1;
+        //        }
+        //        else
+        //        {
+        //            activeLayer = storage.layers[layerListBox.SelectedIndex - 1];
+        //            layerListBox.SelectedIndex = index - 1;
+        //        }
+        //        drawingState = DrawingStates.SET_END_POINT;
+        //    }
 
-            storage.removeLayerByName(layerName);
-            ItemsList.Remove(getCustomItemEqualsLayer(layerName));
+        //    storage.removeLayerByName(layerName);
+        //    ItemsList.Remove(getCustomItemEqualsLayer(layerName));
 
-        }
+        //}
 
         private void enableLayer_Checked(object sender, RoutedEventArgs e)
         {
             CheckBox box = (CheckBox)sender;
             string layerName = box.Tag?.ToString();
-            storage.getLayerByName(layerName).enable = true;
+            storage.getLayerByName(layerName).isEnable = true;
         }
 
         private void enableLayer_Unchecked(object sender, RoutedEventArgs e)
         {
             CheckBox box = (CheckBox)sender;
             string layerName = box.Tag?.ToString();
-            storage.getLayerByName(layerName).enable = false;
+            storage.getLayerByName(layerName).isEnable = false;
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -794,112 +789,112 @@ namespace GCodeConvertor
 
         private void repaintTable() 
         {
-            int position = 0;
-            List<System.Windows.Point> points = new List<System.Windows.Point>();
-            bool isInsert = false;
-            List<UIElement> wrongElements = new List<UIElement>();
-            int wrongIndex = 0;
+            //int position = 0;
+            //List<System.Windows.Point> points = new List<System.Windows.Point>();
+            //bool isInsert = false;
+            //List<UIElement> wrongElements = new List<UIElement>();
+            //int wrongIndex = 0;
 
-            foreach (Ellipse el in layerEllipses)
-            {
-                if (isInsert)
-                {
-                    el.Fill = new SolidColorBrush(Colors.Gray);
-                    wrongElements.Add(el);
-                }
-                CanvasMain.Children.Add(el);
-                points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
+            //foreach (Ellipse el in layerEllipses)
+            //{
+            //    if (isInsert)
+            //    {
+            //        el.Fill = new SolidColorBrush(Colors.Gray);
+            //        wrongElements.Add(el);
+            //    }
+            //    CanvasMain.Children.Add(el);
+            //    points.Add(new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
 
-                if (position != 0)
-                {
-                    if (!isInsert)
-                    {
-                        LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(Canvas.GetLeft(layerEllipses[position - 1]), Canvas.GetTop(layerEllipses[position - 1])), new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
+            //    if (position != 0)
+            //    {
+            //        if (!isInsert)
+            //        {
+            //            LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(Canvas.GetLeft(layerEllipses[position - 1]), Canvas.GetTop(layerEllipses[position - 1])), new System.Windows.Point(Canvas.GetLeft(el), Canvas.GetTop(el)));
 
-                        foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
-                        {
-                            RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
-                            isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
-                            if (isInsert)
-                            {
-                                el.Fill = new SolidColorBrush(Colors.Gray);
-                                wrongIndex = layerEllipses.IndexOf(el);
-                                wrongElements.Add(el);
-                                break;
-                            }
-                        }
-                    }
+            //            foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+            //            {
+            //                RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
+            //                isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
+            //                if (isInsert)
+            //                {
+            //                    el.Fill = new SolidColorBrush(Colors.Gray);
+            //                    wrongIndex = layerEllipses.IndexOf(el);
+            //                    wrongElements.Add(el);
+            //                    break;
+            //                }
+            //            }
+            //        }
                     
-                    Line lineAdd = new Line();
-                    lineAdd.Fill = new SolidColorBrush(Colors.Red);
-                    lineAdd.Visibility = System.Windows.Visibility.Visible;
-                    lineAdd.StrokeThickness = LINE_SIZE;
-                    lineAdd.X1 = Canvas.GetLeft(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
-                    lineAdd.Y1 = Canvas.GetTop(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
-                    lineAdd.X2 = Canvas.GetLeft(el) + ELLIPSE_SIZE / 2;
-                    lineAdd.Y2 = Canvas.GetTop(el) + ELLIPSE_SIZE / 2;
-                    if (isInsert)
-                    {
-                        lineAdd.Stroke = System.Windows.Media.Brushes.Gray;
-                        wrongElements.Add(lineAdd);
-                    }
-                    else
-                    {
-                        lineAdd.Stroke = System.Windows.Media.Brushes.Red;
-                    }
-                    CanvasMain.Children.Add(lineAdd);
-                }
+            //        Line lineAdd = new Line();
+            //        lineAdd.Fill = new SolidColorBrush(Colors.Red);
+            //        lineAdd.Visibility = System.Windows.Visibility.Visible;
+            //        lineAdd.StrokeThickness = LINE_SIZE;
+            //        lineAdd.X1 = Canvas.GetLeft(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
+            //        lineAdd.Y1 = Canvas.GetTop(layerEllipses[position-1]) + ELLIPSE_SIZE / 2;
+            //        lineAdd.X2 = Canvas.GetLeft(el) + ELLIPSE_SIZE / 2;
+            //        lineAdd.Y2 = Canvas.GetTop(el) + ELLIPSE_SIZE / 2;
+            //        if (isInsert)
+            //        {
+            //            lineAdd.Stroke = System.Windows.Media.Brushes.Gray;
+            //            wrongElements.Add(lineAdd);
+            //        }
+            //        else
+            //        {
+            //            lineAdd.Stroke = System.Windows.Media.Brushes.Red;
+            //        }
+            //        CanvasMain.Children.Add(lineAdd);
+            //    }
 
-                position++;
-            }
+            //    position++;
+            //}
 
-            List<System.Windows.Point> currentPoints = activeLayer.thread;
-            activeLayer.thread = points;
-            storage.getLayerByName(activeLayer.name).thread = points;
+            //List<System.Windows.Point> currentPoints = activeLayer.thread;
+            //activeLayer.thread = points;
+            //storage.getLayerByName(activeLayer.name).thread = points;
 
-            if (isInsert)
-            {
-                MessageBoxResult result = MessageBox.Show("При удалении точки, сопло проходит через иглу. Отмените удаление, чтобы вернуть траекторию в исходное состояние, " +
-                                                      "либо подтвердите удаление. При подтверждении удаления, путь, отмеченный серым цветом, будет удален.", "Конфликт при удалении", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+            //if (isInsert)
+            //{
+            //    MessageBoxResult result = MessageBox.Show("При удалении точки, сопло проходит через иглу. Отмените удаление, чтобы вернуть траекторию в исходное состояние, " +
+            //                                          "либо подтвердите удаление. При подтверждении удаления, путь, отмеченный серым цветом, будет удален.", "Конфликт при удалении", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
 
-                if (result == MessageBoxResult.OK)
-                {
-                    layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
-                    points.RemoveRange(wrongIndex, points.Count - wrongIndex);
-                    foreach (UIElement el in wrongElements)
-                    {
-                        CanvasMain.Children.Remove(el);
-                    }
-                    MessageBox.Show(layerEllipses.Count.ToString());
-                    if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
-                    {
-                        drawingState = DrawingStates.DRAWING;
-                        currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
-                        currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
-                    }
+            //    if (result == MessageBoxResult.OK)
+            //    {
+            //        layerEllipses.RemoveRange(wrongIndex, layerEllipses.Count - wrongIndex);
+            //        points.RemoveRange(wrongIndex, points.Count - wrongIndex);
+            //        foreach (UIElement el in wrongElements)
+            //        {
+            //            CanvasMain.Children.Remove(el);
+            //        }
+            //        MessageBox.Show(layerEllipses.Count.ToString());
+            //        if (!layerEllipses[0].Equals(layerEllipses[layerEllipses.Count - 1]))
+            //        {
+            //            drawingState = DrawingStates.DRAWING;
+            //            currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+            //            currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+            //        }
 
-                    //activeLayer.layerThread = points;
-                    //storage.getLayerByName(activeLayer.name).layerThread = points;
-                }
-                else if (result == MessageBoxResult.Cancel)
-                {
-                    activeLayer.thread = currentPoints;
-                    storage.getLayerByName(activeLayer.name).thread = currentPoints;
-                    clearTable();
-                    loadActiveLayer(null);
-                }
-            }
+            //        //activeLayer.layerThread = points;
+            //        //storage.getLayerByName(activeLayer.name).layerThread = points;
+            //    }
+            //    else if (result == MessageBoxResult.Cancel)
+            //    {
+            //        activeLayer.thread = currentPoints;
+            //        storage.getLayerByName(activeLayer.name).thread = currentPoints;
+            //        clearTable();
+            //        loadActiveLayer(null);
+            //    }
+            //}
 
-            if (drawingState == DrawingStates.SET_END_POINT && !((Canvas.GetTop(layerEllipses[0]) == Canvas.GetTop(layerEllipses[layerEllipses.Count - 1])) && (Canvas.GetLeft(layerEllipses[0]) == Canvas.GetLeft(layerEllipses[layerEllipses.Count - 1]))) || layerEllipses.Count == 1)
-            {
-                drawingState = DrawingStates.DRAWING;
-            }
+            //if (drawingState == DrawingStates.SET_END_POINT && !((Canvas.GetTop(layerEllipses[0]) == Canvas.GetTop(layerEllipses[layerEllipses.Count - 1])) && (Canvas.GetLeft(layerEllipses[0]) == Canvas.GetLeft(layerEllipses[layerEllipses.Count - 1]))) || layerEllipses.Count == 1)
+            //{
+            //    drawingState = DrawingStates.DRAWING;
+            //}
 
-            if (drawingState == DrawingStates.DRAWING)
-            {
-                currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
-                currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
-            }
+            //if (drawingState == DrawingStates.DRAWING)
+            //{
+            //    currentDotX = (int)points[points.Count - 1].X + ELLIPSE_SIZE / 2;
+            //    currentDotY = (int)points[points.Count - 1].Y + ELLIPSE_SIZE / 2;
+            //}
         }
 
         private void clearTable() 
@@ -1013,5 +1008,10 @@ namespace GCodeConvertor
             }
         }
 
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            Project3dVisualizer project3DVisualizer = new Project3dVisualizer();
+            project3DVisualizer.Show();
+        }
     }
 }

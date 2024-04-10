@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
+using Point = System.Drawing.Point;
+
 namespace GCodeConvertor
 {
     public class GCodeGenerator

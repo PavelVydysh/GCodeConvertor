@@ -15,10 +15,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Point = System.Windows.Point;
 using Rectangle = System.Windows.Shapes.Rectangle;
 using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using GCodeConvertor.WorkspaceInstruments;
+using static System.Windows.Forms.LinkLabel;
 
 namespace GCodeConvertor
 {
@@ -27,13 +29,21 @@ namespace GCodeConvertor
     /// </summary>
     public partial class WorkspaceDrawingControl : UserControl
     {
+        //?????????????????????????? - надо куда-то вынести, дублируется в инструменте рисования и здесь
+        private static Color POINT_COLOR = Colors.Red;
+        private const double ELLIPSE_SIZE = 5;
+        private static Color LINE_COLOR = Colors.Red;
+        private const double LINE_SIZE = 2;
+        //??????????????????????????
 
         // Константы имён элементов
         private const string WORKSPACE_CANVAS_NAME = "WorkspaceCanvas";
+        private const string CUSTOM_ELEMENT_TAG = "custom";
         
-        // Элементы UI элемента рабочей области
+        // Элементы UI элементов рабочей области
         private Canvas workspaceCanvas;
         public List<Rectangle> needles { get; } // список игл 
+        public double cellSize { get; set; }
 
         // Элементы логики рабочей области
         public Topology topology { get; }
@@ -77,7 +87,20 @@ namespace GCodeConvertor
         /// <param name="activeLayer">Слой, с которым должна работать "рисовалка"</param>
         public void setActiveLayer(Layer activeLayer)
         {
+            deleteCustomItems();
             this.activeLayer = activeLayer;
+            initLayer();
+        }
+
+        private void deleteCustomItems()
+        {
+            var canvasChildrens = workspaceCanvas.Children.Cast<FrameworkElement>().ToList();
+
+            foreach (var child in canvasChildrens)
+            {
+                if(child.Tag is not null && child.Tag.Equals(CUSTOM_ELEMENT_TAG))
+                    workspaceCanvas.Children.Remove(child);
+            }
         }
 
         /// <summary>
@@ -88,20 +111,25 @@ namespace GCodeConvertor
         {
             this.workspaceIntrument = workspaceInstrument;
         }
+
+        public string getCustomElementTag()
+        {
+            return CUSTOM_ELEMENT_TAG;
+        }
         
         // Инициализации сетки поля и ячеек
         private void initWorkspace()
         {
-            double size = (double)(workspaceCanvas.ActualWidth / topology.map.GetLength(0));
+            cellSize = (double)(workspaceCanvas.ActualWidth / topology.map.GetLength(0));
 
             for (int i = 0; i < topology.map.GetUpperBound(1) + 1; i++)
             {
                 for (int j = 0; j < topology.map.GetUpperBound(0) + 1; j++)
                 {
-                    Rectangle cell = setupCell(topology.map[i, j], size);
+                    Rectangle cell = setupCell(topology.map[i, j]);
 
-                    Canvas.SetTop(cell, size * j);
-                    Canvas.SetLeft(cell, size * i);
+                    Canvas.SetTop(cell, cellSize * j);
+                    Canvas.SetLeft(cell, cellSize * i);
 
                     workspaceCanvas.Children.Add(cell);
                 }
@@ -110,7 +138,7 @@ namespace GCodeConvertor
             //layerListBox.SelectedIndex = 0;
         }
 
-        private Rectangle setupCell(int cellType, double cellSize)
+        private Rectangle setupCell(int cellType)
         {
             Rectangle cell = new Rectangle();
 
@@ -141,6 +169,75 @@ namespace GCodeConvertor
             return cell;
         }
 
+        private void initLayer()
+        {
+            int pointLastIndex = activeLayer.thread.Count - 1;
+
+            for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++) 
+            {
+                drawPoint(
+                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X), 
+                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y));
+
+                if (pointIndex != pointLastIndex)
+                {
+                    drawLine(
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].X),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].Y));
+                }
+            }
+        }
+
+        private void drawLine(double previousDrawingX, double previousDrawingY, double currentDrawingX, double currentDrawingY)
+        {
+            Line drawingLine = setupLine();
+            drawingLine.X1 = previousDrawingX;
+            drawingLine.Y1 = previousDrawingY;
+            drawingLine.X2 = currentDrawingX;
+            drawingLine.Y2 = currentDrawingY;
+            WorkspaceCanvas.Children.Add(drawingLine);
+        }
+
+        private void drawPoint(double currentDrawingX, double currentDrawingY)
+        {
+            Ellipse drawingPoint = setupEllipse();
+            //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+            Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
+            Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
+            //layerEllipses.Add(ellipse);
+            WorkspaceCanvas.Children.Add(drawingPoint);
+        }
+
+        private Line setupLine()
+        {
+            Line line = new Line();
+            line.Tag = getCustomElementTag();
+            line.Fill = new SolidColorBrush(LINE_COLOR);
+            line.Visibility = Visibility.Visible;
+            line.StrokeThickness = LINE_SIZE;
+            line.Stroke = new SolidColorBrush(LINE_COLOR);
+
+            return line;
+        }
+
+        private Ellipse setupEllipse()
+        {
+            Ellipse ellipse = new Ellipse();
+            ellipse.Tag = getCustomElementTag();
+            ellipse.Height = ELLIPSE_SIZE;
+            ellipse.Width = ELLIPSE_SIZE;
+            ellipse.Fill = new SolidColorBrush(POINT_COLOR);
+
+            return ellipse;
+        }
+
+
+        private double getDrawingValueByThreadValue(double threadValue)
+        {
+            return threadValue * cellSize;
+        }
 
         private void Canvas_Loaded(object sender, RoutedEventArgs e)
         {
@@ -151,6 +248,7 @@ namespace GCodeConvertor
 
         // При наличии нескольких ссылок 2+, то рекомендуется выставлять e.Hadlded = false, 
         // т.к. вышестоящий элемент в иерархии
+
         private void element_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             executeInstrument(EventType.LeftMouseButtonUp, sender, e);

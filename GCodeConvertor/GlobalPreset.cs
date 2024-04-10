@@ -40,7 +40,7 @@ namespace GCodeConvertor
             layers.Add(layer);
         }
 
-        public Layer getLayerByName(string name)
+        public Layer getLayerByGuid(string name)
         {
             foreach (Layer layer in layers)
             {
@@ -53,10 +53,9 @@ namespace GCodeConvertor
             return null;
         }
 
-        public void removeLayerByName(string name)
+        public void removeLayer(Layer layer)
         {
-            Layer layerToRemove = getLayerByName(name);
-            layers.Remove(layerToRemove);
+            layers.Remove(layer);
         }
 
         public void savePreset() 

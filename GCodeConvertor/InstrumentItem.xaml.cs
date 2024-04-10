@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GCodeConvertor
+namespace GCodeConvertor.WorkspaceInstruments
 {
     /// <summary>
     /// Логика взаимодействия для instrumentItem.xaml
@@ -45,7 +45,8 @@ namespace GCodeConvertor
 
         private void selectInstrument(object sender, MouseButtonEventArgs e)
         {
-            workspaceDrawingControl.workspaceIntrument = workspaceInstrument;
+            if(!workspaceDrawingControl.workspaceIntrument.Equals(workspaceInstrument))
+                workspaceDrawingControl.workspaceIntrument = workspaceInstrument;
         }
 
     }
