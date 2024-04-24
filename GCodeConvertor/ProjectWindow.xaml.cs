@@ -228,6 +228,7 @@ namespace GCodeConvertor
 
         private List<Point> getRubberBandPath(Point[] route)
         {
+            route = RoutePreprocessing(route, size);
             var result = new List<Point>();
             var sigmentStart = 0;
             result.Add(route[0]);
@@ -237,16 +238,12 @@ namespace GCodeConvertor
             for (int i = 1; i < route.GetLength(0); i++)
             {
                 point = route[i];
-                
                 isInsert = false;
+
                 for( int j = sigmentStart; j<i; j++)
                 {
-                    LineGeometry lineGeometry = new LineGeometry(route[j], point);
-
                     foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
                     {
-                        //RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
-                        //var isBlock = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
                         Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width/2, Canvas.GetTop(rectangle) + rectangle.Height/2);
                         double distance = FindDistanceToSegment(rectangleCenter, route[j], point);
 
@@ -254,10 +251,19 @@ namespace GCodeConvertor
                         if (distance < rectangle.Width / 2) isBlock = true;
                         if (isBlock)
                         {
-                            isInsert = true;
-                            block = rectangle;
-                            sigmentStart =j;
-                            break;
+                            double angle = -Math.Atan2(route[j].Y - point.Y, route[j].X - point.X);
+                            if (angle > Math.PI / 4 || angle < -Math.PI / 4)
+                            {
+                                isInsert = true;
+                                block = rectangle;
+                                sigmentStart = j;
+                            }
+                            else {
+                                isInsert = true;
+                                block = rectangle;
+                                sigmentStart = j;
+                                break;
+                            }
                           
                         }
                     }
@@ -265,29 +271,47 @@ namespace GCodeConvertor
 
                 if (isInsert)
                 {
-                    double minDistance = double.MaxValue; // должна быть дистанция между точкой и линией от route[sigmentStart] до route[i-1]
-                    //мб есть смысл построить вектор от центра иглы к route[sigmentStart] до route[i] и смотреть, какой угол ближе или смотреть по четвертям 
+                    Point leftTop = new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) - size / 2);
+                    Point rightTop = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) - size / 2);
+                    Point rightDown = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) + block.Height);
+                    Point leftDown = new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height);
+
+                    Point[] segment = new Point[i-sigmentStart];
+                    Array.Copy(route, sigmentStart, segment, 0, i - sigmentStart);
+
+                    double leftTopMinDistance = GetAvgDistance(leftTop, segment);
+                    double rightTopMinDistance = GetAvgDistance(rightTop, segment);
+                    double rightDownMinDistance = GetAvgDistance(rightDown, segment);
+                    double leftDownMinDistance = GetAvgDistance(leftDown, segment);
+
+
+                    double minDistance = double.MaxValue;
                     double angle =- Math.Atan2(route[i].Y - route[sigmentStart].Y, route[i].X - route[sigmentStart].X);
                     Point nearestPoint;
-                    if ((-Math.PI<angle&& angle<= -Math.PI/2 || 0 <= angle && angle < Math.PI / 2) &&FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) - size / 2), route[i], route[i-1]) < minDistance)
+
+                    // левый верх
+                    if ((-Math.PI < angle && angle <= -Math.PI / 2 || 0 <= angle && angle < Math.PI / 2) && leftTopMinDistance < minDistance)
                     {
-                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) - size / 2), route[i], route[i - 1]);
-                        nearestPoint = new Point(Canvas.GetLeft(block)-size/2 , Canvas.GetTop(block) - size / 2);
+                        minDistance = leftTopMinDistance;
+                        nearestPoint = leftTop;
                     }
-                    if ((-Math.PI/2 <= angle && angle < 0 || Math.PI/2 < angle && angle <= Math.PI) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2), route[i], route[i - 1]) < minDistance)
+                    // правый верх
+                    if ((-Math.PI/2 <= angle && angle < 0 || Math.PI/2 < angle && angle <= Math.PI) && rightTopMinDistance < minDistance)
                     {
-                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2), route[i], route[i - 1]);
-                        nearestPoint = new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) - size / 2);
+                        minDistance = rightTopMinDistance;
+                        nearestPoint = rightTop;
                     }
-                    if ((0 < angle && angle <= Math.PI/2 || -Math.PI <= angle && angle < - Math.PI/2) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width  , Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]) < minDistance)
+                    // правый низ
+                    if ((0 < angle && angle <= Math.PI/2 || -Math.PI <= angle && angle < - Math.PI/2) && rightDownMinDistance < minDistance)
                     {
-                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) + block.Width  , Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]);
-                        nearestPoint = new Point(Canvas.GetLeft(block) + block.Width , Canvas.GetTop(block) + block.Height );
+                        minDistance = rightDownMinDistance;
+                        nearestPoint = rightDown;
                     }
-                    if ((Math.PI / 2 <= angle && angle < Math.PI || -Math.PI / 2 < angle && angle <= 0) && FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height), route[i], route[i - 1]) < minDistance)
+                    // левый низ
+                    if ((Math.PI / 2 <= angle && angle < Math.PI || -Math.PI / 2 < angle && angle <= 0) && leftDownMinDistance < minDistance)
                     {
-                        minDistance = FindDistanceToSegment(new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height ), route[i], route[i - 1]);
-                        nearestPoint = new Point(Canvas.GetLeft(block) - size / 2, Canvas.GetTop(block) + block.Height );
+                        minDistance = leftDownMinDistance;
+                        nearestPoint = leftDown;
                     }
                     result.Add(nearestPoint);
                     sigmentStart = i - 1;
@@ -295,8 +319,85 @@ namespace GCodeConvertor
                 }
             }
             if(result.Count>1) result.Add(route.Last());
+            //return RemoveExtraPoints(result);
             return result;
         }
+
+        public static Point[] RoutePreprocessing(Point[] route, double segmentLength)
+        {
+            List<Point> subdividedRoute = new List<Point>();
+
+            for (int i = 0; i < route.Length - 1; i++)
+            {
+                Point start = route[i];
+                Point end = route[i + 1];
+
+                double distance = GetDistance(start, end);
+                int segmentsCount = (int)Math.Ceiling(distance / segmentLength);
+
+                double deltaX = (end.X - start.X) / distance * segmentLength;
+                double deltaY = (end.Y - start.Y) / distance * segmentLength;
+
+                for (int j = 0; j < segmentsCount; j++)
+                {
+                    double newX = start.X + deltaX * j;
+                    double newY = start.Y + deltaY * j;
+                    subdividedRoute.Add(new Point(newX, newY));
+                }
+            }
+
+            subdividedRoute.Add(route[route.Length - 1]);
+
+            return subdividedRoute.ToArray();
+        }
+        public List<Point> RemoveExtraPoints(List<Point> subdividedRoute)
+        {
+            for (int i = 0; i < subdividedRoute.Count - 3;)
+            {
+
+                Boolean isBlock = false;
+                foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                {
+                    Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
+                    double distance = FindDistanceToSegment(rectangleCenter, subdividedRoute[i], subdividedRoute[i + 2]);
+                    if (distance < rectangle.Width / 2)
+                    {
+                        isBlock = true;
+                        break;
+                    }
+                }
+                if (!isBlock)
+                {
+                    subdividedRoute.RemoveAt(i + 1);
+                }
+                else i++;
+            }
+            return subdividedRoute;
+        }
+        private static double GetAvgDistance(Point point, Point[] route) 
+        {
+            double avgDistance = 0;
+            double distance = 0;
+            int count = 0;
+            foreach(Point p in route)
+            {
+                distance = GetDistance(p, point);
+                if(distance < 100)
+                {
+                    avgDistance += distance;
+                    count++;
+                }
+            }
+            return avgDistance / count;
+        }
+
+        private static double GetDistance(Point p1, Point p2)
+        {
+            double deltaX = p2.X - p1.X;
+            double deltaY = p2.Y - p1.Y;
+            return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        }
+
         public static double DistanceFromPointToLine(Point point, Point l1, Point l2)
         {
             return Math.Abs((l2.X - l1.X) * (l1.Y - point.Y) - (l1.X - point.X) * (l2.Y - l1.Y)) /
