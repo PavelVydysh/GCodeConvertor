@@ -1,5 +1,6 @@
 ﻿using GCodeConvertor;
 using GCodeConvertor.ProjectForm;
+using GCodeConvertor.UI;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,8 @@ namespace GCodeConvertor
             setCreateType(new CreateTypeA());
             topologyModel = new TopologyModel();
             this.DataContext = topologyModel;
+            OpenProjectForm opf = new OpenProjectForm();
+            opf.Show();
         }
 
         private void CreateProjectA(object sender, RoutedEventArgs e)

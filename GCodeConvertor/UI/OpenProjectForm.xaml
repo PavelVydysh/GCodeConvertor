@@ -1,0 +1,243 @@
+﻿<Window x:Class="GCodeConvertor.UI.OpenProjectForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCodeConvertor.UI"
+        mc:Ignorable="d" WindowStyle="None" Title="Добро пожаловать в G-Code Converter" Height="600" Width="800" Background="#F4F4F4"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico">
+    <Window.Resources>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F4F4F4"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#F4F4F4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TextBoxButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#AAAAAA"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                BorderBrush="{TemplateBinding BorderBrush}" 
+                BorderThickness="{TemplateBinding BorderThickness}" 
+                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BodyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BodyTextCueStyle" TargetType="TextBlock">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinHeight" Value="30"/>
+        </Style>
+        <Style x:Key="ProjectTextBlockNameStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style x:Key="ProjectTextBlockPathStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#888888"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="ProjectTextBlockDateStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#888888"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="ProjectBlockStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Margin="10, 5"/>
+                        </Border>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#CDE5FB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#CDE5FB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="#F4F4F4" MouseLeftButtonDown="MoveWindow">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
+                <TextBlock Text="Добро пожаловать в G-Code Converter" FontSize="14" VerticalAlignment="Center" Foreground="#888888"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+            <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
+            <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+        </Grid>
+        <Grid Grid.Row="1" Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Border BorderBrush="#E2E2E2" BorderThickness="1">
+                <Grid Grid.Row="0" Margin="20,20,20,20" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                   
+                    <Image Grid.Column="0" Margin="0,0,15,0" Source="pack://application:,,,/Resources/loupe.png" Width="20" Height="20"></Image>
+                    <TextBlock Name="projectSearchCue" Grid.Column="1" Style="{StaticResource BodyTextCueStyle}"
+                               Text="Поиск проекта..." 
+                               Foreground="Gray"                        
+                               VerticalAlignment="Center" 
+                               HorizontalAlignment="Stretch"
+                               Width="auto"
+                               Margin="5,0,15,0"/>
+
+                    <TextBox Name="projectSearch" Grid.Column="1" Style="{StaticResource BodyTextBoxStyle}" 
+                        Background="Transparent"                        
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Stretch"
+                        Width="auto"
+                        Margin="0,0,15,0"
+                        TextChanged="projectSearch_TextChanged">
+                    </TextBox>
+                    <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект"></Button>
+                    <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть"></Button>
+                    <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки"></Button>
+                </Grid>
+            </Border>
+            <ListBox x:Name="ProjectItemListBox" Grid.Row="1" Padding="10, 5, 10, 5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" d:ItemsSource="{d:SampleData ItemCount=5}">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="border"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        BorderThickness="1"
+                                        CornerRadius="5">
+                                        <ContentPresenter/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="border" Property="Background" Value="#CDE5FB"/>
+                                            <Setter TargetName="border" Property="BorderBrush" Value="#CDE5FB"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource ProjectBlockStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Grid.Column="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent"></TextBlock>
+                                    <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
+                                </Grid>
+                                <TextBlock Style="{StaticResource ProjectTextBlockDateStyle}" VerticalAlignment="Center" Grid.Column="1" Text="{Binding ModifiedDate}" Background="Transparent"></TextBlock>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+        </Grid>
+    </Grid>
+
+</Window>

@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\gcode_logo.ico" />
+    <None Remove="Resources\loupe.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
@@ -15,6 +20,15 @@
     <PackageReference Include="HelixToolkit.Wpf" Version="2.25.0" />
     <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="SharpSerializer" Version="2.20.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\gcode_logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\loupe.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
