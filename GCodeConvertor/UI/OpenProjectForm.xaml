@@ -129,6 +129,44 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="CustomListBoxStyle" TargetType="ListBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBox">
+                        <Border BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="5">
+                            <ScrollViewer Padding="{TemplateBinding Padding}"
+                                  Focusable="false"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer.Resources>
+                                    <Style TargetType="ScrollBar">
+                                        <Setter Property="Width" Value="10"/>
+                                        <Setter Property="Background" Value="LightGray"/>
+                                        <Setter Property="BorderBrush" Value="Gray"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ScrollBar">
+                                                    <Track x:Name="PART_Track" Grid.Row="0" IsDirectionReversed="False">
+                                                        <Track.Thumb>
+                                                            <Thumb Background="DarkGray" Margin="1"/>
+                                                        </Track.Thumb>
+                                                    </Track>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ScrollViewer.Resources>
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                            </ScrollViewer>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -189,7 +227,7 @@
                     <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки"></Button>
                 </Grid>
             </Border>
-            <ListBox x:Name="ProjectItemListBox" Grid.Row="1" Padding="10, 5, 10, 5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" d:ItemsSource="{d:SampleData ItemCount=5}">
+            <ListBox x:Name="ProjectItemListBox" Style="{StaticResource CustomListBoxStyle}" Grid.Row="1" Padding="10, 5, 10, 5" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" d:ItemsSource="{d:SampleData ItemCount=5}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Template">

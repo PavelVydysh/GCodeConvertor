@@ -36,8 +36,24 @@ namespace GCodeConvertor.UI
             DataContext = this;
 
             ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "project_2", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "project_3e", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "534", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "4", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
             ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+
+            ProjectItems.Add(new ProjectItem { ProjectName = "6", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
             ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "5", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+
+            ProjectItems.Add(new ProjectItem { ProjectName = "124124", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "345346", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+
+            ProjectItems.Add(new ProjectItem { ProjectName = "1", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "12421412", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+            ProjectItems.Add(new ProjectItem { ProjectName = "124", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+
 
         }
 
