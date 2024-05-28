@@ -42,7 +42,9 @@ namespace GCodeConvertor
         
         // Элементы UI элементов рабочей области
         private Canvas workspaceCanvas;
+        public List<Ellipse> ellipses { get; }
         public List<Rectangle> needles { get; } // список игл 
+        public CustomLineStorage customLineStorage { get; set; }
         public double cellSize { get; set; }
 
         // Элементы логики рабочей области
@@ -60,7 +62,8 @@ namespace GCodeConvertor
             workspaceCanvas = (Canvas)FindName(WORKSPACE_CANVAS_NAME);
             setupWorkspaceCanvasEvents();
             needles = new List<Rectangle>();
-
+            ellipses = new List<Ellipse>();
+            customLineStorage = new CustomLineStorage();
         }
 
         private void setupWorkspaceCanvasEvents()
@@ -87,8 +90,18 @@ namespace GCodeConvertor
         /// <param name="activeLayer">Слой, с которым должна работать "рисовалка"</param>
         public void setActiveLayer(Layer activeLayer)
         {
+            customLineStorage.clear();
+            ellipses.Clear();
             deleteCustomItems();
             this.activeLayer = activeLayer;
+            initLayer();
+        }
+
+        public void repaint()
+        {
+            customLineStorage.clear();
+            ellipses.Clear();
+            deleteCustomItems();
             initLayer();
         }
 
@@ -173,15 +186,25 @@ namespace GCodeConvertor
         {
             int pointLastIndex = activeLayer.thread.Count - 1;
 
+            Ellipse oldEllipse = null;
+            Ellipse currentEllipse = null;
+            Line currentLine = null;
+
             for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++) 
             {
-                drawPoint(
+                oldEllipse = currentEllipse;
+                currentEllipse = drawPoint(
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X), 
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y));
+                
+                if (ellipses.Count >= 2)
+                {
+                    customLineStorage.addLine(new CustomLine(currentLine, oldEllipse, currentEllipse));
+                }
 
                 if (pointIndex != pointLastIndex)
                 {
-                    drawLine(
+                    currentLine = drawLine(
                         getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
                         getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
                         getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].X),
@@ -190,7 +213,7 @@ namespace GCodeConvertor
             }
         }
 
-        private void drawLine(double previousDrawingX, double previousDrawingY, double currentDrawingX, double currentDrawingY)
+        private Line drawLine(double previousDrawingX, double previousDrawingY, double currentDrawingX, double currentDrawingY)
         {
             Line drawingLine = setupLine();
             drawingLine.X1 = previousDrawingX;
@@ -198,16 +221,21 @@ namespace GCodeConvertor
             drawingLine.X2 = currentDrawingX;
             drawingLine.Y2 = currentDrawingY;
             WorkspaceCanvas.Children.Add(drawingLine);
+            return drawingLine;
         }
 
-        private void drawPoint(double currentDrawingX, double currentDrawingY)
+        private Ellipse drawPoint(double currentDrawingX, double currentDrawingY)
         {
             Ellipse drawingPoint = setupEllipse();
+            ellipses.Add(drawingPoint);
             //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
             Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
             Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
             //layerEllipses.Add(ellipse);
+            drawingPoint.MouseLeftButtonDown += element_MouseLeftButtonDown;
+            drawingPoint.MouseMove += element_MouseMove;
             WorkspaceCanvas.Children.Add(drawingPoint);
+            return drawingPoint;
         }
 
         private Line setupLine()
@@ -249,20 +277,20 @@ namespace GCodeConvertor
         // При наличии нескольких ссылок 2+, то рекомендуется выставлять e.Hadlded = false, 
         // т.к. вышестоящий элемент в иерархии
 
-        private void element_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        public void element_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             executeInstrument(EventType.LeftMouseButtonUp, sender, e);
         }
-        private void element_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void element_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             executeInstrument(EventType.LeftMouseButtonDown, sender, e);
             e.Handled = false;
         }
-        private void element_MouseWheel(object sender, MouseEventArgs e)
+        public void element_MouseWheel(object sender, MouseEventArgs e)
         {
             executeInstrument(EventType.MouseWheel, sender, e);
         }
-        private void element_MouseMove(object sender, MouseEventArgs e)
+        public void element_MouseMove(object sender, MouseEventArgs e)
         {
             executeInstrument(EventType.MouseMove, sender, e);
         }

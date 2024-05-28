@@ -33,6 +33,11 @@ namespace GCodeConvertor.WorkspaceInstruments
         private const double ELLIPSE_SIZE = 5;
         private static Color LINE_COLOR = Colors.Red;
         private const double LINE_SIZE = 2;
+        private bool isDraggingEllipse = false;
+        private Line fLine;
+        private Line sLine;
+        private Point offset;
+        private Point startDraggingPoint;
 
         public DrawingWorkspaceInstrument(WorkspaceDrawingControl workspaceDrawingControl) : base(workspaceDrawingControl) { }
 
@@ -40,6 +45,93 @@ namespace GCodeConvertor.WorkspaceInstruments
         {
             if (eventType == EventType.LeftMouseButtonDown && sender is Rectangle)
                 lmbDownOnCell((Rectangle) sender, (MouseButtonEventArgs) e);
+            if (eventType == EventType.LeftMouseButtonDown && sender is Ellipse)
+                lmbDownOnPoint((Ellipse) sender, (MouseButtonEventArgs)e);
+            if (eventType == EventType.MouseMove && sender is Ellipse)
+                mouseMoveOnPoint((Ellipse)sender, (MouseEventArgs)e);
+        }
+
+        private void mouseMoveOnPoint(Ellipse point, MouseEventArgs e)
+        {
+            if (isDraggingEllipse)
+            {
+                var position = e.GetPosition(workspaceDrawingControl.WorkspaceCanvas);
+                Canvas.SetLeft(point, position.X - offset.X);
+                Canvas.SetTop(point, position.Y - offset.Y);
+
+                if (fLine != null)
+                {
+                    UpdateLinePosition(fLine, point, false);
+                }
+
+                if (sLine != null)
+                {
+                    UpdateLinePosition(sLine, point, true);
+                }
+            }
+        }
+
+        private void lmbDownOnPoint(Ellipse point, MouseButtonEventArgs e)
+        {
+            if (isDraggingEllipse)
+            {
+                isDraggingEllipse = false;
+                point.ReleaseMouseCapture();
+                int newTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).X / workspaceDrawingControl.cellSize);
+                int newTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).Y / workspaceDrawingControl.cellSize);
+                int index = workspaceDrawingControl.activeLayer.getThreadPoint(startDraggingPoint);
+                workspaceDrawingControl.activeLayer.thread[index] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
+                workspaceDrawingControl.repaint();
+                //clearTable();
+                //repaintTable();
+                return;
+            }
+
+            if (point.Equals(workspaceDrawingControl.ellipses[0]))
+            {
+                return;
+            }
+
+            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).X / workspaceDrawingControl.cellSize);
+            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).Y / workspaceDrawingControl.cellSize);
+            startDraggingPoint = new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY));
+
+            CustomLine[] cuLines = workspaceDrawingControl.customLineStorage.getLinesByEllipse(point);
+            if (cuLines != null)
+            {
+                if (cuLines[0] != null)
+                {
+                    fLine = cuLines[0].line;
+                }
+
+                if (cuLines[1] != null)
+                {
+                    sLine = cuLines[1].line;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Внутренняя ошибка");
+            }
+
+            isDraggingEllipse = true;
+            offset = e.GetPosition(point);
+            point.CaptureMouse();
+        }
+
+        private void UpdateLinePosition(Line lineL, Ellipse el, bool isSec)
+        {
+            var ellipseCenterX = Canvas.GetLeft(el) + el.Width / 2;
+            var ellipseCenterY = Canvas.GetTop(el) + el.Height / 2;
+
+            if (isSec)
+            {
+                lineL.X2 = ellipseCenterX;
+                lineL.Y2 = ellipseCenterY;
+                return;
+            }
+            lineL.X1 = ellipseCenterX;
+            lineL.Y1 = ellipseCenterY;
         }
 
         private DrawingStates getCurrentDrawingState()
@@ -108,7 +200,6 @@ namespace GCodeConvertor.WorkspaceInstruments
             }
 
             Line line = setupLine();
-
             line.X1 = previousDrawingX;
             line.Y1 = previousDrawingY;
             line.X2 = currentDrawingX;
@@ -116,7 +207,12 @@ namespace GCodeConvertor.WorkspaceInstruments
 
             workspaceDrawingControl.WorkspaceCanvas.Children.Add(line);
 
-            drawPoint(currentDrawingX, currentDrawingY);
+            Ellipse ellipse = drawPoint(currentDrawingX, currentDrawingY);
+
+            if (workspaceDrawingControl.ellipses.Count >= 2)
+            {
+                workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
+            }                
 
             workspaceDrawingControl.activeLayer.thread.Add(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
 
@@ -125,14 +221,16 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         }
 
-        private void drawPoint(double currentDrawingX, double currentDrawingY)
+        private Ellipse drawPoint(double currentDrawingX, double currentDrawingY)
         {
             Ellipse drawingPoint = setupEllipse();
+            workspaceDrawingControl.ellipses.Add(drawingPoint);
             //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
             Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
             Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
             //layerEllipses.Add(ellipse);
             workspaceDrawingControl.WorkspaceCanvas.Children.Add(drawingPoint);
+            return drawingPoint;
         }
 
         private Line setupLine()
@@ -154,6 +252,8 @@ namespace GCodeConvertor.WorkspaceInstruments
             ellipse.Height = ELLIPSE_SIZE;
             ellipse.Width = ELLIPSE_SIZE;
             ellipse.Fill = new SolidColorBrush(POINT_COLOR);
+            ellipse.MouseLeftButtonDown += workspaceDrawingControl.element_MouseLeftButtonDown;
+            ellipse.MouseMove += workspaceDrawingControl.element_MouseMove;
 
             return ellipse;
         }

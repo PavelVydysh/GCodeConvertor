@@ -53,5 +53,14 @@ namespace GCodeConvertor
             return (this.guid.Equals(((Layer)obj).guid));
         }
 
+        public int getThreadPoint(Point point)
+        {
+            for(int i = 0; i < thread.Count; i++)
+            {
+                if (thread[i].Equals(point)) return i;
+            }
+            return -1;
+        }
+
     }
 }
