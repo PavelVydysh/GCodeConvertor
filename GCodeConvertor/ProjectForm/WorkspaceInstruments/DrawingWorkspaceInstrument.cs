@@ -15,6 +15,7 @@ using Rectangle = System.Windows.Shapes.Rectangle;
 using Ellipse = System.Windows.Shapes.Ellipse;
 using Color = System.Windows.Media.Color;
 using Point = System.Windows.Point;
+using System.Windows.Forms.VisualStyles;
 
 
 namespace GCodeConvertor.WorkspaceInstruments
@@ -30,14 +31,21 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private const string END_STATE_MESSAGE = "Слой является законченным";
         private static Color POINT_COLOR = Colors.Red;
+        private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private const double ELLIPSE_SIZE = 5;
         private static Color LINE_COLOR = Colors.Red;
         private const double LINE_SIZE = 2;
+        private const double SELECTING_RECTANGLE_STROKE_THIKNESS = 2;
+        private static Color SELECTING_RECTANGLE_COLOR = Colors.Blue;
+
         private bool isDraggingEllipse = false;
+
         private Line fLine;
         private Line sLine;
         private Point offset;
         private Point startDraggingPoint;
+        private Point startSelectingPoint;
+        private Rectangle selectingRectangle;
 
         public DrawingWorkspaceInstrument(WorkspaceDrawingControl workspaceDrawingControl) : base(workspaceDrawingControl) { }
 
@@ -49,13 +57,213 @@ namespace GCodeConvertor.WorkspaceInstruments
                 lmbDownOnPoint((Ellipse) sender, (MouseButtonEventArgs)e);
             if (eventType == EventType.MouseMove && sender is Ellipse)
                 mouseMoveOnPoint((Ellipse)sender, (MouseEventArgs)e);
+            if (eventType == EventType.RightMouseButtonDown && sender is Ellipse)
+                rmbDownOnPoint((Ellipse)sender, (MouseButtonEventArgs)e);
+            if (eventType == EventType.KeyDown && sender is WorkspaceDrawingControl)
+                pressOnButton((WorkspaceDrawingControl)sender, (KeyEventArgs)e);
+            if (eventType == EventType.RightMouseButtonDown && sender is Canvas)
+                rmbDownOnCanvas((Canvas)sender, (MouseButtonEventArgs)e);
+            if (eventType == EventType.RightMouseButtonUp && sender is Canvas)
+                rmbUpOnCanvas((Canvas)sender, (MouseButtonEventArgs)e);
+            if (eventType == EventType.MouseMove && sender is Canvas)
+                mouseMoveOnCanvas((Canvas)sender, (MouseEventArgs)e);
+                
+        }
+
+        private void mouseMoveOnCanvas(Canvas canvas, MouseEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
+            {
+                Point currentPoint = e.GetPosition(workspaceDrawingControl.workspaceCanvas);
+
+                double left = Math.Min(startSelectingPoint.X, currentPoint.X);
+                double top = Math.Min(startSelectingPoint.Y, currentPoint.Y);
+
+                double width = Math.Abs(startSelectingPoint.X - currentPoint.X);
+                double height = Math.Abs(startSelectingPoint.Y - currentPoint.Y);
+
+                selectingRectangle.Width = width;
+                selectingRectangle.Height = height;
+
+                Canvas.SetLeft(selectingRectangle, left);
+                Canvas.SetTop(selectingRectangle, top);
+                selectEllipsesInsideSelectionRectangle(left, top, width, height);
+            }
+        }
+
+        private void selectEllipsesInsideSelectionRectangle(double left, double top, double width, double height)
+        {
+            foreach (Point point in workspaceDrawingControl.activeLayer.thread)
+            {
+                double pointX = getDrawingValueByThreadValue(point.X);
+                double pointY = getDrawingValueByThreadValue(point.Y);
+
+                if (pointX >= left && pointX <= left + width &&
+                        pointY >= top && pointY <= top + height)
+                {
+                    if (!workspaceDrawingControl.activeLayer.selectedThread.Contains(point) && workspaceDrawingControl.activeLayer.thread.IndexOf(point) != 0)
+                    {
+                        workspaceDrawingControl.activeLayer.selectedThread.Add(point);
+                    }
+                }
+                else
+                {
+                    workspaceDrawingControl.activeLayer.selectedThread.Remove(point);
+                }
+            }
+            workspaceDrawingControl.repaint();
+        }
+
+        private void rmbUpOnCanvas(Canvas canvas, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Released)
+            {
+                workspaceDrawingControl.workspaceCanvas.ReleaseMouseCapture();
+                workspaceDrawingControl.workspaceCanvas.Children.Remove(selectingRectangle);
+            }
+        }
+
+        private void rmbDownOnCanvas(Canvas canvas, MouseButtonEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Pressed)
+            {
+                workspaceDrawingControl.activeLayer.selectedThread.Clear();
+
+                startSelectingPoint = e.GetPosition(workspaceDrawingControl.workspaceCanvas);
+                selectingRectangle = new Rectangle
+                {
+                    StrokeThickness = 2,
+                    Fill = new SolidColorBrush(SELECTING_RECTANGLE_COLOR) { Opacity = 0.3 },
+                    IsHitTestVisible = false
+                };
+                Canvas.SetLeft(selectingRectangle, startSelectingPoint.X);
+                Canvas.SetTop(selectingRectangle, startSelectingPoint.Y);
+                workspaceDrawingControl.workspaceCanvas.Children.Add(selectingRectangle);
+                workspaceDrawingControl.workspaceCanvas.CaptureMouse();
+                workspaceDrawingControl.repaint();
+            }
+        }
+
+        private void pressOnButton(WorkspaceDrawingControl window, KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Delete))
+            {
+                hardDelete();
+                return;
+            }
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.A))
+            { 
+                selectAll();
+                return;
+            }
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.I))
+            {
+                selectInterval();
+                return;
+            }
+
+            switch (e.Key)
+            {
+                case Key.Delete:
+                    {
+                        deleteAll();
+                        break;
+                    }
+            }
+        }
+
+        private void selectInterval()
+        {
+            if (workspaceDrawingControl.activeLayer.selectedThread.Count >= 2)
+            {
+                List<int> positions = new List<int>();
+                foreach (Point point in workspaceDrawingControl.activeLayer.selectedThread)
+                {
+                    positions.Add(workspaceDrawingControl.activeLayer.thread.IndexOf(point));
+                }
+
+                int minPosition = positions.Min();
+                int maxPosition = positions.Max();
+
+                for (int i = minPosition + 1; i < maxPosition; i++)
+                {
+                    Point point = workspaceDrawingControl.activeLayer.thread[i];
+                    if (!workspaceDrawingControl.activeLayer.selectedThread.Contains(point))
+                    {
+                        workspaceDrawingControl.activeLayer.selectedThread.Add(point);
+                    }
+                }
+                workspaceDrawingControl.repaint();
+            }
+        }
+
+        private void selectAll()
+        {
+            if (workspaceDrawingControl.activeLayer.thread.Skip(1).Except(workspaceDrawingControl.activeLayer.selectedThread).Count() == 0)
+            {
+                workspaceDrawingControl.activeLayer.selectedThread.Clear();
+            }
+            else
+            {
+                workspaceDrawingControl.activeLayer.selectedThread.Clear();
+                workspaceDrawingControl.activeLayer.selectedThread.AddRange(workspaceDrawingControl.activeLayer.thread.Skip(1));
+            }
+            workspaceDrawingControl.repaint();
+        }
+
+        private void hardDelete()
+        {
+            int minPosition = int.MaxValue;
+            foreach (Point selectedPoint in workspaceDrawingControl.activeLayer.selectedThread)
+            {
+                int position = workspaceDrawingControl.activeLayer.getThreadPoint(selectedPoint);
+                if (position < minPosition)                 
+                    minPosition = position;
+            }
+            if(minPosition != -1)
+            {
+                workspaceDrawingControl.activeLayer.thread.RemoveRange(minPosition, workspaceDrawingControl.activeLayer.thread.Count - minPosition);
+                workspaceDrawingControl.activeLayer.selectedThread.Clear();
+                workspaceDrawingControl.repaint();
+            }
+        }
+
+        private void deleteAll()
+        {
+            foreach(Point point in workspaceDrawingControl.activeLayer.selectedThread){
+                workspaceDrawingControl.activeLayer.thread.RemoveAll(item => item.Equals(point));                
+            }
+            workspaceDrawingControl.activeLayer.selectedThread.Clear();
+            workspaceDrawingControl.repaint();
+        }
+
+        private void rmbDownOnPoint(Ellipse point, MouseButtonEventArgs e) {
+            double threadX = getThreadValueByTopologyValue((int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize));
+            double threadY = getThreadValueByTopologyValue((int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize));
+
+            Point selectedPoint = new Point(threadX, threadY);
+
+            if (workspaceDrawingControl.activeLayer.thread[0].Equals(selectedPoint))
+            {
+                return;
+            }
+            if (workspaceDrawingControl.activeLayer.isDotSelected(selectedPoint))
+            {
+                workspaceDrawingControl.activeLayer.selectedThread.Remove(selectedPoint);
+                point.Fill = new SolidColorBrush(POINT_COLOR);
+            }
+            else
+            {
+                workspaceDrawingControl.activeLayer.selectedThread.Add(selectedPoint);
+                point.Fill = new SolidColorBrush(SELECTED_POINT_COLOR);
+            }
         }
 
         private void mouseMoveOnPoint(Ellipse point, MouseEventArgs e)
         {
             if (isDraggingEllipse)
             {
-                var position = e.GetPosition(workspaceDrawingControl.WorkspaceCanvas);
+                var position = e.GetPosition(workspaceDrawingControl.workspaceCanvas);
                 Canvas.SetLeft(point, position.X - offset.X);
                 Canvas.SetTop(point, position.Y - offset.Y);
 
@@ -77,10 +285,15 @@ namespace GCodeConvertor.WorkspaceInstruments
             {
                 isDraggingEllipse = false;
                 point.ReleaseMouseCapture();
-                int newTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).X / workspaceDrawingControl.cellSize);
-                int newTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).Y / workspaceDrawingControl.cellSize);
+                int newTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
+                int newTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
                 int index = workspaceDrawingControl.activeLayer.getThreadPoint(startDraggingPoint);
                 workspaceDrawingControl.activeLayer.thread[index] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
+                int selectedIndex = workspaceDrawingControl.activeLayer.getSelectedThreadPoint(startDraggingPoint);
+                if (selectedIndex != -1)
+                {
+                    workspaceDrawingControl.activeLayer.selectedThread[selectedIndex] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
+                }
                 workspaceDrawingControl.repaint();
                 //clearTable();
                 //repaintTable();
@@ -92,8 +305,8 @@ namespace GCodeConvertor.WorkspaceInstruments
                 return;
             }
 
-            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).X / workspaceDrawingControl.cellSize);
-            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).Y / workspaceDrawingControl.cellSize);
+            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
+            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
             startDraggingPoint = new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY));
 
             CustomLine[] cuLines = workspaceDrawingControl.customLineStorage.getLinesByEllipse(point);
@@ -147,8 +360,8 @@ namespace GCodeConvertor.WorkspaceInstruments
         {
             DrawingStates currentDrawingState = getCurrentDrawingState();
 
-            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).X / workspaceDrawingControl.cellSize);
-            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.WorkspaceCanvas).Y / workspaceDrawingControl.cellSize);
+            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
+            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
 
             int cellType = workspaceDrawingControl.topology.map[currentTopologyX, currentTopologyY];
 
@@ -205,7 +418,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             line.X2 = currentDrawingX;
             line.Y2 = currentDrawingY;
 
-            workspaceDrawingControl.WorkspaceCanvas.Children.Add(line);
+            workspaceDrawingControl.workspaceCanvas.Children.Add(line);
 
             Ellipse ellipse = drawPoint(currentDrawingX, currentDrawingY);
 
@@ -229,7 +442,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
             Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
             //layerEllipses.Add(ellipse);
-            workspaceDrawingControl.WorkspaceCanvas.Children.Add(drawingPoint);
+            workspaceDrawingControl.workspaceCanvas.Children.Add(drawingPoint);
             return drawingPoint;
         }
 
@@ -254,6 +467,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             ellipse.Fill = new SolidColorBrush(POINT_COLOR);
             ellipse.MouseLeftButtonDown += workspaceDrawingControl.element_MouseLeftButtonDown;
             ellipse.MouseMove += workspaceDrawingControl.element_MouseMove;
+            ellipse.MouseRightButtonDown += workspaceDrawingControl.element_MouseRightButtonDown;
 
             return ellipse;
         }

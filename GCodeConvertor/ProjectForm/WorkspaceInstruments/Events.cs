@@ -14,6 +14,7 @@ namespace GCodeConvertor.WorkspaceInstruments
         RightMouseButtonUp,
         MouseWheel,
         MouseMove,
-        MouseLeave
+        MouseLeave,
+        KeyDown
     }
 }

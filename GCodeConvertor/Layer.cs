@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml.Serialization;
 using Point = System.Windows.Point;
 
 namespace GCodeConvertor
@@ -20,6 +20,9 @@ namespace GCodeConvertor
         public string name { get; set; }
         public float height { get; set; }
         public List<Point> thread { get; set; }
+        
+        [XmlIgnore]
+        public List<Point> selectedThread { get; set; }
         public bool isEnable { get; set; }
 
         public Layer(string name, float height)
@@ -28,11 +31,17 @@ namespace GCodeConvertor
             this.name = name;
             this.height = height;
             thread = new List<Point>();
+            selectedThread = new List<Point>();
             isEnable = true;
         }
 
         public Layer() : this(DEFAULT_NAME, DEFAULT_HEIGHT) { }
         
+        public bool isDotSelected(Point point)
+        {
+            return selectedThread.Contains(point);
+        }
+
         public bool isEnded()
         {
             if (thread.Count < 2)
@@ -58,6 +67,15 @@ namespace GCodeConvertor
             for(int i = 0; i < thread.Count; i++)
             {
                 if (thread[i].Equals(point)) return i;
+            }
+            return -1;
+        }
+
+        public int getSelectedThreadPoint(Point point)
+        {
+            for (int i = 0; i < selectedThread.Count; i++)
+            {
+                if (selectedThread[i].Equals(point)) return i;
             }
             return -1;
         }

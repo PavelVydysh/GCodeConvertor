@@ -34,6 +34,7 @@ namespace GCodeConvertor
         private const double ELLIPSE_SIZE = 5;
         private static Color LINE_COLOR = Colors.Red;
         private const double LINE_SIZE = 2;
+        private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         //??????????????????????????
 
         // Константы имён элементов
@@ -41,9 +42,12 @@ namespace GCodeConvertor
         private const string CUSTOM_ELEMENT_TAG = "custom";
         
         // Элементы UI элементов рабочей области
-        private Canvas workspaceCanvas;
+        public Canvas workspaceCanvas { get; }
+        
+        // Списки иголок кружочков квадратов
         public List<Ellipse> ellipses { get; }
         public List<Rectangle> needles { get; } // список игл 
+
         public CustomLineStorage customLineStorage { get; set; }
         public double cellSize { get; set; }
 
@@ -72,9 +76,12 @@ namespace GCodeConvertor
 
             // Назначаем обработку событий, за которые должны отвечать инструменты на реализацию WorkspaceInstrument
             workspaceCanvas.MouseLeftButtonDown += element_MouseLeftButtonDown;
+            workspaceCanvas.MouseRightButtonDown += element_MouseRightButtonDown;
+            workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
             workspaceCanvas.MouseWheel += element_MouseWheel;
+            this.KeyDown += element_KeyDown;
         }
         private void executeInstrument(EventType eventType, object sender, EventArgs e)
         {
@@ -92,6 +99,7 @@ namespace GCodeConvertor
         {
             customLineStorage.clear();
             ellipses.Clear();
+            
             deleteCustomItems();
             this.activeLayer = activeLayer;
             initLayer();
@@ -195,7 +203,8 @@ namespace GCodeConvertor
                 oldEllipse = currentEllipse;
                 currentEllipse = drawPoint(
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X), 
-                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y));
+                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
+                    activeLayer.isDotSelected(activeLayer.thread[pointIndex]));
                 
                 if (ellipses.Count >= 2)
                 {
@@ -220,21 +229,22 @@ namespace GCodeConvertor
             drawingLine.Y1 = previousDrawingY;
             drawingLine.X2 = currentDrawingX;
             drawingLine.Y2 = currentDrawingY;
-            WorkspaceCanvas.Children.Add(drawingLine);
+            workspaceCanvas.Children.Add(drawingLine);
             return drawingLine;
         }
 
-        private Ellipse drawPoint(double currentDrawingX, double currentDrawingY)
+        private Ellipse drawPoint(double currentDrawingX, double currentDrawingY, bool isSelected)
         {
-            Ellipse drawingPoint = setupEllipse();
+            Ellipse drawingPoint = setupEllipse(isSelected);
             ellipses.Add(drawingPoint);
             //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
             Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
             Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
             //layerEllipses.Add(ellipse);
             drawingPoint.MouseLeftButtonDown += element_MouseLeftButtonDown;
+            drawingPoint.MouseRightButtonDown += element_MouseRightButtonDown;
             drawingPoint.MouseMove += element_MouseMove;
-            WorkspaceCanvas.Children.Add(drawingPoint);
+            workspaceCanvas.Children.Add(drawingPoint);
             return drawingPoint;
         }
 
@@ -250,14 +260,18 @@ namespace GCodeConvertor
             return line;
         }
 
-        private Ellipse setupEllipse()
+        private Ellipse setupEllipse(bool isSelected)
         {
             Ellipse ellipse = new Ellipse();
             ellipse.Tag = getCustomElementTag();
             ellipse.Height = ELLIPSE_SIZE;
             ellipse.Width = ELLIPSE_SIZE;
             ellipse.Fill = new SolidColorBrush(POINT_COLOR);
+            if(isSelected)
+            {
+                ellipse.Fill = new SolidColorBrush(SELECTED_POINT_COLOR);
 
+            }
             return ellipse;
         }
 
@@ -293,6 +307,18 @@ namespace GCodeConvertor
         public void element_MouseMove(object sender, MouseEventArgs e)
         {
             executeInstrument(EventType.MouseMove, sender, e);
+        }
+        public void element_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            executeInstrument(EventType.RightMouseButtonDown, sender, e);
+        }
+        public void element_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            executeInstrument(EventType.RightMouseButtonUp, sender, e);
+        }
+        public void element_KeyDown(object sender, KeyEventArgs e)
+        {
+            executeInstrument(EventType.KeyDown, sender, e);
         }
 
     }

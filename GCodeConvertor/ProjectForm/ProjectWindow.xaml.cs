@@ -124,117 +124,117 @@ namespace GCodeConvertor.ProjectForm
 
         }
 
-        private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            int docY = (int)Math.Floor(e.GetPosition(CanvasMain).Y / size);
-            int docX = (int)Math.Floor(e.GetPosition(CanvasMain).X / size);
+        //private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    int docY = (int)Math.Floor(e.GetPosition(CanvasMain).Y / size);
+        //    int docX = (int)Math.Floor(e.GetPosition(CanvasMain).X / size);
 
-            int dotType = ProjectSettings.preset.topology.map[docY, docX];
+        //    int dotType = ProjectSettings.preset.topology.map[docY, docX];
 
-            switch (drawingState)
-            {
-                case DrawingStates.SET_START_POINT:
-                    if(dotType == 2)
-                    {
-                        startPointX = docX;
-                        startPointY = docY;
-                        draw(sender, e, dotType);
-                        drawingState = DrawingStates.DRAWING;
-                    }
-                    break;
-                case DrawingStates.DRAWING:
-                    if (dotType != 3)
-                    {
-                        draw(sender, e, dotType);
+        //    switch (drawingState)
+        //    {
+        //        case DrawingStates.SET_START_POINT:
+        //            if(dotType == 2)
+        //            {
+        //                startPointX = docX;
+        //                startPointY = docY;
+        //                draw(sender, e, dotType);
+        //                drawingState = DrawingStates.DRAWING;
+        //            }
+        //            break;
+        //        case DrawingStates.DRAWING:
+        //            if (dotType != 3)
+        //            {
+        //                draw(sender, e, dotType);
 
-                        if (docY == startPointY && docX == startPointX)
-                        {
-                            drawingState = DrawingStates.SET_END_POINT;
-                        }
-                    }
-                    break;
-                case DrawingStates.SET_END_POINT:
-                    {
-                        MessageBox.Show("Слой является законченным");
-                        break;
-                    }
+        //                if (docY == startPointY && docX == startPointX)
+        //                {
+        //                    drawingState = DrawingStates.SET_END_POINT;
+        //                }
+        //            }
+        //            break;
+        //        case DrawingStates.SET_END_POINT:
+        //            {
+        //                MessageBox.Show("Слой является законченным");
+        //                break;
+        //            }
 
-            }
+        //    }
 
-            //startPointFlag
-        }
+        //    //startPointFlag
+        //}
 
-        private void draw(object sender, MouseButtonEventArgs e, int dotType)
-        {
-            if (drawArrow)
-            {
-                double startX = currentDotX;
-                double startY = currentDotY;
+        //private void draw(object sender, MouseButtonEventArgs e, int dotType)
+        //{
+        //    if (drawArrow)
+        //    {
+        //        double startX = currentDotX;
+        //        double startY = currentDotY;
 
-                double endX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
-                double endY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
+        //        double endX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
+        //        double endY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
 
-                bool isInsert = false; 
+        //        bool isInsert = false; 
 
-                LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(startX, startY), new System.Windows.Point(endX, endY));
+        //        LineGeometry lineGeometry = new LineGeometry(new System.Windows.Point(startX, startY), new System.Windows.Point(endX, endY));
 
-                foreach(System.Windows.Shapes.Rectangle rectangle in rectangles)
-                {
-                    RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
-                    isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
-                    if (isInsert)
-                    {
-                        break;
-                    }
-                }
+        //        foreach(System.Windows.Shapes.Rectangle rectangle in rectangles)
+        //        {
+        //            RectangleGeometry rectangleGeometry = new RectangleGeometry(new Rect(Canvas.GetLeft(rectangle), Canvas.GetTop(rectangle), rectangle.Width, rectangle.Height));
+        //            isInsert = lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty;
+        //            if (isInsert)
+        //            {
+        //                break;
+        //            }
+        //        }
 
-                if (!isInsert)
-                {
-                    Ellipse ellipse = new Ellipse();
-                    ellipse.Height = ELLIPSE_SIZE;
-                    ellipse.Width = ELLIPSE_SIZE;
-                    ellipse.Fill = new SolidColorBrush(Colors.Red);
-                    ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
-                    Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
-                    Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
-                    layerEllipses.Add(ellipse);
-                    ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
+        //        if (!isInsert)
+        //        {
+        //            Ellipse ellipse = new Ellipse();
+        //            ellipse.Height = ELLIPSE_SIZE;
+        //            ellipse.Width = ELLIPSE_SIZE;
+        //            ellipse.Fill = new SolidColorBrush(Colors.Red);
+        //            ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+        //            Canvas.SetLeft(ellipse, endX - ELLIPSE_SIZE / 2);
+        //            Canvas.SetTop(ellipse, endY - ELLIPSE_SIZE / 2);
+        //            layerEllipses.Add(ellipse);
+        //            ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
-                    line.Fill = new SolidColorBrush(Colors.Red);
-                    line.Visibility = System.Windows.Visibility.Visible;
-                    line.StrokeThickness = LINE_SIZE;
-                    line.Stroke = System.Windows.Media.Brushes.Red;
-                    line.X1 = currentDotX;
-                    line.Y1 = currentDotY;
-                    line.X2 = endX;
-                    line.Y2 = endY;
-                    CanvasMain.Children.Add(line);
-                    line = new Line();
+        //            line.Fill = new SolidColorBrush(Colors.Red);
+        //            line.Visibility = System.Windows.Visibility.Visible;
+        //            line.StrokeThickness = LINE_SIZE;
+        //            line.Stroke = System.Windows.Media.Brushes.Red;
+        //            line.X1 = currentDotX;
+        //            line.Y1 = currentDotY;
+        //            line.X2 = endX;
+        //            line.Y2 = endY;
+        //            CanvasMain.Children.Add(line);
+        //            line = new Line();
 
-                    currentDotX = endX;
-                    currentDotY = endY;
+        //            currentDotX = endX;
+        //            currentDotY = endY;
 
-                }
-            }
-            else
-            {
-                drawArrow = true;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        drawArrow = true;
 
-                currentDotX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
-                currentDotY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
+        //        currentDotX = Canvas.GetLeft(sender as System.Windows.Shapes.Rectangle) + size / 2;
+        //        currentDotY = Canvas.GetTop(sender as System.Windows.Shapes.Rectangle) + size / 2;
 
-                Ellipse ellipse = new Ellipse();
-                ellipse.Height = ELLIPSE_SIZE;
-                ellipse.Width = ELLIPSE_SIZE;
-                ellipse.Fill = new SolidColorBrush(Colors.Red);
-                ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
-                Canvas.SetLeft(ellipse, currentDotX - ELLIPSE_SIZE / 2);
-                Canvas.SetTop(ellipse, currentDotY - ELLIPSE_SIZE / 2);
-                layerEllipses.Add(ellipse);
-                ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
+        //        Ellipse ellipse = new Ellipse();
+        //        ellipse.Height = ELLIPSE_SIZE;
+        //        ellipse.Width = ELLIPSE_SIZE;
+        //        ellipse.Fill = new SolidColorBrush(Colors.Red);
+        //        ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+        //        Canvas.SetLeft(ellipse, currentDotX - ELLIPSE_SIZE / 2);
+        //        Canvas.SetTop(ellipse, currentDotY - ELLIPSE_SIZE / 2);
+        //        layerEllipses.Add(ellipse);
+        //        ((sender as System.Windows.Shapes.Rectangle).Parent as Canvas).Children.Add(ellipse);
 
-            }
-        }
+        //    }
+        //}
 
         private void openMenu(object sender, RoutedEventArgs e)
         {
@@ -282,10 +282,16 @@ namespace GCodeConvertor.ProjectForm
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            if(drawingState == DrawingStates.SET_END_POINT)
+            bool isAllEnded = true;
+
+            foreach(Layer layer in ProjectSettings.preset.layers) {
+                isAllEnded &= layer.isEnded();
+            }
+
+            if(isAllEnded)
             {
                 List<Layer> layersToGenerate = new List<Layer>();
-                foreach (Layer layer in storage.layers)
+                foreach (Layer layer in ProjectSettings.preset.layers)
                 {
                     if (layer.isEnable)
                     {
@@ -344,7 +350,7 @@ namespace GCodeConvertor.ProjectForm
                     {
                         rectangle.Fill = new SolidColorBrush(Colors.White);
                     }
-                    rectangle.MouseLeftButtonDown += Rectangle_MouseLeftButtonDown;
+                    //rectangle.MouseLeftButtonDown += Rectangle_MouseLeftButtonDown;
                     rectangle.Height = size;
                     rectangle.Width = size;
                     rectangle.StrokeThickness = 1;
@@ -434,42 +440,42 @@ namespace GCodeConvertor.ProjectForm
             return null;
         }
 
-        private void loadActiveLayer(object sender)
-        {
-            layerEllipses.Clear();
-            if (activeLayer.thread != null)
-            {
-                int position = 0;
-                System.Windows.Point startPoint;
-                System.Windows.Point endPoint;
+        //private void loadActiveLayer(object sender)
+        //{
+        //    layerEllipses.Clear();
+        //    if (activeLayer.thread != null)
+        //    {
+        //        int position = 0;
+        //        System.Windows.Point startPoint;
+        //        System.Windows.Point endPoint;
 
-                foreach (System.Windows.Point point in activeLayer.thread)
-                {
-                    Ellipse ellipse = new Ellipse();
-                    ellipse.Height = ELLIPSE_SIZE;
-                    ellipse.Width = ELLIPSE_SIZE;
-                    ellipse.Fill = new SolidColorBrush(Colors.Red);
-                    ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
-                    Canvas.SetLeft(ellipse, point.X);
-                    Canvas.SetTop(ellipse, point.Y);
-                    layerEllipses.Add(ellipse);
-                    CanvasMain.Children.Add(ellipse);
+        //        foreach (System.Windows.Point point in activeLayer.thread)
+        //        {
+        //            Ellipse ellipse = new Ellipse();
+        //            ellipse.Height = ELLIPSE_SIZE;
+        //            ellipse.Width = ELLIPSE_SIZE;
+        //            ellipse.Fill = new SolidColorBrush(Colors.Red);
+        //            ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+        //            Canvas.SetLeft(ellipse, point.X);
+        //            Canvas.SetTop(ellipse, point.Y);
+        //            layerEllipses.Add(ellipse);
+        //            CanvasMain.Children.Add(ellipse);
 
-                    if (position == 0)
-                    {
-                        startPoint = point;
-                    }
-                    else
-                    {
-                        endPoint = point;
-                        Line lineToAdd = buildLine(startPoint, endPoint);
-                        CanvasMain.Children.Add(lineToAdd);
-                        startPoint = endPoint;
-                    }
-                    position++;
-                }
-            }
-        }
+        //            if (position == 0)
+        //            {
+        //                startPoint = point;
+        //            }
+        //            else
+        //            {
+        //                endPoint = point;
+        //                Line lineToAdd = buildLine(startPoint, endPoint);
+        //                CanvasMain.Children.Add(lineToAdd);
+        //                startPoint = endPoint;
+        //            }
+        //            position++;
+        //        }
+        //    }
+        //}
 
         private Line buildLine(System.Windows.Point startPoint, System.Windows.Point endPoint)
         {
@@ -910,103 +916,103 @@ namespace GCodeConvertor.ProjectForm
             }
         }
 
-        private void Ellipse_MouseRightDown(object sender, MouseButtonEventArgs e)
-        {
-            Ellipse ellipse = (Ellipse)sender;
-            if (layerEllipses[0].Equals(ellipse))
-            {
-                return;
-            }
-            if (selectedEllipses.Contains(ellipse))
-            {
-                selectedEllipses.Remove(ellipse);
-                ellipse.Fill = new SolidColorBrush(Colors.Red);
-            }
-            else
-            {
-                selectedEllipses.Add(ellipse);
-                ellipse.Fill = new SolidColorBrush(Colors.Blue);
-            }
-        }
+        //private void Ellipse_MouseRightDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    Ellipse ellipse = (Ellipse)sender;
+        //    if (layerEllipses[0].Equals(ellipse))
+        //    {
+        //        return;
+        //    }
+        //    if (selectedEllipses.Contains(ellipse))
+        //    {
+        //        selectedEllipses.Remove(ellipse);
+        //        ellipse.Fill = new SolidColorBrush(Colors.Red);
+        //    }
+        //    else
+        //    {
+        //        selectedEllipses.Add(ellipse);
+        //        ellipse.Fill = new SolidColorBrush(Colors.Blue);
+        //    }
+        //}
 
-        private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
+        //private void Window_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        //{
 
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Pressed)
-            {
-                foreach (Ellipse el in layerEllipses)
-                {
-                    el.Fill = new SolidColorBrush(Colors.Red);
-                }
-                selectedEllipses.Clear();
+        //    if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Pressed)
+        //    {
+        //        foreach (Ellipse el in layerEllipses)
+        //        {
+        //            el.Fill = new SolidColorBrush(Colors.Red);
+        //        }
+        //        selectedEllipses.Clear();
 
-                startPoint = e.GetPosition(CanvasMain);
-                selectionRect = new System.Windows.Shapes.Rectangle
-                {
-                    StrokeThickness = 2,
-                    Fill = new SolidColorBrush(Colors.Blue) { Opacity = 0.3 },
-                    IsHitTestVisible = false
-                };
-                Canvas.SetLeft(selectionRect, startPoint.X);
-                Canvas.SetTop(selectionRect, startPoint.Y);
-                CanvasMain.Children.Add(selectionRect);
-                CanvasMain.CaptureMouse();
-            }
-        }
+        //        startPoint = e.GetPosition(CanvasMain);
+        //        selectionRect = new System.Windows.Shapes.Rectangle
+        //        {
+        //            StrokeThickness = 2,
+        //            Fill = new SolidColorBrush(Colors.Blue) { Opacity = 0.3 },
+        //            IsHitTestVisible = false
+        //        };
+        //        Canvas.SetLeft(selectionRect, startPoint.X);
+        //        Canvas.SetTop(selectionRect, startPoint.Y);
+        //        CanvasMain.Children.Add(selectionRect);
+        //        CanvasMain.CaptureMouse();
+        //    }
+        //}
 
-        private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Released)
-            {
-                CanvasMain.ReleaseMouseCapture();
-                CanvasMain.Children.Remove(selectionRect);
-            }
-        }
+        //private void Window_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.ButtonState == MouseButtonState.Released)
+        //    {
+        //        CanvasMain.ReleaseMouseCapture();
+        //        CanvasMain.Children.Remove(selectionRect);
+        //    }
+        //}
 
-        private void Window_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
-            {
-                Point currentPoint = e.GetPosition(CanvasMain);
+        //private void Window_MouseMove(object sender, MouseEventArgs e)
+        //{
+        //    if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
+        //    {
+        //        Point currentPoint = e.GetPosition(CanvasMain);
 
-                double left = Math.Min(startPoint.X, currentPoint.X);
-                double top = Math.Min(startPoint.Y, currentPoint.Y);
+        //        double left = Math.Min(startPoint.X, currentPoint.X);
+        //        double top = Math.Min(startPoint.Y, currentPoint.Y);
 
-                double width = Math.Abs(startPoint.X - currentPoint.X);
-                double height = Math.Abs(startPoint.Y - currentPoint.Y);
+        //        double width = Math.Abs(startPoint.X - currentPoint.X);
+        //        double height = Math.Abs(startPoint.Y - currentPoint.Y);
 
-                selectionRect.Width = width;
-                selectionRect.Height = height;
+        //        selectionRect.Width = width;
+        //        selectionRect.Height = height;
 
-                Canvas.SetLeft(selectionRect, left);
-                Canvas.SetTop(selectionRect, top);
-                selectEllipsesInsideSelectionRectangle(left, top, width, height);
-            }
-        }
+        //        Canvas.SetLeft(selectionRect, left);
+        //        Canvas.SetTop(selectionRect, top);
+        //        selectEllipsesInsideSelectionRectangle(left, top, width, height);
+        //    }
+        //}
 
-        private void selectEllipsesInsideSelectionRectangle(double left, double top, double width, double height) 
-        {
-            foreach (Ellipse el in layerEllipses)
-            {
-                double ellipseLeft = Canvas.GetLeft(el);
-                double ellipseTop = Canvas.GetTop(el);
+        //private void selectEllipsesInsideSelectionRectangle(double left, double top, double width, double height) 
+        //{
+        //    foreach (Ellipse el in layerEllipses)
+        //    {
+        //        double ellipseLeft = Canvas.GetLeft(el);
+        //        double ellipseTop = Canvas.GetTop(el);
 
-                if (ellipseLeft >= left && ellipseLeft <= left + width &&
-                        ellipseTop >= top && ellipseTop <= top + height)
-                {
-                    if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
-                    {
-                        selectedEllipses.Add(el);
-                        el.Fill = new SolidColorBrush(Colors.Blue);
-                    }
-                }
-                else
-                {
-                    selectedEllipses.Remove(el);
-                    el.Fill = new SolidColorBrush(Colors.Red);
-                }
-            }
-        }
+        //        if (ellipseLeft >= left && ellipseLeft <= left + width &&
+        //                ellipseTop >= top && ellipseTop <= top + height)
+        //        {
+        //            if (!selectedEllipses.Contains(el) && layerEllipses.IndexOf(el) != 0)
+        //            {
+        //                selectedEllipses.Add(el);
+        //                el.Fill = new SolidColorBrush(Colors.Blue);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            selectedEllipses.Remove(el);
+        //            el.Fill = new SolidColorBrush(Colors.Red);
+        //        }
+        //    }
+        //}
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
