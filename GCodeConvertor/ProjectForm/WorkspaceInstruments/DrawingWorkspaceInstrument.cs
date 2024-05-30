@@ -26,6 +26,7 @@ namespace GCodeConvertor.WorkspaceInstruments
         {
             START,
             DRAWING,
+            CONFLICT,
             END
         }
 
@@ -67,7 +68,120 @@ namespace GCodeConvertor.WorkspaceInstruments
                 rmbUpOnCanvas((Canvas)sender, (MouseButtonEventArgs)e);
             if (eventType == EventType.MouseMove && sender is Canvas)
                 mouseMoveOnCanvas((Canvas)sender, (MouseEventArgs)e);
-                
+            if (eventType == EventType.RightMouseButtonDown && sender is Line)
+                rmbDownOnLine((Line)sender, (MouseButtonEventArgs)e);
+
+        }
+
+        private void rmbDownOnLine(Line line, MouseButtonEventArgs e)
+        {
+            if (!Keyboard.IsKeyDown(Key.LeftAlt))
+            {
+                return;
+            }
+            double x = e.GetPosition(workspaceDrawingControl.workspaceCanvas).X;
+            double y = e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y;
+
+            addLine(line, x, y);
+            workspaceDrawingControl.repaint();
+        }
+
+        private Ellipse addLine(Line line, double x, double y)
+        {
+            Line pressedLine = line;
+            CustomLine customLine = workspaceDrawingControl.customLineStorage.getLineByInnerLine(pressedLine);
+
+            int position;
+            int canv_position;
+            int a;
+
+            double threadX = getThreadValueByTopologyValue((int)Math.Floor(x / workspaceDrawingControl.cellSize));
+            double threadY = getThreadValueByTopologyValue((int)Math.Floor(y / workspaceDrawingControl.cellSize));
+
+            Point point = new Point(threadX, threadY);
+
+            Point threadEndPoint = new Point(getThreadValueByTopologyValue((int)Math.Floor(Canvas.GetLeft(customLine.secondEllipse) / workspaceDrawingControl.cellSize)),
+                                               getThreadValueByTopologyValue((int)Math.Floor(Canvas.GetTop(customLine.secondEllipse) / workspaceDrawingControl.cellSize)));
+
+            int indexOfEndPoint = workspaceDrawingControl.activeLayer.getThreadPoint(threadEndPoint);
+
+            workspaceDrawingControl.activeLayer.insertBeforePositionThreadPoint(point, indexOfEndPoint);
+
+            Ellipse startEllipse;
+            Ellipse secondEllipse;
+            
+            position = workspaceDrawingControl.customLineStorage.indexOf(customLine);
+            
+            if (workspaceDrawingControl.customLineStorage.indexOf(customLine) == 0)
+            {
+                startEllipse = workspaceDrawingControl.ellipses[0];
+            }
+            else
+            {
+                startEllipse = workspaceDrawingControl.customLineStorage.getByIndex(position - 1).secondEllipse;
+            }
+
+            if (workspaceDrawingControl.customLineStorage.indexOf(customLine) == workspaceDrawingControl.customLineStorage.size() - 1)
+            {
+                secondEllipse = workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 1];
+                a = workspaceDrawingControl.ellipses.Count - 1;
+            }
+            else
+            {
+                secondEllipse = workspaceDrawingControl.customLineStorage.getByIndex(position + 1).firstEllipse;
+                a = workspaceDrawingControl.ellipses.IndexOf(secondEllipse);
+            }
+
+            canv_position = workspaceDrawingControl.workspaceCanvas.Children.IndexOf(pressedLine);
+            workspaceDrawingControl.customLineStorage.remove(customLine);
+            workspaceDrawingControl.workspaceCanvas.Children.Remove(pressedLine);
+
+            //
+            //Ellipse ellipse = new Ellipse();
+            //ellipse.Height = ELLIPSE_SIZE;
+            //ellipse.Width = ELLIPSE_SIZE;
+            //ellipse.Fill = new SolidColorBrush(Colors.Red);
+            //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
+            //ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
+            //ellipse.MouseMove += Ellipse_MouseMove;
+            //Canvas.SetLeft(ellipse, x - ELLIPSE_SIZE / 2);
+            //Canvas.SetTop(ellipse, y - ELLIPSE_SIZE / 2);
+            //
+
+            //workspaceDrawingControl.ellipses.Insert(a, ellipse);
+            //CanvasMain.Children.Add(ellipse);
+
+            //
+            //Line lineAddF = new Line();
+            //lineAddF.Fill = new SolidColorBrush(Colors.Red);
+            //lineAddF.Visibility = System.Windows.Visibility.Visible;
+            //lineAddF.StrokeThickness = LINE_SIZE;
+            //lineAddF.X1 = Canvas.GetLeft(startEllipse) + ELLIPSE_SIZE / 2;
+            //lineAddF.Y1 = Canvas.GetTop(startEllipse) + ELLIPSE_SIZE / 2;
+            //lineAddF.X2 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
+            //lineAddF.Y2 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
+            //lineAddF.MouseRightButtonDown += Line_MouseRightButtonDown;
+            ////
+
+            //Line lineAddS = new Line();
+            //lineAddS.Fill = new SolidColorBrush(Colors.Red);
+            //lineAddS.Visibility = System.Windows.Visibility.Visible;
+            //lineAddS.StrokeThickness = LINE_SIZE;
+            //lineAddS.X1 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
+            //lineAddS.Y1 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
+            //lineAddS.X2 = Canvas.GetLeft(secondEllipse) + ELLIPSE_SIZE / 2;
+            //lineAddS.Y2 = Canvas.GetTop(secondEllipse) + ELLIPSE_SIZE / 2;
+            //lineAddS.MouseRightButtonDown += Line_MouseRightButtonDown;
+            ////
+
+            //CustomLine newFLine = new CustomLine(lineAddF, startEllipse, ellipse);
+            //CustomLine newSLine = new CustomLine(lineAddS, ellipse, secondEllipse);
+
+            //workspaceDrawingControl.customLineStorage.addLine(newSLine, position);
+            //workspaceDrawingControl.customLineStorage.addLine(newFLine, position);
+
+            Ellipse ellipse = new Ellipse();
+            return ellipse;
         }
 
         private void mouseMoveOnCanvas(Canvas canvas, MouseEventArgs e)
@@ -146,6 +260,21 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void pressOnButton(WorkspaceDrawingControl window, KeyEventArgs e)
         {
+            //TODO: перенести, чтобы и в кнопках можно было делать
+            if(Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Z))
+            {
+                workspaceDrawingControl.activeLayer.backHistory();
+                workspaceDrawingControl.repaint();
+                return;
+            }
+
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Y))
+            {
+                workspaceDrawingControl.activeLayer.forwardHistory();
+                workspaceDrawingControl.repaint();
+                return;
+            }
+
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Delete))
             {
                 hardDelete();
@@ -222,7 +351,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             }
             if(minPosition != -1)
             {
-                workspaceDrawingControl.activeLayer.thread.RemoveRange(minPosition, workspaceDrawingControl.activeLayer.thread.Count - minPosition);
+                workspaceDrawingControl.activeLayer.removeRangeThreadPoint(minPosition, workspaceDrawingControl.activeLayer.thread.Count - minPosition);
                 workspaceDrawingControl.activeLayer.selectedThread.Clear();
                 workspaceDrawingControl.repaint();
             }
@@ -230,10 +359,7 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void deleteAll()
         {
-            foreach(Point point in workspaceDrawingControl.activeLayer.selectedThread){
-                workspaceDrawingControl.activeLayer.thread.RemoveAll(item => item.Equals(point));                
-            }
-            workspaceDrawingControl.activeLayer.selectedThread.Clear();
+            workspaceDrawingControl.activeLayer.removeAllSelectedThreadPoint();
             workspaceDrawingControl.repaint();
         }
 
@@ -288,7 +414,7 @@ namespace GCodeConvertor.WorkspaceInstruments
                 int newTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
                 int newTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
                 int index = workspaceDrawingControl.activeLayer.getThreadPoint(startDraggingPoint);
-                workspaceDrawingControl.activeLayer.thread[index] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
+                workspaceDrawingControl.activeLayer.changeThreadPoint(new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY)), index);
                 int selectedIndex = workspaceDrawingControl.activeLayer.getSelectedThreadPoint(startDraggingPoint);
                 if (selectedIndex != -1)
                 {
@@ -353,6 +479,8 @@ namespace GCodeConvertor.WorkspaceInstruments
                 return DrawingStates.START;
             if (workspaceDrawingControl.activeLayer.isEnded())
                 return DrawingStates.END;
+            if (workspaceDrawingControl.areAnyConflictsHere)
+                return DrawingStates.CONFLICT;
             return DrawingStates.DRAWING;
         }
 
@@ -367,10 +495,14 @@ namespace GCodeConvertor.WorkspaceInstruments
 
             switch (currentDrawingState)
             {
+                case DrawingStates.CONFLICT:
+                    MessageBoxResult result = MessageBox.Show("На указанном маршруте обнаружен конфликт: траектория сопла проходит через иглу.\n Нажмите \"Отмена\", чтобы вернуть траекторию в исходное состояние.\n" +
+                                                     "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    break;
                 case DrawingStates.START:
                     if (cellType == 2) { 
                         drawPoint(getDrawingValueByTopologyValue(currentTopologyX), getDrawingValueByTopologyValue(currentTopologyY));
-                        workspaceDrawingControl.activeLayer.thread.Add(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
+                        workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
                     }
                     break; 
                 case DrawingStates.DRAWING:
@@ -427,7 +559,7 @@ namespace GCodeConvertor.WorkspaceInstruments
                 workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
             }                
 
-            workspaceDrawingControl.activeLayer.thread.Add(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
+            workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
 
             // layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
             //                                              (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
@@ -438,10 +570,8 @@ namespace GCodeConvertor.WorkspaceInstruments
         {
             Ellipse drawingPoint = setupEllipse();
             workspaceDrawingControl.ellipses.Add(drawingPoint);
-            //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
             Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
             Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
-            //layerEllipses.Add(ellipse);
             workspaceDrawingControl.workspaceCanvas.Children.Add(drawingPoint);
             return drawingPoint;
         }
@@ -454,6 +584,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             line.Visibility = Visibility.Visible;
             line.StrokeThickness = LINE_SIZE;
             line.Stroke = new SolidColorBrush(LINE_COLOR);
+            line.MouseRightButtonDown += workspaceDrawingControl.element_MouseRightButtonDown;
 
             return line;
         }

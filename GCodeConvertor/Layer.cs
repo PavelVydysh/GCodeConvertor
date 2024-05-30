@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Xml.Serialization;
 using Point = System.Windows.Point;
 
@@ -23,6 +24,12 @@ namespace GCodeConvertor
         
         [XmlIgnore]
         public List<Point> selectedThread { get; set; }
+
+        [XmlIgnore]
+        public Stack<List<Point>> historyBack { get; set; }
+
+        public Stack<List<Point>> historyForward { get; set; }
+
         public bool isEnable { get; set; }
 
         public Layer(string name, float height)
@@ -32,11 +39,79 @@ namespace GCodeConvertor
             this.height = height;
             thread = new List<Point>();
             selectedThread = new List<Point>();
+            historyBack = new Stack<List<Point>>();
+            historyForward = new Stack<List<Point>>();
             isEnable = true;
         }
 
         public Layer() : this(DEFAULT_NAME, DEFAULT_HEIGHT) { }
         
+        public void backHistory()
+        {
+            if(historyBack.Count > 0)
+            {
+                selectedThread.Clear();
+                historyForward.Push(new List<Point>(thread));
+                thread = historyBack.Pop();
+            }
+        }
+
+        public void forwardHistory()
+        {
+            if(historyForward.Count > 0)
+            {
+                selectedThread.Clear();
+                historyBack.Push(new List<Point>(thread));
+                thread = historyForward.Pop();
+            }
+
+        }
+
+        private void changeHistory()
+        {
+            historyForward.Clear();
+            historyBack.Push(new List<Point>(thread));
+        }
+
+        public void addThreadPoint(Point point)
+        {
+            changeHistory();
+            thread.Add(point);
+        }
+
+        public void removeThreadPoint(Point point) 
+        {
+            changeHistory();
+            thread.Remove(point); 
+        }
+
+        public void insertBeforePositionThreadPoint(Point point, int index)
+        {
+            changeHistory();
+            thread.Insert(index, point);
+        }
+
+        public void removeAllSelectedThreadPoint()
+        {
+            changeHistory();
+            foreach (Point point in selectedThread)
+            {
+                thread.RemoveAll(item => item.Equals(point));
+            }
+            selectedThread.Clear();
+        }
+        public void changeThreadPoint(Point newPoint, int position)
+        {
+            changeHistory();
+            thread[position] = newPoint;
+        }
+
+        public void removeRangeThreadPoint(int index, int count)
+        {
+            changeHistory();
+            thread.RemoveRange(index, count);
+        }
+
         public bool isDotSelected(Point point)
         {
             return selectedThread.Contains(point);

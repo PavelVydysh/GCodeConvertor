@@ -35,6 +35,7 @@ namespace GCodeConvertor
         private static Color LINE_COLOR = Colors.Red;
         private const double LINE_SIZE = 2;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
+        private static Color CONFLICT_LINE_COLOR = Colors.Gray;
         //??????????????????????????
 
         // Константы имён элементов
@@ -55,6 +56,7 @@ namespace GCodeConvertor
         public Topology topology { get; }
         public Layer activeLayer { get; set; }
         public WorkspaceInstrument workspaceIntrument { get; set; }
+        public bool areAnyConflictsHere { get; set; }
 
         public WorkspaceDrawingControl(Topology topology)
         {
@@ -198,8 +200,31 @@ namespace GCodeConvertor
             Ellipse currentEllipse = null;
             Line currentLine = null;
 
+            areAnyConflictsHere = false;
+
             for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++) 
             {
+                int previousPointIndex = pointIndex - 1;
+
+                bool isConflict = false;
+
+                if (previousPointIndex >= 0)
+                {
+                    isConflict |= isLineCrossTheNeedles(
+                        new Point(getDrawingValueByThreadValue(activeLayer.thread[previousPointIndex].X),
+                                  getDrawingValueByThreadValue(activeLayer.thread[previousPointIndex].Y)),
+                        new Point(getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
+                                  getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y))
+                        );
+                }
+
+                if (isConflict)
+                {
+                    currentLine.Stroke = new SolidColorBrush(CONFLICT_LINE_COLOR);
+                }
+
+                areAnyConflictsHere |= isConflict;
+
                 oldEllipse = currentEllipse;
                 currentEllipse = drawPoint(
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X), 
@@ -256,6 +281,7 @@ namespace GCodeConvertor
             line.Visibility = Visibility.Visible;
             line.StrokeThickness = LINE_SIZE;
             line.Stroke = new SolidColorBrush(LINE_COLOR);
+            line.MouseRightButtonDown += element_MouseRightButtonDown;
 
             return line;
         }
@@ -273,6 +299,21 @@ namespace GCodeConvertor
 
             }
             return ellipse;
+        }
+
+        private bool isLineCrossTheNeedles(Point previousPoint, Point currentPoint)
+        {
+            LineGeometry lineGeometry = new LineGeometry(previousPoint, currentPoint);
+            foreach (Rectangle needle in needles)
+            {
+                RectangleGeometry rectangleGeometry = new RectangleGeometry(
+                    new Rect(Canvas.GetLeft(needle), Canvas.GetTop(needle), needle.Width, needle.Height));
+                if (lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
 

@@ -110,13 +110,13 @@ namespace GCodeConvertor.ProjectForm
             workspaceInstruments.Add(instrumentItem3);
 
             List<Key> drawingHotkeys = new List<Key>();
-            drawingHotkeys.Add(Key.D);
+            drawingHotkeys.Add(Key.F2);
 
             List<Key> zoomingHotkeys = new List<Key>();
-            zoomingHotkeys.Add(Key.Z);
+            zoomingHotkeys.Add(Key.F1);
 
             List<Key> movingHotkeys = new List<Key>();
-            movingHotkeys.Add(Key.M);
+            movingHotkeys.Add(Key.F3);
 
             hotkeys.Add(new Hotkey(drawingHotkeys, drawing, workspaceDrawingControl));
             hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, workspaceDrawingControl));
@@ -285,7 +285,8 @@ namespace GCodeConvertor.ProjectForm
             bool isAllEnded = true;
 
             foreach(Layer layer in ProjectSettings.preset.layers) {
-                isAllEnded &= layer.isEnded();
+                if (layer.isEnable)
+                    isAllEnded &= layer.isEnded();
             }
 
             if(isAllEnded)
@@ -294,9 +295,7 @@ namespace GCodeConvertor.ProjectForm
                 foreach (Layer layer in ProjectSettings.preset.layers)
                 {
                     if (layer.isEnable)
-                    {
                         layersToGenerate.Add(layer);
-                    }
                 }
 
                 if ((bool)manyCheck.IsChecked)
