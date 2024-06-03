@@ -22,55 +22,55 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         public override void execute(EventType eventType, object sender, EventArgs e)
         {
-            if(sender is Canvas)
+            if(sender is Grid)
             {
                 switch (eventType)
                 {
                     case EventType.LeftMouseButtonDown:
-                        lmbDown((Canvas) sender, (MouseButtonEventArgs) e);
+                        lmbDown((Grid) sender, (MouseButtonEventArgs) e);
                         break;
                     case EventType.MouseMove:
-                        mouseMove((Canvas)sender, (MouseEventArgs) e);
+                        mouseMove((Grid)sender, (MouseEventArgs) e);
                         break;
                     case EventType.LeftMouseButtonUp:
-                        lmbUp((Canvas)sender, (MouseButtonEventArgs)e);
+                        lmbUp((Grid)sender, (MouseButtonEventArgs)e);
                         break;
                 }
             }
             
         }
 
-        private void lmbDown(Canvas canvas, MouseButtonEventArgs e)
+        private void lmbDown(Grid grid, MouseButtonEventArgs e)
         {
-            startPoint = e.GetPosition(canvas);
+            startPoint = e.GetPosition(grid);
             isDragging = true;
-            canvas.CaptureMouse();
+            grid.CaptureMouse();
 
         }
 
-        private void mouseMove(Canvas canvas, MouseEventArgs e)
+        private void mouseMove(Grid grid, MouseEventArgs e)
         {
             if (isDragging)
             {
-                var position = e.GetPosition(canvas);
+                var position = e.GetPosition(grid);
 
                 double dx = (position.X - startPoint.X) * TRANSLATION_FACTOR;
                 double dy = (position.Y - startPoint.Y) * TRANSLATION_FACTOR;
 
-                Matrix matrix = ((MatrixTransform)canvas.RenderTransform).Matrix;
+                Matrix matrix = ((MatrixTransform)grid.RenderTransform).Matrix;
 
                 matrix.Translate(dx, dy);
 
-                canvas.RenderTransform = new MatrixTransform(matrix);
+                grid.RenderTransform = new MatrixTransform(matrix);
 
                 startPoint = position;
             }
         }
 
-        private void lmbUp(Canvas canvas, MouseButtonEventArgs e)
+        private void lmbUp(Grid grid, MouseButtonEventArgs e)
         {
             isDragging = false;
-            canvas.ReleaseMouseCapture();
+            grid.ReleaseMouseCapture();
         }
     }
 }

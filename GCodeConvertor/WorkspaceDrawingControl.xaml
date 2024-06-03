@@ -5,7 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GCodeConvertor"
              mc:Ignorable="d">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="auto" Height="auto">
-        <Canvas x:Name="WorkspaceCanvas" Width="800" Height="800" Background="Black"/>
+
+    <ScrollViewer  VerticalScrollBarVisibility="Auto" 
+               HorizontalScrollBarVisibility="Auto" 
+               Height="auto" Width="auto">
+        <Grid x:Name="WorkPlace" Height="auto" Width="auto"
+              MouseWheel="element_MouseWheel"
+              MouseLeftButtonDown="element_MouseLeftButtonDown"
+              MouseLeftButtonUp="element_MouseLeftButtonUp"
+              MouseMove="element_MouseMove" >
+            <Canvas x:Name="WorkspaceCanvas" Background="Transparent" Width="800" Height="800"/>
+        </Grid>
     </ScrollViewer>
 </UserControl>

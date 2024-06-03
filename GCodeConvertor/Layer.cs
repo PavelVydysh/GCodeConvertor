@@ -21,16 +21,16 @@ namespace GCodeConvertor
         public string name { get; set; }
         public float height { get; set; }
         public List<Point> thread { get; set; }
-        
+        public bool isEnable { get; set; }
+
         [XmlIgnore]
         public List<Point> selectedThread { get; set; }
-
         [XmlIgnore]
         public Stack<List<Point>> historyBack { get; set; }
-
+        [XmlIgnore]
         public Stack<List<Point>> historyForward { get; set; }
 
-        public bool isEnable { get; set; }
+        
 
         public Layer(string name, float height)
         {
@@ -139,7 +139,7 @@ namespace GCodeConvertor
 
         public int getThreadPoint(Point point)
         {
-            for(int i = 0; i < thread.Count; i++)
+            for(int i = 1; i < thread.Count; i++)
             {
                 if (thread[i].Equals(point)) return i;
             }
@@ -148,7 +148,7 @@ namespace GCodeConvertor
 
         public int getSelectedThreadPoint(Point point)
         {
-            for (int i = 0; i < selectedThread.Count; i++)
+            for (int i = 1; i < selectedThread.Count; i++)
             {
                 if (selectedThread[i].Equals(point)) return i;
             }

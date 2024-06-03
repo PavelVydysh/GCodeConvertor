@@ -420,9 +420,18 @@ namespace GCodeConvertor.WorkspaceInstruments
                                                      "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
                     break;
                 case DrawingStates.START:
-                    if (cellType == 2) { 
-                        drawPoint(getDrawingValueByTopologyValue(currentTopologyX), getDrawingValueByTopologyValue(currentTopologyY));
-                        workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
+                    if (cellType == 2) {
+                        if (ProjectSettings.preset.checkIfPointCanBeFirst(
+                            new Point(getThreadValueByTopologyValue(currentTopologyX),
+                            getThreadValueByTopologyValue(currentTopologyY)))) 
+                            {
+                            drawPoint(getDrawingValueByTopologyValue(currentTopologyX), getDrawingValueByTopologyValue(currentTopologyY));
+                            workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
+                        }
+                        else
+                        {
+                            MessageBox.Show("Стартовая точка текущего слоя не совпадает со стартовыми точками других слоев.", "Недопустимая стартовая точка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        }
                     }
                     break; 
                 case DrawingStates.DRAWING:

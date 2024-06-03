@@ -18,24 +18,24 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         public override void execute(EventType eventType, object sender, EventArgs e)
         {
-            if(eventType == EventType.MouseWheel && sender is Canvas)
+            if(eventType == EventType.MouseWheel && sender is Grid)
             {
-                mouseWheel((Canvas) sender, (MouseWheelEventArgs) e);
+                mouseWheel((Grid) sender, (MouseWheelEventArgs) e);
             }
         }
 
-        private void mouseWheel(Canvas canvas, MouseWheelEventArgs e)
+        private void mouseWheel(Grid grid, MouseWheelEventArgs e)
         {
-            var mousePosition = e.GetPosition(canvas);
+            var mousePosition = e.GetPosition(grid);
 
-            var previousScale = ((MatrixTransform)canvas.RenderTransform).Matrix.M11;
+            var previousScale = ((MatrixTransform)grid.RenderTransform).Matrix.M11;
             double scale = (e.Delta > 0 ? 1.1 : 0.9) * previousScale;
 
             if (scale >= MIN_SCALE)
             {
                 Matrix matrix = new Matrix();
                 matrix.ScaleAtPrepend(scale, scale, mousePosition.X, mousePosition.Y);
-                canvas.RenderTransform = new MatrixTransform(matrix);
+                grid.RenderTransform = new MatrixTransform(matrix);
             }
         }
     }

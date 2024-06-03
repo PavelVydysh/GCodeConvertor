@@ -58,6 +58,19 @@ namespace GCodeConvertor
             layers.Remove(layer);
         }
 
+        public bool checkIfPointCanBeFirst(Point firstLayerPoint)
+        {
+            bool canBeFirst = true;
+            foreach(Layer layer in layers)
+            {
+                if(layer.thread.Count > 0)
+                {
+                    canBeFirst &= layer.thread[0].Equals(firstLayerPoint); 
+                }
+            }
+            return canBeFirst;
+        }
+
         public void savePreset() 
         {
             try

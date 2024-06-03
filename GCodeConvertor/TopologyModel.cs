@@ -24,6 +24,7 @@ namespace GCodeConvertor
         public int HeadIdentationX { get; set; }
         public int HeadIdentationY { get; set; }
         public int NozzleDiameter { get; set; }
+        public int NeedleDiameter { get; set; }
         public int StartNeedleOffsetX { get; set; }
         public int StartNeedleOffsetY { get; set; }
         public int StepNeedlesX { get; set; }
@@ -101,6 +102,12 @@ namespace GCodeConvertor
                         if (NozzleDiameter <= 0)
                         {
                             error = "Диаметр сопла не может быть меньше или равен 0";
+                        }
+                        break;
+                    case "NeedleDiameter":
+                        if (NeedleDiameter <= 0)
+                        {
+                            error = "Диаметр иглы не может быть меньше или равен 0";
                         }
                         break;
                     case "StartNeedleOffsetX":

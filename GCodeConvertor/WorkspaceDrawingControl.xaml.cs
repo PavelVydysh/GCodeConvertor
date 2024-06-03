@@ -144,16 +144,16 @@ namespace GCodeConvertor
         // Инициализации сетки поля и ячеек
         private void initWorkspace()
         {
-            cellSize = (double)(workspaceCanvas.ActualWidth / topology.map.GetLength(0));
+            cellSize = (double)(workspaceCanvas.Height / (topology.map.GetLength(1) > topology.map.GetLength(0) ? topology.map.GetLength(1) : topology.map.GetLength(0)));
 
-            for (int i = 0; i < topology.map.GetUpperBound(1) + 1; i++)
+            for (int topologyX = 0; topologyX < topology.map.GetLength(0); topologyX++)
             {
-                for (int j = 0; j < topology.map.GetUpperBound(0) + 1; j++)
+                for (int topologyY = 0; topologyY < topology.map.GetLength(1); topologyY++)
                 {
-                    Rectangle cell = setupCell(topology.map[i, j]);
+                    Rectangle cell = setupCell(topology.map[topologyX, topologyY]);
 
-                    Canvas.SetTop(cell, cellSize * j);
-                    Canvas.SetLeft(cell, cellSize * i);
+                    Canvas.SetLeft(cell, cellSize * topologyX);
+                    Canvas.SetTop(cell, cellSize * topologyY);
 
                     workspaceCanvas.Children.Add(cell);
                 }

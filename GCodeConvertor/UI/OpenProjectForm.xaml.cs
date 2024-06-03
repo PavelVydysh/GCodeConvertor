@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static GCodeConvertor.UI.ProjectsInfo;
 
 namespace GCodeConvertor.UI
 {
@@ -22,39 +26,94 @@ namespace GCodeConvertor.UI
     /// </summary>
     public partial class OpenProjectForm : Window
     {
-        public ObservableCollection<ProjectItem> ProjectItems = new ObservableCollection<ProjectItem>();
+        public ObservableCollection<ProjectItem> projectItems;
+
+        private ProjectsInfo projectInfo;
 
         public OpenProjectForm()
         {
             InitializeComponent();
+            setupFormProperties();
 
+            loadProjectsInfo();
+            applySorting();
+        }
+
+        private void loadProjectsInfo()
+        {
+            projectItems.Clear();
+            projectInfo = ProjectLoader.loadProjectsInfo();
+            foreach (ProjectsInfoItem projectInfo in projectInfo.ProjectsInfos)
+            {
+                bool projectExists = checkIfProjectExists(projectInfo.PathToProject);
+
+                projectItems.Add(new ProjectItem
+                {
+                    ProjectName = projectInfo.ProjectName,
+                    ProjectPath = projectInfo.PathToProject,
+                    ModifiedDate = projectExists ? getModifiedFileDate(projectInfo.PathToProject) : "",
+                    IsAccessable = projectExists
+                });
+            }
+        }
+
+        private bool checkIfProjectExists(string pathToProject)
+        {
+            return File.Exists(pathToProject);
+        }
+
+        private string getModifiedFileDate(string pathToProject)
+        {
+            FileInfo projectFileInfo = new FileInfo(pathToProject);
+            return projectFileInfo.LastWriteTime.ToShortDateString();
+        }
+
+        private void setupFormProperties()
+        {
             this.MinWidth = 800;
             this.MinHeight = 600;
 
-            ProjectItemListBox.ItemsSource = ProjectItems;
-
+            projectItems = new ObservableCollection<ProjectItem>();
+            ProjectItemListBox.ItemsSource = projectItems;
             DataContext = this;
+        }
 
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_2", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_3e", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "534", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "4", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+        private void applySorting()
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ProjectItemListBox.ItemsSource);
+            view.SortDescriptions.Add(new SortDescription("ModifiedDate", ListSortDirection.Descending));
+        }
 
-            ProjectItems.Add(new ProjectItem { ProjectName = "6", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "5", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
+        private void projectSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (projectSearch.Text.Length == 0)
+            {
+                projectSearchCue.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                projectSearchCue.Visibility = Visibility.Collapsed;
+            }
+            ApplyFilter();
+        }
 
-            ProjectItems.Add(new ProjectItem { ProjectName = "124124", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "345346", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "project_one", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-
-            ProjectItems.Add(new ProjectItem { ProjectName = "1", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "12421412", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-            ProjectItems.Add(new ProjectItem { ProjectName = "124", ProjectPath = "D:/fjkaks", ModifiedDate = "10.01.2024" });
-
-
+        private void ApplyFilter()
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ProjectItemListBox.ItemsSource);
+            if (projectSearch.Text.Length == 0)
+            {
+                view.Filter = null;
+            }
+            view.Filter = item =>
+            {
+                if (item is ProjectItem currentItem)
+                {
+                    return currentItem.ProjectName.Contains(projectSearch.Text, StringComparison.OrdinalIgnoreCase)
+                        || currentItem.ProjectPath.Contains(projectSearch.Text, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
+            };
+            view.Refresh();
         }
 
         private void MaximizeWindow(object sender, RoutedEventArgs e)
@@ -87,26 +146,34 @@ namespace GCodeConvertor.UI
             this.WindowState = WindowState.Minimized;
         }
 
-        private void projectSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void OpenProject(object sender, RoutedEventArgs e)
         {
-            TextBox? textBox = sender as TextBox;
-            if (textBox?.Text.Length == 0)
+            OpenFileDialog openFileDialog = new OpenFileDialog
             {
-                projectSearchCue.Visibility = Visibility.Visible;
-            }
-            else
+                Filter = "GCD files(*.gcd)|*.gcd",
+
+            };
+
+            if (openFileDialog.ShowDialog() == true)
             {
-                projectSearchCue.Visibility = Visibility.Collapsed;
+                string pathToPreset = openFileDialog.FileName;
+                projectInfo.ProjectsInfos.Add(new ProjectsInfoItem { ProjectName = pathToPreset, PathToProject = pathToPreset });
+                ProjectLoader.saveProjectsInfo(projectInfo);
+                loadProjectsInfo();
+                //ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                //ProjectWindow pw = new ProjectWindow();
+                //pw.Show();
+                //this.Close();
             }
         }
     }
 
     public class ProjectItem
     {
-
         public string ProjectName { get; set; }
         public string ProjectPath { get; set; }
         public string ModifiedDate { get; set; }
-       
+        public bool IsAccessable { get; set; }
+
     }
 }

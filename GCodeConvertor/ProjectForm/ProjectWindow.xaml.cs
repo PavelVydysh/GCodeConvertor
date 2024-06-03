@@ -22,6 +22,7 @@ using Point = System.Windows.Point;
 using GCodeConvertor.WorkspaceInstruments;
 using GCodeConvertor.ProjectForm.LayerElements;
 using GCodeConvertor.Project3D;
+using System.Windows.Forms.Design;
 
 namespace GCodeConvertor.ProjectForm
 {
@@ -257,17 +258,17 @@ namespace GCodeConvertor.ProjectForm
 
         private void Canvas_OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (drawArrow)
-            {
-                line.Fill = new SolidColorBrush(Colors.Red);
-                line.Visibility = System.Windows.Visibility.Visible;
-                line.StrokeThickness = 4;
-                line.Stroke = System.Windows.Media.Brushes.Red;
-                line.X1 = currentDotX;
-                line.Y1 = currentDotY;
-                line.X2 = e.GetPosition(CanvasMain).X;
-                line.Y2 = e.GetPosition(CanvasMain).Y;
-            }
+            //if (drawArrow)
+            //{
+            //    line.Fill = new SolidColorBrush(Colors.Red);
+            //    line.Visibility = System.Windows.Visibility.Visible;
+            //    line.StrokeThickness = 4;
+            //    line.Stroke = System.Windows.Media.Brushes.Red;
+            //    line.X1 = currentDotX;
+            //    line.Y1 = currentDotY;
+            //    line.X2 = e.GetPosition(CanvasMain).X;
+            //    line.Y2 = e.GetPosition(CanvasMain).Y;
+            //}
         }
 
         private void Canvas_(object sender, MouseButtonEventArgs e)
@@ -325,56 +326,12 @@ namespace GCodeConvertor.ProjectForm
         }
         private void CanvasMain_Loaded(object sender, RoutedEventArgs e)
         {
-            size = (double)(CanvasMain.ActualWidth / ProjectSettings.preset.topology.map.GetLength(0));
-            MessageBox.Show(ProjectSettings.preset.topology.map.Length.ToString());
 
-            for (int i = 0; i < ProjectSettings.preset.topology.map.GetUpperBound(1) + 1; i++)
-            {
-                for (int j = 0; j < ProjectSettings.preset.topology.map.GetUpperBound(0) + 1; j++)
-                {
-                    System.Windows.Shapes.Rectangle rectangle = new System.Windows.Shapes.Rectangle();
-                    if (ProjectSettings.preset.topology.map[j, i] == 1)
-                    {
-                        rectangle.Fill = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFBE98")) ;
-                    }
-                    else if (ProjectSettings.preset.topology.map[j, i] == 2)
-                    {
-                        rectangle.Fill = new SolidColorBrush(Colors.Green);
-                    }
-                    else if (ProjectSettings.preset.topology.map[j, i] == 3)
-                    {
-                        rectangle.Fill = new SolidColorBrush(Colors.Black);
-                    }
-                    else
-                    {
-                        rectangle.Fill = new SolidColorBrush(Colors.White);
-                    }
-                    //rectangle.MouseLeftButtonDown += Rectangle_MouseLeftButtonDown;
-                    rectangle.Height = size;
-                    rectangle.Width = size;
-                    rectangle.StrokeThickness = 1;
-
-                    if(ProjectSettings.preset.topology.map[j, i] == 3)
-                    {
-                        rectangles.Add(rectangle);
-                    }
-
-                    Canvas.SetTop(rectangle, size * j);
-                    Canvas.SetLeft(rectangle, size * i);
-                    CanvasMain.Children.Add(rectangle);
-                }
-            }
             ItemsList.Add(new CustomItem(activeLayer.name, "12"));
             //layerListBox.SelectedIndex = 0;
 
 
-            WorkspaceDrawingControl wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
-            wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
-            dockPanel.Children.Add(wdc);
-            setupInstruments(wdc);
-
-            LayerControl layerControl = new LayerControl(ProjectSettings.preset.layers, wdc);
-            putMeHere.Children.Add(layerControl);
+            
         }
 
         //private void createLayer(object sender, RoutedEventArgs e)
@@ -904,15 +861,15 @@ namespace GCodeConvertor.ProjectForm
 
         private void clearTable() 
         {
-            List<UIElement> elementsToRemove = CanvasMain.Children
-            .OfType<UIElement>()
-            .Where(e => e is Line || e is Ellipse)
-            .ToList();
+            //List<UIElement> elementsToRemove = CanvasMain.Children
+            //.OfType<UIElement>()
+            //.Where(e => e is Line || e is Ellipse)
+            //.ToList();
 
-            foreach (UIElement el in elementsToRemove)
-            {
-                CanvasMain.Children.Remove(el);
-            }
+            //foreach (UIElement el in elementsToRemove)
+            //{
+            //    CanvasMain.Children.Remove(el);
+            //}
         }
 
         //private void Ellipse_MouseRightDown(object sender, MouseButtonEventArgs e)
@@ -1017,6 +974,17 @@ namespace GCodeConvertor.ProjectForm
         {
             Project3dVisualizer project3DVisualizer = new Project3dVisualizer();
             project3DVisualizer.Show();
+        }
+
+        private void dockPanel_Loaded(object sender, RoutedEventArgs e)
+        {
+            WorkspaceDrawingControl wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+            wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
+            dockPanel.Children.Add(wdc);
+            setupInstruments(wdc);
+
+            LayerControl layerControl = new LayerControl(wdc);
+            putMeHere.Children.Add(layerControl);
         }
     }
 }

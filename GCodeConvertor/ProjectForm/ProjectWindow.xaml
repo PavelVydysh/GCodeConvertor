@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized" 
         >
-    <DockPanel Name="dockPanel" LastChildFill="True" >
+    <DockPanel Name="dockPanel" LastChildFill="True" Loaded="dockPanel_Loaded">
         <Menu Height="25"  VerticalAlignment="Top" Background="Gray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -42,27 +42,7 @@
             </Canvas>
         </ScrollViewer>
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Height="0" Width="0">
-            <Canvas Name="CanvasMain" Width="0" Height="0" Loaded="CanvasMain_Loaded" PreviewMouseWheel="Canvas_MouseWheel"
-                    MouseDown="Canvas_MouseDown" MouseMove="Canvas_MouseMove" MouseUp="Canvas_MouseUp" Visibility="Hidden">
-                <Canvas.Background>
-                    <DrawingBrush TileMode="Tile" Viewport="0,0,20,20" 
-                              ViewportUnits="Absolute">
-                        <DrawingBrush.Drawing>
-                            <GeometryDrawing>
-                                <GeometryDrawing.Geometry>
-                                    <RectangleGeometry Rect="0,0,50,50"/>
-                                </GeometryDrawing.Geometry>
-                                <GeometryDrawing.Pen>
-                                    <Pen Brush="Gray" Thickness="1"/>
-                                </GeometryDrawing.Pen>
-                            </GeometryDrawing>
-                        </DrawingBrush.Drawing>
-                    </DrawingBrush>
-                </Canvas.Background>
-            </Canvas>
-        </ScrollViewer>
-
+        
 
 
 
