@@ -189,6 +189,7 @@ namespace GCodeConvertor
             {
                 CanvasMain.Children.Remove(line);
             }
+           
             activeLayer.layerPredictThread = getRubberBandPath(activeLayer.layerThread.ToArray());
             System.Windows.Point startPoint;
             System.Windows.Point endPoint;
@@ -228,6 +229,7 @@ namespace GCodeConvertor
 
         private List<Point> getRubberBandPath(Point[] route)
         {
+            route = RemoveExtraPoints(route.ToList(),1).ToArray();
             route = RoutePreprocessing(route, size);
             var result = new List<Point>();
             var sigmentStart = 0;
@@ -252,7 +254,7 @@ namespace GCodeConvertor
                         if (isBlock)
                         {
                             double angle = -Math.Atan2(route[j].Y - point.Y, route[j].X - point.X);
-                            if (angle > Math.PI / 4 || angle < -Math.PI / 4)
+                            if (angle > Math.PI / 4 || angle < -3 * Math.PI / 4)
                             {
                                 isInsert = true;
                                 block = rectangle;
@@ -319,10 +321,10 @@ namespace GCodeConvertor
                 }
             }
             if(result.Count>1) result.Add(route.Last());
-            //return RemoveExtraPoints(result);
-            return result;
+            return RemoveExtraPoints(result,1);
+            //return result;
         }
-
+ 
         public static Point[] RoutePreprocessing(Point[] route, double segmentLength)
         {
             List<Point> subdividedRoute = new List<Point>();
@@ -350,30 +352,113 @@ namespace GCodeConvertor
 
             return subdividedRoute.ToArray();
         }
-        public List<Point> RemoveExtraPoints(List<Point> subdividedRoute)
+        public List<Point> RemoveExtraPoints(List<Point> subdividedRoute, int count)
         {
-            for (int i = 0; i < subdividedRoute.Count - 3;)
+            List<Point> start;
+            do
             {
+                start = new List<Point>(subdividedRoute);
 
-                Boolean isBlock = false;
-                foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                for (int i = 0; i < subdividedRoute.Count - 2;)
                 {
-                    Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
-                    double distance = FindDistanceToSegment(rectangleCenter, subdividedRoute[i], subdividedRoute[i + 2]);
-                    if (distance < rectangle.Width / 2)
+
+                    Boolean isBlock = false;
+                    foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
                     {
-                        isBlock = true;
-                        break;
+                        Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
+                        double distance = FindDistanceToSegment(rectangleCenter, subdividedRoute[i], subdividedRoute[i + 2]);
+
+                        //double angleToPoint = Math.Atan2(subdividedRoute[i + 1].Y - rectangleCenter.Y, subdividedRoute[i + 1].X - rectangleCenter.X);
+                        //double angleToPoint = CalculateAngleBetweenPoints(subdividedRoute[i + 1], rectangleCenter);
+                        //double angleToLine = Math.PI / 2 - Math.Atan2(subdividedRoute[i + 2].Y - subdividedRoute[i].Y, subdividedRoute[i + 2].X - subdividedRoute[i].X);
+                        //double angleToLine = -Math.Atan2((subdividedRoute[i].Y+ subdividedRoute[i + 2].Y)/2 - rectangleCenter.Y, (subdividedRoute[i].X+ subdividedRoute[i + 2].X) /2 - rectangleCenter.X);
+                        //double angleToLine = CalculatePerpendicularAngle(rectangleCenter, subdividedRoute[i + 2], subdividedRoute[i]);
+                        //if (distance < rectangle.Width / 2 || CalculateAngleBetween( angleToLine, angleToPoint) > Math.PI / 2)
+                        if (distance < rectangle.Width / 2 || IsPointInsideTriangle(subdividedRoute[i], subdividedRoute[i+1], subdividedRoute[i+2], rectangleCenter))
+                        {
+                            isBlock = true;
+                            break;
+                        }
                     }
+                    if (!isBlock)
+                    {
+                        subdividedRoute.RemoveAt(i + 1);
+                    }
+                    else i+=count;
                 }
-                if (!isBlock)
-                {
-                    subdividedRoute.RemoveAt(i + 1);
-                }
-                else i++;
             }
+            while (subdividedRoute.Count!=start.Count);
             return subdividedRoute;
         }
+
+        static double CalculatePerpendicularAngle(Point point, Point linePoint1, Point linePoint2)
+        {
+            // Вычисляем векторы для точек на линии
+            double lineVectorX = linePoint2.X - linePoint1.X;
+            double lineVectorY = linePoint2.Y - linePoint1.Y;
+            double pointVectorX = point.X - linePoint1.X;
+            double pointVectorY = point.Y - linePoint1.Y;
+
+            // Вычисляем скалярное произведение векторов
+            double dotProduct = lineVectorX * pointVectorX + lineVectorY * pointVectorY;
+
+            // Вычисляем длину вектора линии и длину вектора, проведенного до точки
+            double lineLength = Math.Sqrt(lineVectorX * lineVectorX + lineVectorY * lineVectorY);
+            double pointLength = Math.Sqrt(pointVectorX * pointVectorX + pointVectorY * pointVectorY);
+
+            // Вычисляем угол через скалярное произведение и длины векторов
+            double angle = Math.Acos(dotProduct / (lineLength * pointLength));
+
+            return angle;
+        }
+
+        static bool IsPointInsideTriangle(Point A, Point B, Point C, Point P)
+        {
+            // Вычисляем площади треугольника ABC и трех подтреугольников с использованием формулы Герона
+            double ABC = Math.Abs((A.X * (B.Y - C.Y) + B.X * (C.Y - A.Y) + C.X * (A.Y - B.Y)) / 2.0);
+            double ABP = Math.Abs((A.X * (B.Y - P.Y) + B.X * (P.Y - A.Y) + P.X * (A.Y - B.Y)) / 2.0);
+            double APC = Math.Abs((A.X * (P.Y - C.Y) + P.X * (C.Y - A.Y) + C.X * (A.Y - P.Y)) / 2.0);
+            double PBC = Math.Abs((P.X * (B.Y - C.Y) + B.X * (C.Y - P.Y) + C.X * (P.Y - B.Y)) / 2.0);
+
+            // Если сумма площадей подтреугольников равна площади треугольника ABC, то точка P внутри треугольника
+            return Math.Abs(ABC - (ABP + APC + PBC))<5;
+        }
+
+        static double CalculateAngleBetweenPoints(Point point1, Point point2)
+        {
+            // Вычисляем векторы для точек
+            double vectorX1 = point1.X;
+            double vectorY1 = point1.Y;
+            double vectorX2 = point2.X;
+            double vectorY2 = point2.Y;
+
+            // Вычисляем скалярное произведение векторов
+            double dotProduct = vectorX1 * vectorX2 + vectorY1 * vectorY2;
+
+            // Вычисляем длины векторов
+            double length1 = Math.Sqrt(vectorX1 * vectorX1 + vectorY1 * vectorY1);
+            double length2 = Math.Sqrt(vectorX2 * vectorX2 + vectorY2 * vectorY2);
+
+            // Вычисляем угол через скалярное произведение и длины векторов
+            double angle = Math.Acos(dotProduct / (length1 * length2));
+
+            return angle;
+        }
+
+        static double CalculateAngleBetween(double angle1, double angle2)
+        {
+            // Вычисляем разницу между углами
+            double angleDifference = Math.Abs(angle1 - angle2);
+
+            // Если разница больше половины оборота (2*pi), то берем обратную разницу
+            if (angleDifference > Math.PI)
+            {
+                angleDifference = 2 * Math.PI - angleDifference;
+            }
+
+            return angleDifference;
+        }
+
         private static double GetAvgDistance(Point point, Point[] route) 
         {
             double avgDistance = 0;
