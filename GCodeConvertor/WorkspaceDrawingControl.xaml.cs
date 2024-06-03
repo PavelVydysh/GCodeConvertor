@@ -21,6 +21,8 @@ using Color = System.Windows.Media.Color;
 using ColorConverter = System.Windows.Media.ColorConverter;
 using GCodeConvertor.WorkspaceInstruments;
 using static System.Windows.Forms.LinkLabel;
+using GCodeConvertor.AutoConflicts;
+using System.Diagnostics;
 
 namespace GCodeConvertor
 {
@@ -48,6 +50,7 @@ namespace GCodeConvertor
         // Списки иголок кружочков квадратов
         public List<Ellipse> ellipses { get; }
         public List<Rectangle> needles { get; } // список игл 
+        public List<Line> conflictLines { get; }
 
         public CustomLineStorage customLineStorage { get; set; }
         public double cellSize { get; set; }
@@ -69,6 +72,7 @@ namespace GCodeConvertor
             setupWorkspaceCanvasEvents();
             needles = new List<Rectangle>();
             ellipses = new List<Ellipse>();
+            conflictLines = new List<Line>();
             customLineStorage = new CustomLineStorage();
         }
 
@@ -99,18 +103,15 @@ namespace GCodeConvertor
         /// <param name="activeLayer">Слой, с которым должна работать "рисовалка"</param>
         public void setActiveLayer(Layer activeLayer)
         {
-            customLineStorage.clear();
-            ellipses.Clear();
-            
-            deleteCustomItems();
             this.activeLayer = activeLayer;
-            initLayer();
+            repaint();
         }
 
         public void repaint()
         {
             customLineStorage.clear();
             ellipses.Clear();
+            conflictLines.Clear();
             deleteCustomItems();
             initLayer();
         }
@@ -202,7 +203,7 @@ namespace GCodeConvertor
 
             areAnyConflictsHere = false;
 
-            for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++) 
+            for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++)
             {
                 int previousPointIndex = pointIndex - 1;
 
@@ -221,16 +222,15 @@ namespace GCodeConvertor
                 if (isConflict)
                 {
                     currentLine.Stroke = new SolidColorBrush(CONFLICT_LINE_COLOR);
+                    conflictLines.Add(currentLine);
                 }
-
-                areAnyConflictsHere |= isConflict;
 
                 oldEllipse = currentEllipse;
                 currentEllipse = drawPoint(
-                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X), 
+                    getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
                     activeLayer.isDotSelected(activeLayer.thread[pointIndex]));
-                
+
                 if (ellipses.Count >= 2)
                 {
                     customLineStorage.addLine(new CustomLine(currentLine, oldEllipse, currentEllipse));
@@ -245,6 +245,193 @@ namespace GCodeConvertor
                         getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].Y));
                 }
             }
+            //ДОБАВИТЬ ПЕРЕМЕННУЮ ДЛЯ АВТОКОНФЛИКТОВ
+            if(true)
+            {
+                if(conflictLines.Count > 0)
+                {
+                    foreach (Line conflictLine in conflictLines)
+                    {
+                        resolveConflict(conflictLine);
+                    }
+                    repaint();
+                }
+            }
+
+        }
+
+        private void resolveConflict(Line conflictLine)
+        {
+            CustomLine custLine = customLineStorage.getLineByInnerLine(conflictLine);
+
+            Line line = custLine.line;
+            double midX = (line.X1 + line.X2) / 2;
+            double midY = (line.Y1 + line.Y2) / 2;
+            ConflictResolver resolver = null;
+
+            EllipseGeometry ellipseGeometry = new EllipseGeometry(new Point(midX, midY), ELLIPSE_SIZE, ELLIPSE_SIZE);
+            foreach (Rectangle rect in needles)
+            {
+                RectangleGeometry rectGeom = new RectangleGeometry(new Rect(Canvas.GetLeft(rect), Canvas.GetTop(rect), rect.Width, rect.Height));
+                IntersectionDetail intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
+                if (intersectionDetail != IntersectionDetail.Empty)
+                {
+                    resolver = findConflictResolver(Canvas.GetLeft(custLine.firstEllipse),
+                                                        Canvas.GetTop(custLine.firstEllipse),
+                                                        Canvas.GetLeft(custLine.secondEllipse),
+                                                        Canvas.GetTop(custLine.secondEllipse));
+                }
+
+                while (intersectionDetail != IntersectionDetail.Empty)
+                {
+                    Debug.WriteLine($"Intersection detected at ({midX}, {midY})");
+                    Point point = resolver.resolve(midX, midY, cellSize);
+                    midX = point.X;
+                    midY = point.Y;
+                    
+                    ellipseGeometry = new EllipseGeometry(new Point(midX, midY), ELLIPSE_SIZE, ELLIPSE_SIZE);
+                    intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
+                    foreach (Rectangle rectIn in needles)
+                    {
+                        rectGeom = new RectangleGeometry(new Rect(Canvas.GetLeft(rectIn), Canvas.GetTop(rectIn), rectIn.Width, rectIn.Height));
+                        intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
+                        if (intersectionDetail != IntersectionDetail.Empty)
+                        {
+                            break;
+                        }
+                    }
+
+                    Debug.WriteLine($"Moved to ({midX}, {midY}), new intersection detail: {intersectionDetail}");
+                }
+            }
+
+            addLine(line, midX, midY);
+            Debug.WriteLine($"Ellipse placed at ({midX}, {midY})");
+        }
+
+        private void addLine(Line line, double x, double y)
+        {
+            Line pressedLine = line;
+            CustomLine customLine = customLineStorage.getLineByInnerLine(pressedLine);
+
+            double threadX = getThreadValueByTopologyValue((int)Math.Floor(x / cellSize));
+            double threadY = getThreadValueByTopologyValue((int)Math.Floor(y / cellSize));
+
+            Point point = new Point(threadX, threadY);
+
+            Point threadEndPoint = new Point(getThreadValueByTopologyValue((int)Math.Floor(Canvas.GetLeft(customLine.secondEllipse) / cellSize)),
+                                               getThreadValueByTopologyValue((int)Math.Floor(Canvas.GetTop(customLine.secondEllipse) / cellSize)));
+
+            int indexOfEndPoint = activeLayer.getThreadPoint(threadEndPoint);
+
+            activeLayer.insertBeforePositionThreadPoint(point, indexOfEndPoint);
+        }
+
+        private double getThreadValueByTopologyValue(double topologyValue)
+        {
+            return topologyValue + 0.5;
+        }
+
+        private ConflictResolver findConflictResolver(double fX, double fY, double sX, double sY)
+        {
+            double midPosX = (fX + sX) / 2;
+            double midPosY = (fY + sY) / 2;
+            int fIterations = 0;
+            int sIterations = 0;
+            if ((fX > sX && fY > sY) || (fX < sX && fY < sY))
+            {
+                fIterations = checkDirection(midPosX, midPosY, -1, 1);
+                sIterations = checkDirection(midPosX, midPosY, 1, -1);
+
+                if (fIterations >= sIterations)
+                {
+                    return new FrontUpConflictResolver();
+                }
+                else
+                {
+                    return new BackBottomConflictResolver();
+                }
+            }
+            else if ((fX > sX && fY < sY) || (fX < sX && fY > sY))
+            {
+                fIterations = checkDirection(midPosX, midPosY, 1, 1);
+                sIterations = checkDirection(midPosX, midPosY, -1, -1);
+
+                if (fIterations <= sIterations)
+                {
+                    return new FrontBottomConflictResolver();
+                }
+                else
+                {
+                    return new BackUpConflictResolver();
+                }
+            }
+            else if ((fX > sX && fY == sY) || (fX < sX && fY == sY))
+            {
+                fIterations = checkDirection(midPosX, midPosY, 0, 1);
+                sIterations = checkDirection(midPosX, midPosY, 0, -1);
+
+                if (fIterations <= sIterations)
+                {
+                    return new DownConflictResolver();
+                }
+                else
+                {
+                    return new UpConflictResolver();
+                }
+            }
+            else if ((fX == sX && fY > sY) || (fX == sX && fY < sY))
+            {
+                fIterations = checkDirection(midPosX, midPosY, -1, 0);
+                sIterations = checkDirection(midPosX, midPosY, 1, 0);
+
+                if (fIterations <= sIterations)
+                {
+                    return new LeftConflictResolver();
+                }
+                else
+                {
+                    return new RightConflictResolver();
+                }
+            }
+            return new FrontUpConflictResolver();
+        }
+
+        private int checkDirection(double tempMidPosX, double tempMidPosY, int xPlus, int yPlus)
+        {
+            int iterations = 0;
+            IntersectionDetail intersectionDetail;
+            foreach (Rectangle rectIn in needles)
+            {
+                EllipseGeometry elGeom = new EllipseGeometry(new Point(tempMidPosX, tempMidPosY), ELLIPSE_SIZE, ELLIPSE_SIZE);
+                RectangleGeometry rectGeo = new RectangleGeometry(new Rect(Canvas.GetLeft(rectIn), Canvas.GetTop(rectIn), rectIn.Width, rectIn.Height));
+                intersectionDetail = elGeom.FillContainsWithDetail(rectGeo);
+                while (intersectionDetail != IntersectionDetail.Empty)
+                {
+                    if (xPlus == 1)
+                    {
+                        tempMidPosX += cellSize;
+                    }
+                    else if (xPlus == -1)
+                    {
+                        tempMidPosX -= cellSize;
+                    }
+
+                    if (yPlus == 1)
+                    {
+                        tempMidPosY += cellSize;
+                    }
+                    else if (yPlus == -1)
+                    {
+                        tempMidPosY -= cellSize;
+                    }
+                    elGeom = new EllipseGeometry(new Point(tempMidPosX, tempMidPosY), ELLIPSE_SIZE, ELLIPSE_SIZE);
+                    intersectionDetail = elGeom.FillContainsWithDetail(rectGeo);
+                    iterations++;
+                }
+            }
+
+            return iterations;
         }
 
         private Line drawLine(double previousDrawingX, double previousDrawingY, double currentDrawingX, double currentDrawingY)

@@ -86,14 +86,10 @@ namespace GCodeConvertor.WorkspaceInstruments
             workspaceDrawingControl.repaint();
         }
 
-        private Ellipse addLine(Line line, double x, double y)
+        private void addLine(Line line, double x, double y)
         {
             Line pressedLine = line;
             CustomLine customLine = workspaceDrawingControl.customLineStorage.getLineByInnerLine(pressedLine);
-
-            int position;
-            int canv_position;
-            int a;
 
             double threadX = getThreadValueByTopologyValue((int)Math.Floor(x / workspaceDrawingControl.cellSize));
             double threadY = getThreadValueByTopologyValue((int)Math.Floor(y / workspaceDrawingControl.cellSize));
@@ -106,82 +102,6 @@ namespace GCodeConvertor.WorkspaceInstruments
             int indexOfEndPoint = workspaceDrawingControl.activeLayer.getThreadPoint(threadEndPoint);
 
             workspaceDrawingControl.activeLayer.insertBeforePositionThreadPoint(point, indexOfEndPoint);
-
-            Ellipse startEllipse;
-            Ellipse secondEllipse;
-            
-            position = workspaceDrawingControl.customLineStorage.indexOf(customLine);
-            
-            if (workspaceDrawingControl.customLineStorage.indexOf(customLine) == 0)
-            {
-                startEllipse = workspaceDrawingControl.ellipses[0];
-            }
-            else
-            {
-                startEllipse = workspaceDrawingControl.customLineStorage.getByIndex(position - 1).secondEllipse;
-            }
-
-            if (workspaceDrawingControl.customLineStorage.indexOf(customLine) == workspaceDrawingControl.customLineStorage.size() - 1)
-            {
-                secondEllipse = workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 1];
-                a = workspaceDrawingControl.ellipses.Count - 1;
-            }
-            else
-            {
-                secondEllipse = workspaceDrawingControl.customLineStorage.getByIndex(position + 1).firstEllipse;
-                a = workspaceDrawingControl.ellipses.IndexOf(secondEllipse);
-            }
-
-            canv_position = workspaceDrawingControl.workspaceCanvas.Children.IndexOf(pressedLine);
-            workspaceDrawingControl.customLineStorage.remove(customLine);
-            workspaceDrawingControl.workspaceCanvas.Children.Remove(pressedLine);
-
-            //
-            //Ellipse ellipse = new Ellipse();
-            //ellipse.Height = ELLIPSE_SIZE;
-            //ellipse.Width = ELLIPSE_SIZE;
-            //ellipse.Fill = new SolidColorBrush(Colors.Red);
-            //ellipse.MouseRightButtonDown += Ellipse_MouseRightDown;
-            //ellipse.MouseLeftButtonDown += Ellipse_MouseLeftButtonDown;
-            //ellipse.MouseMove += Ellipse_MouseMove;
-            //Canvas.SetLeft(ellipse, x - ELLIPSE_SIZE / 2);
-            //Canvas.SetTop(ellipse, y - ELLIPSE_SIZE / 2);
-            //
-
-            //workspaceDrawingControl.ellipses.Insert(a, ellipse);
-            //CanvasMain.Children.Add(ellipse);
-
-            //
-            //Line lineAddF = new Line();
-            //lineAddF.Fill = new SolidColorBrush(Colors.Red);
-            //lineAddF.Visibility = System.Windows.Visibility.Visible;
-            //lineAddF.StrokeThickness = LINE_SIZE;
-            //lineAddF.X1 = Canvas.GetLeft(startEllipse) + ELLIPSE_SIZE / 2;
-            //lineAddF.Y1 = Canvas.GetTop(startEllipse) + ELLIPSE_SIZE / 2;
-            //lineAddF.X2 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
-            //lineAddF.Y2 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
-            //lineAddF.MouseRightButtonDown += Line_MouseRightButtonDown;
-            ////
-
-            //Line lineAddS = new Line();
-            //lineAddS.Fill = new SolidColorBrush(Colors.Red);
-            //lineAddS.Visibility = System.Windows.Visibility.Visible;
-            //lineAddS.StrokeThickness = LINE_SIZE;
-            //lineAddS.X1 = Canvas.GetLeft(ellipse) + ELLIPSE_SIZE / 2;
-            //lineAddS.Y1 = Canvas.GetTop(ellipse) + ELLIPSE_SIZE / 2;
-            //lineAddS.X2 = Canvas.GetLeft(secondEllipse) + ELLIPSE_SIZE / 2;
-            //lineAddS.Y2 = Canvas.GetTop(secondEllipse) + ELLIPSE_SIZE / 2;
-            //lineAddS.MouseRightButtonDown += Line_MouseRightButtonDown;
-            ////
-
-            //CustomLine newFLine = new CustomLine(lineAddF, startEllipse, ellipse);
-            //CustomLine newSLine = new CustomLine(lineAddS, ellipse, secondEllipse);
-
-            //workspaceDrawingControl.customLineStorage.addLine(newSLine, position);
-            //workspaceDrawingControl.customLineStorage.addLine(newFLine, position);
-
-            Ellipse ellipse = new Ellipse();
-            return ellipse;
         }
 
         private void mouseMoveOnCanvas(Canvas canvas, MouseEventArgs e)
@@ -479,7 +399,7 @@ namespace GCodeConvertor.WorkspaceInstruments
                 return DrawingStates.START;
             if (workspaceDrawingControl.activeLayer.isEnded())
                 return DrawingStates.END;
-            if (workspaceDrawingControl.areAnyConflictsHere)
+            if (workspaceDrawingControl.conflictLines.Count > 0)
                 return DrawingStates.CONFLICT;
             return DrawingStates.DRAWING;
         }
