@@ -4,35 +4,35 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.UI"
-        mc:Ignorable="d" WindowStyle="None" Title="Добро пожаловать в G-Code Converter" Height="600" Width="800" Background="#F4F4F4"
+        mc:Ignorable="d" WindowStyle="None" Title="Добро пожаловать в G-Code Converter" Height="600" Width="800" Background="Transparent" AllowsTransparency="True"
         Icon="pack://application:,,,/Resources/gcode_logo.ico">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#F4F4F4"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="#F4F4F4"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                    BorderBrush="{TemplateBinding BorderBrush}" 
-                    BorderThickness="{TemplateBinding BorderThickness}" 
-                    CornerRadius="5">
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">   
                             <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -41,21 +41,21 @@
             </Setter>
         </Style>
         <Style x:Key="TextBoxButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="15,5"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="#AAAAAA"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-            BorderBrush="{TemplateBinding BorderBrush}" 
-            BorderThickness="{TemplateBinding BorderThickness}" 
-            CornerRadius="5">
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="5">               
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           Margin="{TemplateBinding Padding}"/>
@@ -65,9 +65,10 @@
             </Setter>
         </Style>
         <Style x:Key="BodyTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource ForegroundBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="MinWidth" Value="120"/>
@@ -87,25 +88,25 @@
             <Setter Property="MinHeight" Value="30"/>
         </Style>
         <Style x:Key="ProjectTextBlockNameStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
         <Style x:Key="ProjectTextBlockPathStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#888888"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
         <Style x:Key="ProjectTextBlockDateStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#888888"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
         <Style x:Key="ProjectBlockStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
@@ -119,10 +120,10 @@
 
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#CDE5FB"/>
+                                <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#CDE5FB"/>
+                                <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -133,20 +134,16 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBox">
-                        <Border BorderThickness="{TemplateBinding BorderThickness}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    Background="{TemplateBinding Background}"
-                    CornerRadius="5">
+                        <Border Background="{StaticResource BackgroundBrush}">       
                             <ScrollViewer Padding="{TemplateBinding Padding}"
-                              Focusable="false"
-                              HorizontalScrollBarVisibility="Auto"
-                              VerticalScrollBarVisibility="Auto">
+                                  Focusable="false"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
                                 <ScrollViewer.Resources>
                                     <Style TargetType="ScrollBar">
                                         <Setter Property="Width" Value="10"/>
-                                        <Setter Property="Background" Value="LightGray"/>
-                                        <Setter Property="BorderBrush" Value="Gray"/>
-                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Background" Value="{StaticResource BorderBrush}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ScrollBar">
@@ -174,7 +171,7 @@
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="#F4F4F4" MouseLeftButtonDown="MoveWindow">
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -190,12 +187,12 @@
             <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
             <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
         </Grid>
-        <Grid Grid.Row="1" Background="White">
+        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border BorderBrush="#E2E2E2" BorderThickness="1">
+            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,1">
                 <Grid Grid.Row="0" Margin="20,20,20,20" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -208,19 +205,19 @@
                     <Image Grid.Column="0" Margin="0,0,15,0" Source="pack://application:,,,/Resources/loupe.png" Width="20" Height="20"></Image>
                     <TextBlock Name="projectSearchCue" Grid.Column="1" Style="{StaticResource BodyTextCueStyle}"
                            Text="Поиск проекта..." 
-                           Foreground="Gray"                        
+                           Foreground="{StaticResource SecondaryBrush}"                        
                            VerticalAlignment="Center" 
                            HorizontalAlignment="Stretch"
                            Width="auto"
                            Margin="5,0,15,0"/>
 
                     <TextBox Name="projectSearch" Grid.Column="1" Style="{StaticResource BodyTextBoxStyle}" 
-                    Background="Transparent"                        
-                    VerticalAlignment="Center" 
-                    HorizontalAlignment="Stretch"
-                    Width="auto"
-                    Margin="0,0,15,0"
-                    TextChanged="projectSearch_TextChanged">
+                        Background="Transparent"                        
+                        VerticalAlignment="Center" 
+                        HorizontalAlignment="Stretch"
+                        Width="auto"
+                        Margin="0,0,15,0"
+                        TextChanged="projectSearch_TextChanged">    
                     </TextBox>
                     <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект"></Button>
                     <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
@@ -233,20 +230,21 @@
                  d:ItemsSource="{d:SampleData ItemCount=5}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="border"
-                                    Background="Transparent"
-                                    BorderBrush="Transparent"
-                                    BorderThickness="1"
-                                    CornerRadius="5">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="5">   
                                         <ContentPresenter/>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="border" Property="Background" Value="#CDE5FB"/>
-                                            <Setter TargetName="border" Property="BorderBrush" Value="#CDE5FB"/>
+                                            <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -269,6 +267,9 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
+                                        <TextBlock.Triggers>
+                                            
+                                        </TextBlock.Triggers>
                                     </TextBlock>
                                     <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
                                 </Grid>
@@ -279,9 +280,6 @@
                         <DataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsAccessable}" Value="False">
                                 <Setter TargetName="ProjectNameBlock" Property="Foreground" Value="#FFFF3333"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsAccessable}" Value="True">
-                                <Setter TargetName="ProjectNameBlock" Property="Foreground" Value="Black"/>
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>

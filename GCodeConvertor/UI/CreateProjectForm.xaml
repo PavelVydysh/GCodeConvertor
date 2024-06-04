@@ -1,0 +1,68 @@
+﻿<Window x:Class="GCodeConvertor.UI.CreateProjectForm"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCodeConvertor.UI"
+        mc:Ignorable="d"
+        WindowStyle="None" Height="600" Width="800" Background="#F4F4F4"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico">
+    <Window.Resources>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+              BorderBrush="{TemplateBinding BorderBrush}" 
+              BorderThickness="{TemplateBinding BorderThickness}" 
+              CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="#F7F8FA">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
+                <TextBlock Text="Новый проект" FontSize="14" VerticalAlignment="Center" Foreground="#888888"/>
+            </StackPanel>
+
+            <!--<Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+            <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
+            <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>-->
+        </Grid>
+        <Grid Grid.Row="1" Background="Transparent"></Grid>
+    </Grid>
+</Window>
