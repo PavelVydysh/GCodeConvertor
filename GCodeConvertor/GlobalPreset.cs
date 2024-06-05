@@ -28,6 +28,13 @@ namespace GCodeConvertor
             topology = new Topology(model);
             layers = new List<Layer>();
         }
+        public GlobalPreset(TopologyByLineModel model)
+        {
+            var result = Topology.fillNozzlesAndLayer(model);
+            topology = result.topology;
+            layers = new List<Layer>();
+            layers.Add(result.layer);
+        }
 
         public GlobalPreset(List<Layer> layers, Topology topology) 
         {

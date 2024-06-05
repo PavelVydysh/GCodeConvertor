@@ -191,6 +191,7 @@ namespace GCodeConvertor
             }
            
             activeLayer.layerPredictThread = getRubberBandPath(activeLayer.layerThread.ToArray());
+            //activeLayer.layerPredictThread = getRubberBandPath(getRubberBandPath(activeLayer.layerThread.ToArray()).ToArray());
             System.Windows.Point startPoint;
             System.Windows.Point endPoint;
             for (int i = 0; i < activeLayer.layerPredictThread.Count; i++)
@@ -529,6 +530,7 @@ namespace GCodeConvertor
 
             return Math.Sqrt(dx * dx + dy * dy);
         }
+
         private void openMenu(object sender, RoutedEventArgs e)
         {
 
