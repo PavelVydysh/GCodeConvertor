@@ -31,8 +31,6 @@ namespace GCodeConvertor
         public int StepNeedlesY { get; set; }
         public float Accuracy { get; set; }
 
-        public string error = String.Empty;
-
         public Dictionary<String, String> Errors = new Dictionary<string, string>();
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -56,7 +54,7 @@ namespace GCodeConvertor
         {
             get
             {
-                error = string.Empty; 
+                string error = string.Empty; 
 
                 switch (columnName)
                 {
@@ -75,33 +73,33 @@ namespace GCodeConvertor
                         break;
 
                     case "PlatformH":
-                        if (PlatformH <= 0)
+                        if (PlatformH <= 100)
                         {
-                            error = "Высота платформы не может быть меньше или равна 0";
+                            error = "Длина платформы по оси Y не может быть меньше или равна 100 мм";
                         }
                         break;
                     case "PlatformW":
-                        if (PlatformW <= 0)
+                        if (PlatformW <= 100)
                         {
-                            error = "Ширина платформы не может быть меньше или равна 0";
+                            error = "Длина платформы по оси X не может быть меньше или равна 100 мм";
                         }
                         break;
                     case "HeadIdentationX":
                         if (HeadIdentationX <= 0)
                         {
-                            error = "X-координата положения головы не может быть меньше или равна 0";
+                            error = "Отступ платформы по оси X должен быть больше 0 мм";
                         }
                         break;
                     case "HeadIdentationY":
                         if (HeadIdentationY <= 0)
                         {
-                            error = "Y-координата положения головы не может быть меньше или равна 0";
+                            error = "Отступ платформы по оси Y должен быть больше 0 мм";
                         }
                         break;
                     case "NozzleDiameter":
                         if (NozzleDiameter <= 0)
                         {
-                            error = "Диаметр сопла не может быть меньше или равен 0";
+                            error = "Диаметр сопла должен быть больше 0 мм";
                         }
                         break;
                     case "NeedleDiameter":
@@ -113,25 +111,25 @@ namespace GCodeConvertor
                     case "StartNeedleOffsetX":
                         if (StartNeedleOffsetX <= 0)
                         {
-                            error = "Координата X отступа не может быть меньше или равна 0 ";
+                            error = "Отступ стартовой иглы от края платформы по оси X должен быть больше 0 мм";
                         }
                         break;
                     case "StartNeedleOffsetY":
                         if (StartNeedleOffsetY <= 0)
                         {
-                            error = "Координата Y отступа не может быть меньше или равна 0 ";
+                            error = "Отступ стартовой иглы от края платформы по оси Y должен быть больше 0 мм";
                         }
                         break;
                     case "StepNeedlesX":
                         if (StepNeedlesX <= 0)
                         {
-                            error = "Координата X шага не может быть меньше или равна 0 ";
+                            error = "Шаг между иглами по оси X должен быть больше 0 мм";
                         }
                         break;
                     case "StepNeedlesY":
                         if (StepNeedlesY <= 0)
                         {
-                            error = "Координата Y шага не может быть меньше или равна 0 ";
+                            error = "Шаг между иглами по оси X должен быть больше 0 мм";
                         }
                         break;
                     case "Accuracy":

@@ -227,7 +227,7 @@
                         Margin="0,0,15,0"
                         TextChanged="projectSearch_TextChanged">
                     </TextBox>
-                    <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект"></Button>
+                    <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект" Click="CreateNewProject"></Button>
                     <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
                     <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки"></Button>
                 </Grid>
@@ -275,9 +275,6 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
-                                        <TextBlock.Triggers>
-
-                                        </TextBlock.Triggers>
                                     </TextBlock>
                                     <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
                                 </Grid>

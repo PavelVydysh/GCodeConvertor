@@ -1,22 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.Eventing.Reader;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static GCodeConvertor.UI.ProjectsInfo;
 
 namespace GCodeConvertor.UI
@@ -65,7 +55,7 @@ namespace GCodeConvertor.UI
         private string getModifiedFileDate(string pathToProject)
         {
             FileInfo projectFileInfo = new FileInfo(pathToProject);
-            return projectFileInfo.LastWriteTime.ToShortDateString();
+            return projectFileInfo.LastAccessTime.ToShortTimeString() + " " + projectFileInfo.LastAccessTime.ToShortDateString();
         }
 
         private void setupFormProperties()
@@ -166,6 +156,14 @@ namespace GCodeConvertor.UI
                 //this.Close();
             }
         }
+
+        private void CreateNewProject(object sender, RoutedEventArgs e)
+        {
+            CreateProjectForm createProjectForm = new CreateProjectForm(this);
+            this.Visibility = Visibility.Collapsed;
+            createProjectForm.ShowDialog();
+        }
+
     }
 
     public class ProjectItem

@@ -33,10 +33,6 @@ namespace GCodeConvertor
             setCreateType(new CreateTypeA());
             topologyModel = new TopologyModel();
             this.DataContext = topologyModel;
-            OpenProjectForm opf = new OpenProjectForm();
-            opf.Show();
-            CreateProjectForm cpf = new CreateProjectForm();
-            cpf.Show();
         }
 
         private void CreateProjectA(object sender, RoutedEventArgs e)
@@ -103,9 +99,9 @@ namespace GCodeConvertor
                 //    errorMessage += error + "\n";
                 //}
 
-                MessageBox.Show("Причина ошибки: \n" + topologyModel.error + "\nСуммарное количество неверно заполненных полей - " + topologyModel.Errors.Count, "Ошибка!",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //MessageBox.Show("Причина ошибки: \n" + topologyModel.error + "\nСуммарное количество неверно заполненных полей - " + topologyModel.Errors.Count, "Ошибка!",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
             }
         }
 

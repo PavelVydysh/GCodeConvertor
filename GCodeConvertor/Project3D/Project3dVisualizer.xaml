@@ -7,7 +7,8 @@
         Title="3D Window" Width="800" Height="600" Loaded="Window_Loaded">
 
     <Grid>
-        <HelixToolkit:HelixViewport3D x:Name="Viewport3D" ZoomExtentsWhenLoaded="True">
+        
+        <HelixToolkit:HelixViewport3D x:Name="Viewport3D" ZoomExtentsWhenLoaded="True" Background="{StaticResource BackgroundBrush}">
             <!-- Remember to add light to the scene -->
             <HelixToolkit:SunLight/>
 

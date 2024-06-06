@@ -36,7 +36,6 @@ namespace GCodeConvertor
                     gcode += "G1 X" + x + " Y" + y + "\n";
                 }
             }
-
             saveAsync(gcode);
         }
 

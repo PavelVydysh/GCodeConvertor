@@ -20,10 +20,15 @@ namespace GCodeConvertor.UI
     /// </summary>
     public partial class CreateProjectForm : Window
     {
+        private OpenProjectForm openProjectForm;
+
         public ObservableCollection<ProjectTypeItem> projectTypeItems;
 
-        public CreateProjectForm()
+        private ITopologable topologable;
+
+        public CreateProjectForm(OpenProjectForm openProjectForm)
         {
+            this.openProjectForm = openProjectForm;
             InitializeComponent();
             projectTypeItems = new ObservableCollection<ProjectTypeItem>();
             ProjectTypeListBox.ItemsSource = projectTypeItems;
@@ -44,7 +49,33 @@ namespace GCodeConvertor.UI
             {
                 projectTypeSearchCue.Visibility = Visibility.Collapsed;
             }
-            //ApplyFilter();
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            CollectionView view = (CollectionView)CollectionViewSource.GetDefaultView(ProjectTypeListBox.ItemsSource);
+            if (projectTypeSearchBlock.Text.Length == 0)
+            {
+                view.Filter = null;
+            }
+            view.Filter = item =>
+            {
+                if (item is ProjectTypeItem currentItem)
+                {
+                    return currentItem.ProjectType.Contains(projectTypeSearchBlock.Text, StringComparison.OrdinalIgnoreCase);
+                }
+                return false;
+            };
+            view.Refresh();
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
         }
 
         private void MaximizeWindow(object sender, RoutedEventArgs e)
@@ -61,6 +92,7 @@ namespace GCodeConvertor.UI
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
+            openProjectForm.Close();
             this.Close();
         }
 
@@ -77,6 +109,11 @@ namespace GCodeConvertor.UI
             this.WindowState = WindowState.Minimized;
         }
 
+        private void CancelCreating(object sender, RoutedEventArgs e)
+        {
+            openProjectForm.Visibility = Visibility.Visible;
+            this.Close();
+        }
     }
 
     public class ProjectTypeItem
