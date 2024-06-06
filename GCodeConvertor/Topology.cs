@@ -112,7 +112,7 @@ namespace GCodeConvertor
 
         }
 
-        public Topology(TopologyByLineModel model, Point[] shape, Point[] tensionLines) 
+        public Topology(TopologyByLineModel model, Point[] shape, Point[][] tensionLines) 
         {
             this.name = model.NameProject;
             this.path = model.PathProject;
@@ -156,12 +156,22 @@ namespace GCodeConvertor
         public static (Topology topology, Layer layer) fillNozzlesAndLayer(TopologyByLineModel model)
         {
             Point[] shape = new Point[1]; // из файла
-            Point[] tensionLines = new Point[1]; // из файла
+            Point[][] tensionLines = {new Point[1], new Point[1], new Point[2]}; // из файла
 
             Topology topology = new Topology(model, shape, tensionLines);
             Layer layer = new Layer();
+            //линии
+            foreach (Point[] line in tensionLines)
+            {
+                makeFigure(topology, layer, model, line);
+            }
 
+            //форма
             makeFigure(topology, layer, model, shape);
+
+            //штриховка
+            List<Point> hatchingPoints = GetHatchingPoints(shape.ToList(), model.Step);
+            makeFigure(topology, layer, model, hatchingPoints.ToArray());
 
             return (topology, layer);
         }
@@ -178,14 +188,71 @@ namespace GCodeConvertor
 
             Point start = findNearestToStart(startPoints, shape[0]);
 
-            route.Add(start);
-            for (int i = 0; i < shape.Length; i++) 
+            layer.layerThread.Add(start);
+            for (int i = 0; i < shape.Length -1; i++) 
             {
-                route.Add(shape[i]);
-
+                layer.layerThread.Add(shape[i]);
             }
-            route.Add(start);
-            layer.layerThread = route;
+            Point pointForNozzle;
+            for( int i = 1; i < route.Count -2; i++)
+            {
+                pointForNozzle = getPointForNozzle(shape[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
+                //TODO поставить иглу, а то я не понял
+            }
+            layer.layerThread.Add(start);
+        }
+
+
+        private static double getAngleBisector(Point a, Point b, Point c)
+        {
+            // Векторы, образующие угол
+            var vectorAB = new Point(a.X - b.X, a.Y - b.Y);
+            var vectorCB = new Point(c.X - b.X, c.Y - b.Y);
+        
+            // Углы векторов относительно оси X
+            double angleAB = Math.Atan2(vectorAB.Y, vectorAB.X);
+            double angleCB = Math.Atan2(vectorCB.Y, vectorCB.X);
+        
+            // Средний угол
+            double bisectorAngle = (angleAB + angleCB) / 2;
+
+            return bisectorAngle;
+        }
+
+        private static Point getPointForNozzle(Point point, double angle, int nozzleDiameter) 
+        {
+            //вообще не уверен
+            int nozzleHalf = nozzleDiameter/2;
+            if (-Math.PI / 8 <= angle && angle < Math.PI / 8) 
+            {
+                return new Point(point.X + nozzleHalf, point.Y);
+            }
+            if(Math.PI/8 <= angle && angle < 3 * Math.PI / 8)
+            {
+                return new Point(point.X + nozzleHalf, point.Y + nozzleHalf);
+            }
+            if (3*Math.PI/8 <= angle && angle < 5 * Math.PI/8)
+            {
+                return new Point(point.X, point.Y + nozzleHalf);
+            }
+            if(5* Math.PI/8<= angle && angle < 7 * Math.PI / 8)
+            {
+                return new Point(point.X - nozzleHalf, point.Y + nozzleHalf);
+            }
+            if(-Math.PI/8 <= angle && angle < -3 * Math.PI / 8)
+            {
+                return new Point(point.X + nozzleHalf, point.Y - nozzleHalf);
+            }
+            if (-3*Math.PI/8 <= angle && angle < -5* Math.PI/8)
+            {
+                return new Point(point.X, point.Y - nozzleHalf);
+            }
+            if(-5 * Math.PI / 8 <= angle && angle < -7* Math.PI / 8)
+            {
+                return new Point(point.X - nozzleHalf, point.Y - nozzleHalf);
+            }
+
+            return new Point(point.X - nozzleHalf, point.Y);
         }
 
         private static Point findNearestToStart(Point[] points, Point target) 
@@ -209,6 +276,62 @@ namespace GCodeConvertor
         private static double GetDistance(Point p1, Point p2)
         {
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
+        }
+
+        public static List<Point> GetHatchingPoints(List<Point> polygon, float step)
+        {
+            List<Point> hatchingPoints = new List<Point>();
+
+            // Найти минимальное и максимальное значение X
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+
+            foreach (var point in polygon)
+            {
+                if (point.X < minX) minX = (float)point.X;
+                if (point.X > maxX) maxX = (float)point.X;
+            }
+
+            // Пройтись по вертикальным линиям с заданным шагом
+            for (float x = minX; x <= maxX; x += step)
+            {
+                List<Point> intersections = new List<Point>();
+
+                // Найти пересечения текущей вертикальной линии с границами полигона
+                for (int i = 0; i < polygon.Count; i++)
+                {
+                    Point p1 = polygon[i];
+                    Point p2 = polygon[(i + 1) % polygon.Count];
+
+                    if (IsIntersecting(p1, p2, x, out Point intersection))
+                    {
+                        intersections.Add(intersection);
+                    }
+                }
+
+                // Сортировать точки пересечения по Y
+                intersections.Sort((a, b) => a.Y.CompareTo(b.Y));
+
+                // Добавить точки пересечения в результирующий список
+                hatchingPoints.AddRange(intersections);
+            }
+
+            return hatchingPoints;
+        }
+
+        private static bool IsIntersecting(Point p1, Point p2, float x, out Point intersection)
+        {
+            intersection = new Point();
+
+            if ((p1.X < x && p2.X >= x) || (p2.X < x && p1.X >= x))
+            {
+                float t = (float)(x - p1.X) / (float)(p2.X - p1.X);
+                intersection.X = (int)x;
+                intersection.Y = p1.Y + (int)(t * (p2.Y - p1.Y));
+                return true;
+            }
+
+            return false;
         }
     }
 }
