@@ -35,6 +35,8 @@ namespace GCodeConvertor
             this.DataContext = topologyModel;
             OpenProjectForm opf = new OpenProjectForm();
             opf.Show();
+            CreateProjectForm cpf = new CreateProjectForm();
+            cpf.Show();
         }
 
         private void CreateProjectA(object sender, RoutedEventArgs e)

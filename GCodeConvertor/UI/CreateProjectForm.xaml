@@ -5,16 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.UI"
         mc:Ignorable="d"
-        WindowStyle="None" Height="600" Width="800" Background="#F4F4F4"
-        Icon="pack://application:,,,/Resources/gcode_logo.ico">
+        WindowStyle="None" Height="600" Width="800"
+        Title="Новый проект"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico"
+        Background="Transparent" AllowsTransparency="true"> 
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -29,14 +31,100 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="#888888"/>
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BodyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BodyTextCueStyle" TargetType="TextBlock">
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="MinWidth" Value="120"/>
+            <Setter Property="MinHeight" Value="30"/>
+        </Style>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="PropertiesTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="ProjectTypeBlockStyle" TargetType="Grid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Margin" Value="10, 5"/>
+        </Style>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                         BorderBrush="{TemplateBinding BorderBrush}" 
+                         BorderThickness="{TemplateBinding BorderThickness}" 
+                         CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                   Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CreateButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                 BorderBrush="{TemplateBinding BorderBrush}" 
+                 BorderThickness="{TemplateBinding BorderThickness}" 
+                 CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                           Margin="{TemplateBinding Padding}"/>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -46,8 +134,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="#F7F8FA">
+        <!--header-->
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -56,13 +146,176 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
                 <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
-                <TextBlock Text="Новый проект" FontSize="14" VerticalAlignment="Center" Foreground="#888888"/>
+                <TextBlock Text="Новый проект" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
             </StackPanel>
 
-            <!--<Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+            <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
             <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
-            <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>-->
+            <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
         </Grid>
-        <Grid Grid.Row="1" Background="Transparent"></Grid>
+        <!--main window-->
+        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,1,1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border  BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                            <Grid Grid.Row="0" Margin="10, 10, 10, 10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" Margin="5,0,5,0" Source="pack://application:,,,/Resources/loupe.png" Width="15" Height="15"></Image>
+                                <TextBlock Name="projectTypeSearchCue" Grid.Column="1" 
+                                           Style="{StaticResource BodyTextCueStyle}"
+                                           Text="Поиск типа проекта..." 
+                                           Foreground="{StaticResource SecondaryBrush}"                        
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Stretch"
+                                           Width="auto"
+                                           Margin="5,0,15,0"/>
+                                <TextBox Name="projectTypeSearchBlock" Grid.Column="1" Style="{StaticResource BodyTextBoxStyle}" 
+                                         Background="Transparent"                        
+                                         VerticalAlignment="Center" 
+                                         HorizontalAlignment="Stretch"
+                                         Width="auto"
+                                         Margin="0,0,15,0"
+                                         TextChanged="projectTypeSearch">
+                                </TextBox>
+                            </Grid>
+                        </Border>
+                        <Grid Grid.Row="1">
+
+                            <ListBox x:Name="ProjectTypeListBox" 
+                                     Background="{StaticResource BackgroundBrush}" 
+                                     BorderThickness="0"
+                                     Grid.Row="1" Padding="10, 5, 10, 5" 
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                                     d:ItemsSource="{d:SampleData ItemCount=2}">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="5">   
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
+                                                            <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="5">
+                                            <Grid Style="{StaticResource ProjectTypeBlockStyle}">
+                                                <TextBlock Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding ProjectType}" Background="Transparent">
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+
+                    </Grid>
+                </Border>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,1">
+                    <StackPanel Margin="20">
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Название" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Расположение" Margin="0,0,0,10"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" FontWeight="Bold" Text="Настройки платформы:" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Ширина платформы:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Высота платформы:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ платформы по оси X:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ платформы по оси Y:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Диаметр сопла:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Точность:" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Диаметр иглы:" Margin="0,0,0,10"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" FontWeight="Bold" Text="Настройки расстановки игл:" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ игл по оси X" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ игл по оси Y" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Шаг игл по оси X" Margin="0,0,0,10"/>
+                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Шаг игл по оси Y" Margin="0,0,0,10"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                                <TextBox Margin="0,0,0,10"></TextBox>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+            
+
+        </Grid>
+        <!--footer-->
+        <Grid Grid.Row="2" Background="{StaticResource BackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать" Margin="0, 0, 10, 0"/>
+            <Button Grid.Column="2" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Отмена" Margin="0, 0, 15, 0"/>
+        </Grid>
     </Grid>
 </Window>

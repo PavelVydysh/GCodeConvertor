@@ -5,11 +5,11 @@
     <Color x:Key="SecondaryColor">#808080</Color>
     <Color x:Key="SelectedElementColor">#CCE8FF</Color>
     <Color x:Key="BorderColor">#D0D0D0</Color>
-    <Color x:Key="ErrorColor">#FFFF3333</Color>
+    <Color x:Key="CreateButtonColor">#007ACC</Color>
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedElementColor}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
-    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
+    <SolidColorBrush x:Key="CreateButtonBrush" Color="{StaticResource CreateButtonColor}"/>
 </ResourceDictionary>

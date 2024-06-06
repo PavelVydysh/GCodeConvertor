@@ -4,8 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.UI"
-        mc:Ignorable="d" WindowStyle="None" Title="Добро пожаловать в G-Code Converter" Height="600" Width="800" Background="Transparent" AllowsTransparency="True"
-        Icon="pack://application:,,,/Resources/gcode_logo.ico">
+        mc:Ignorable="d" WindowStyle="None"
+        Height="600" Width="800"
+        Title="Добро пожаловать в G-Code Converter"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico"
+        Background="Transparent" AllowsTransparency="true">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
@@ -22,7 +25,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">   
+                                CornerRadius="5">
                             <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                         </Border>
@@ -55,7 +58,7 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="5">               
+                                CornerRadius="5">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           Margin="{TemplateBinding Padding}"/>
@@ -134,7 +137,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBox">
-                        <Border Background="{StaticResource BackgroundBrush}">       
+                        <Border Background="{StaticResource BackgroundBrush}">
                             <ScrollViewer Padding="{TemplateBinding Padding}"
                                   Focusable="false"
                                   HorizontalScrollBarVisibility="Auto"
@@ -167,11 +170,15 @@
     </Window.Resources>
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="67*"/>
+            <ColumnDefinition Width="133*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -180,14 +187,14 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
                 <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
-                <TextBlock Text="Добро пожаловать в G-Code Converter" FontSize="14" VerticalAlignment="Center" Foreground="#888888"/>
+                <TextBlock Text="Добро пожаловать в G-Code Converter" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
             </StackPanel>
 
             <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
             <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
             <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
         </Grid>
-        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}">
+        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -203,7 +210,8 @@
                     </Grid.ColumnDefinitions>
 
                     <Image Grid.Column="0" Margin="0,0,15,0" Source="pack://application:,,,/Resources/loupe.png" Width="20" Height="20"></Image>
-                    <TextBlock Name="projectSearchCue" Grid.Column="1" Style="{StaticResource BodyTextCueStyle}"
+                    <TextBlock Name="projectSearchCue" Grid.Column="1" 
+                               Style="{StaticResource BodyTextCueStyle}"
                            Text="Поиск проекта..." 
                            Foreground="{StaticResource SecondaryBrush}"                        
                            VerticalAlignment="Center" 
@@ -217,7 +225,7 @@
                         HorizontalAlignment="Stretch"
                         Width="auto"
                         Margin="0,0,15,0"
-                        TextChanged="projectSearch_TextChanged">    
+                        TextChanged="projectSearch_TextChanged">
                     </TextBox>
                     <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект"></Button>
                     <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
@@ -238,7 +246,7 @@
                                     <Border Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="1"
-                                            CornerRadius="5">   
+                                            CornerRadius="5">
                                         <ContentPresenter/>
                                     </Border>
                                     <ControlTemplate.Triggers>
@@ -268,7 +276,7 @@
                                     </Grid.RowDefinitions>
                                     <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
                                         <TextBlock.Triggers>
-                                            
+
                                         </TextBlock.Triggers>
                                     </TextBlock>
                                     <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
