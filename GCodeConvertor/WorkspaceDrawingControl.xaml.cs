@@ -33,7 +33,7 @@ namespace GCodeConvertor
     {
         //?????????????????????????? - надо куда-то вынести, дублируется в инструменте рисования и здесь
         private static Color POINT_COLOR = Colors.Red;
-        private const double ELLIPSE_SIZE = 5;
+        public const double ELLIPSE_SIZE = 5;
         private static Color LINE_COLOR = Colors.Red;
         private const double LINE_SIZE = 2;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
@@ -114,6 +114,20 @@ namespace GCodeConvertor
             conflictLines.Clear();
             deleteCustomItems();
             initLayer();
+        }
+
+        public void addDrawingPointsToActiveLayer(List<Point> points)
+        {
+            //List<Point> threadPoints = new List<Point>();
+
+            //foreach(Point point in points)
+            //{
+            //    threadPoints.Add(new Point(
+            //        getThreadValueByTopologyValue((int)Math.Floor(point.X / cellSize)), 
+            //        getThreadValueByTopologyValue((int)Math.Floor(point.Y / cellSize))));
+            //}
+            activeLayer.addAllThreadPoints(points);
+            repaint();
         }
 
         private void deleteCustomItems()

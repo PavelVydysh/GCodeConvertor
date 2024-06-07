@@ -39,10 +39,11 @@
                 <Canvas x:Name="putMeHere" Height="691" Width="183" HorizontalAlignment="Center" Canvas.Top="243" VerticalAlignment="Top" Canvas.Left="20">
 
                 </Canvas>
+                <Button Content="SCR" Width="33" Canvas.Left="19" Canvas.Top="171" Height="41" Click="OpenScriptForm" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </Canvas>
         </ScrollViewer>
 
-        
+
 
 
 

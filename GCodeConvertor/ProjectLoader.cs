@@ -23,6 +23,9 @@ namespace GCodeConvertor
             {
                 Directory.CreateDirectory(APP_SETTINGS_FOLDER_PATH);
                 saveProjectsInfo(new ProjectsInfo());
+            }  
+            else if(!File.Exists(APP_SETTINGS_FOLDER_PATH + "/" + PROJECT_APP_SETTING_FILE_NAME)){
+                saveProjectsInfo(new ProjectsInfo());
             }
             using (FileStream fs = new FileStream(
                     Path.Combine(APP_SETTINGS_FOLDER_PATH,

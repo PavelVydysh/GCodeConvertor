@@ -17,9 +17,19 @@ namespace GCodeConvertor
     [XmlInclude(typeof(Layer))]
     public class GlobalPreset
     {
+        public static int topologyWidth;
+        public static int topologyHeight;
         public List<Layer> layers {get; set;}
 
-        public Topology topology { get; set; }
+        private Topology _topology;
+        public Topology topology {
+            get { return _topology; } 
+            set {
+                _topology = value;
+                topologyWidth = value.map.GetLength(0);
+                topologyHeight = value.map.GetLength(1);
+            } 
+        }
 
         public GlobalPreset() { }
 

@@ -108,30 +108,10 @@
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
-        <Style x:Key="ProjectBlockStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+        <Style x:Key="ProjectBlockStyle" TargetType="Grid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Margin" Value="8"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
-                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                        Margin="10, 5"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
         <Style x:Key="CustomListBoxStyle" TargetType="ListBox">
             <Setter Property="Template">
@@ -234,7 +214,8 @@
             </Border>
             <ListBox x:Name="ProjectItemListBox" Style="{StaticResource CustomListBoxStyle}" 
                  Grid.Row="1" Padding="10, 5, 10, 5" 
-                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                 HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                 SelectionChanged="OpenTrackableProject"
                  d:ItemsSource="{d:SampleData ItemCount=5}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
@@ -258,30 +239,33 @@
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
+                        <!--<EventSetter Event="MouseLeftButtonDown" Handler="OpenTrackableProject"/>-->
                     </Style>
                 </ListBox.ItemContainerStyle>
 
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Button Style="{StaticResource ProjectBlockStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid Grid.Column="0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
+                        <Border CornerRadius="5">
+                            <Grid Style="{StaticResource ProjectBlockStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
+                                        </TextBlock>
+                                        <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
+                                    </Grid>
+                                    <TextBlock Style="{StaticResource ProjectTextBlockDateStyle}" VerticalAlignment="Center" Grid.Column="1" Text="{Binding ModifiedDate}" Background="Transparent">
                                     </TextBlock>
-                                    <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
                                 </Grid>
-                                <TextBlock Style="{StaticResource ProjectTextBlockDateStyle}" VerticalAlignment="Center" Grid.Column="1" Text="{Binding ModifiedDate}" Background="Transparent">
-                                </TextBlock>
                             </Grid>
-                        </Button>
+                        </Border>
                         <DataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsAccessable}" Value="False">
                                 <Setter TargetName="ProjectNameBlock" Property="Foreground" Value="#FFFF3333"/>

@@ -23,6 +23,8 @@ using GCodeConvertor.WorkspaceInstruments;
 using GCodeConvertor.ProjectForm.LayerElements;
 using GCodeConvertor.Project3D;
 using System.Windows.Forms.Design;
+using GCodeConvertor.UI;
+using GCodeConvertor.GScript;
 
 namespace GCodeConvertor.ProjectForm
 {
@@ -43,24 +45,15 @@ namespace GCodeConvertor.ProjectForm
 
         private List<System.Windows.Shapes.Rectangle> rectangles = new List<System.Windows.Shapes.Rectangle>();
 
-        private DrawingStates drawingState;
+        WorkspaceDrawingControl wdc;
 
-        private int startPointX;
-        private int startPointY;
-
-        private double currentDotX;
-        private double currentDotY;
-        double size;
-        private bool drawArrow = false;
-        Line line;
-
-        List<System.Windows.Point> layerPoints;
+        OpenProjectForm openProjectForm;
+      
         List<Ellipse> layerEllipses;
         List<Ellipse> selectedEllipses;
         Layer activeLayer;
 
         LayerStorage storage;
-
         ObservableCollection<InstrumentItem> workspaceInstruments { get; set; }
         ObservableCollection<CustomItem> ItemsList { get; set; }
 
@@ -69,16 +62,18 @@ namespace GCodeConvertor.ProjectForm
 
         Point startPointSelectionRect;
         System.Windows.Shapes.Rectangle selectionRect;
-        public ProjectWindow()
+        public ProjectWindow(OpenProjectForm openProjectForm)
         {
             InitializeComponent();
+
+            this.openProjectForm = openProjectForm;
 
             PreviewKeyUp += Window_KeyUp;
 
             DataContext = ProjectSettings.preset;
-            line = new Line();
-            drawingState = DrawingStates.SET_START_POINT;
-            layerPoints = new List<System.Windows.Point>();
+          
+          
+          
             storage = new LayerStorage();
             layerEllipses = new List<Ellipse>();
             selectedEllipses = new List<Ellipse>();
@@ -123,6 +118,12 @@ namespace GCodeConvertor.ProjectForm
             hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, workspaceDrawingControl));
             hotkeys.Add(new Hotkey(movingHotkeys, moving, workspaceDrawingControl));
 
+        }
+
+        private void OpenScriptForm(object sender, RoutedEventArgs e)
+        {
+            GScriptWindow GSWindow = new GScriptWindow(wdc);
+            GSWindow.Show();
         }
 
         //private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -662,11 +663,12 @@ namespace GCodeConvertor.ProjectForm
 
             if (openFileDialog.ShowDialog() == true)
             {
-                string pathToPreset = openFileDialog.FileName;
-                ProjectSettings.preset.loadPreset(openFileDialog.FileName);
-                ProjectWindow pw = new ProjectWindow();
-                pw.Show();
-                this.Close();
+                //    string pathToPreset = openFileDialog.FileName;
+                //    ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                //    ProjectWindow pw = new ProjectWindow();
+                //    pw.Show();
+                //    this.Close();
+                //}
             }
         }
 
@@ -978,7 +980,7 @@ namespace GCodeConvertor.ProjectForm
 
         private void dockPanel_Loaded(object sender, RoutedEventArgs e)
         {
-            WorkspaceDrawingControl wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+            wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
             wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
             dockPanel.Children.Add(wdc);
             setupInstruments(wdc);

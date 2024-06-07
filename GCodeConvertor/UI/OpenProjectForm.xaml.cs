@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using GCodeConvertor.ProjectForm;
+using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -147,13 +148,10 @@ namespace GCodeConvertor.UI
             if (openFileDialog.ShowDialog() == true)
             {
                 string pathToPreset = openFileDialog.FileName;
-                projectInfo.ProjectsInfos.Add(new ProjectsInfoItem { ProjectName = pathToPreset, PathToProject = pathToPreset });
+                projectInfo.addProjectInfo(new ProjectsInfoItem(Path.GetFileNameWithoutExtension(pathToPreset), pathToPreset));
                 ProjectLoader.saveProjectsInfo(projectInfo);
                 loadProjectsInfo();
-                //ProjectSettings.preset.loadPreset(openFileDialog.FileName);
-                //ProjectWindow pw = new ProjectWindow();
-                //pw.Show();
-                //this.Close();
+                openProject(pathToPreset);
             }
         }
 
@@ -164,6 +162,36 @@ namespace GCodeConvertor.UI
             createProjectForm.ShowDialog();
         }
 
+        private void openProject(string pathToProject)
+        {
+            ProjectSettings.preset.loadPreset(pathToProject);
+            ProjectWindow pw = new ProjectWindow(this);
+            Visibility = Visibility.Collapsed;
+            pw.Show();
+        }
+
+        private void OpenTrackableProject(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                ProjectItem trackableProject = e.AddedItems[0] as ProjectItem;
+                if (trackableProject != null && trackableProject.IsAccessable)
+                {
+                    openProject(trackableProject.ProjectPath);
+                }
+            }
+        }
+
+        //private void OpenTrackableProject(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (sender is ListBoxItem item && item.DataContext is ProjectItem projectItem)
+        //    {
+        //        if (projectItem != null && projectItem.IsAccessable)
+        //        {
+        //            openProject(projectItem.ProjectPath + "/" + projectItem.ProjectName + ".gcd");
+        //        }
+        //    }
+        //}
     }
 
     public class ProjectItem

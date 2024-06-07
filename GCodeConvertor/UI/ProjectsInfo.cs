@@ -24,6 +24,14 @@ namespace GCodeConvertor.UI
             }
             set { projectsInfos = value; }
         }
+
+        public void addProjectInfo(ProjectsInfoItem projectsInfoItem)
+        {
+            if(!projectsInfos.Contains(projectsInfoItem))
+            {
+                projectsInfos.Add(projectsInfoItem);
+            }
+        }
         
         public ProjectsInfo() { 
         }
@@ -33,8 +41,23 @@ namespace GCodeConvertor.UI
             public string ProjectName { get; set; }
             public string PathToProject { get; set; }
             
+            public ProjectsInfoItem(string projectName, string pathToProject) {
+                this.ProjectName = projectName;
+                this.PathToProject = pathToProject;
+            }
+
             public ProjectsInfoItem() { }
-            
+
+            public override bool Equals(object? obj)
+            {
+                var item = obj as ProjectsInfoItem;
+                if (item == null)
+                {
+                    return false;
+                }
+                return this.ProjectName.Equals(item.ProjectName) && this.PathToProject.Equals(item.PathToProject);
+            }
+
         }
 
     }

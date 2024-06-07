@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Xml.Serialization;
 using Point = System.Windows.Point;
@@ -29,8 +30,6 @@ namespace GCodeConvertor
         public Stack<List<Point>> historyBack { get; set; }
         [XmlIgnore]
         public Stack<List<Point>> historyForward { get; set; }
-
-        
 
         public Layer(string name, float height)
         {
@@ -66,7 +65,6 @@ namespace GCodeConvertor
             }
 
         }
-
         private void changeHistory()
         {
             historyForward.Clear();
@@ -75,8 +73,33 @@ namespace GCodeConvertor
 
         public void addThreadPoint(Point point)
         {
+            if (!isPointCorrect(point))
+                return;
             changeHistory();
             thread.Add(point);
+        }
+
+        public void addAllThreadPoints(List<Point> points)
+        {
+            List<Point> addingPoints = new List<Point>();
+            foreach (Point point in points)
+            {
+                if (!isPointCorrect(point))
+                    return;
+                addingPoints.Add(point);
+            }
+            changeHistory();
+            thread.AddRange(addingPoints);
+
+        }
+
+        private bool isPointCorrect(Point point)
+        {
+            if (point.X < 0 || point.X > GlobalPreset.topologyWidth)
+                return false;
+            if (point.Y < 0 || point.Y > GlobalPreset.topologyHeight)
+                return false;
+            return true;
         }
 
         public void removeThreadPoint(Point point) 
@@ -102,6 +125,8 @@ namespace GCodeConvertor
         }
         public void changeThreadPoint(Point newPoint, int position)
         {
+            if (!isPointCorrect(newPoint))
+                return;
             changeHistory();
             thread[position] = newPoint;
         }
@@ -122,6 +147,13 @@ namespace GCodeConvertor
             if (thread.Count < 2)
                 return false;
             return thread.First().Equals(thread.Last());
+        }
+
+        public bool isStarted()
+        {
+            if (thread.Count == 0)
+                return false;
+            return true;
         }
 
         public override bool Equals(object? obj)

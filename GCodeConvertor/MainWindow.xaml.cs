@@ -55,11 +55,11 @@ namespace GCodeConvertor
 
             if (openFileDialog.ShowDialog() == true)
             {
-                string pathToPreset = openFileDialog.FileName;
-                ProjectSettings.preset.loadPreset(openFileDialog.FileName);
-                ProjectWindow pw = new ProjectWindow();
-                pw.Show();
-                this.Close();
+                //string pathToPreset = openFileDialog.FileName;
+                //ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                //ProjectWindow pw = new ProjectWindow();
+                //pw.Show();
+                //this.Close();
             }
         }
 
@@ -86,10 +86,10 @@ namespace GCodeConvertor
         {
             if (topologyModel.Errors.Count == 0)
             {
-                ProjectSettings.preset = new GlobalPreset(topologyModel);
-                ProjectWindow pw = new ProjectWindow();
-                pw.Show();
-                window.Close();
+                //ProjectSettings.preset = new GlobalPreset(topologyModel);
+                //ProjectWindow pw = new ProjectWindow();
+                //pw.Show();
+                //window.Close();
             }
             else
             {
