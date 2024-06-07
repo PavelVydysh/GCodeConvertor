@@ -462,37 +462,34 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void drawLine(int currentTopologyX, int currentTopologyY)
         {
-            double previousDrawingX = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().X);
-            double previousDrawingY = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().Y);
+            //double previousDrawingX = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().X);
+            //double previousDrawingY = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().Y);
 
-            double currentDrawingX = getDrawingValueByTopologyValue(currentTopologyX);
-            double currentDrawingY = getDrawingValueByTopologyValue(currentTopologyY);
+            //double currentDrawingX = getDrawingValueByTopologyValue(currentTopologyX);
+            //double currentDrawingY = getDrawingValueByTopologyValue(currentTopologyY);
 
-            if (isLineCrossTheNeedles(new Point(previousDrawingX, previousDrawingY), new Point(currentDrawingX, currentDrawingY)))
-            {
-                return;
-            }
+            //if (isLineCrossTheNeedles(new Point(previousDrawingX, previousDrawingY), new Point(currentDrawingX, currentDrawingY)))
+            //{
+            //    return;
+            //}
 
-            Line line = setupLine();
-            line.X1 = previousDrawingX;
-            line.Y1 = previousDrawingY;
-            line.X2 = currentDrawingX;
-            line.Y2 = currentDrawingY;
+            //Line line = setupLine();
+            //line.X1 = previousDrawingX;
+            //line.Y1 = previousDrawingY;
+            //line.X2 = currentDrawingX;
+            //line.Y2 = currentDrawingY;
 
-            workspaceDrawingControl.workspaceCanvas.Children.Add(line);
+            //workspaceDrawingControl.workspaceCanvas.Children.Add(line);
 
-            Ellipse ellipse = drawPoint(currentDrawingX, currentDrawingY);
+            //Ellipse ellipse = drawPoint(currentDrawingX, currentDrawingY);
 
-            if (workspaceDrawingControl.ellipses.Count >= 2)
-            {
-                workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
-            }                
+            //if (workspaceDrawingControl.ellipses.Count >= 2)
+            //{
+            //    workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
+            //}                
 
             workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
-
-            // layerPoints.Add(new System.Windows.Point((double)((int)Math.Floor((e.GetPosition(CanvasMain).X / size)) + 0.5),
-            //                                              (double)((int)Math.Floor(e.GetPosition(CanvasMain).Y / size) + 0.5)));
-
+            workspaceDrawingControl.repaint();
         }
 
         private Ellipse drawPoint(double currentDrawingX, double currentDrawingY)
@@ -547,5 +544,6 @@ namespace GCodeConvertor.WorkspaceInstruments
             }
             return false;
         }
+
     }
 }

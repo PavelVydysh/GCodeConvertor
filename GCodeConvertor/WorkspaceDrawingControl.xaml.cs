@@ -38,6 +38,11 @@ namespace GCodeConvertor
         private const double LINE_SIZE = 2;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private static Color CONFLICT_LINE_COLOR = Colors.Gray;
+
+        private static Color PREDICTED_ELLIPSE_COLOR = Colors.Black;
+        private static double PREDICTED_ELLIPSE_SIZE = 5;
+        private static Color PREDICTED_LINE_COLOR = Colors.Black;
+        private static double PREDICTED_LINE_SIZE = 2;
         //??????????????????????????
 
         // Константы имён элементов
@@ -50,6 +55,7 @@ namespace GCodeConvertor
         // Списки иголок кружочков квадратов
         public List<Ellipse> ellipses { get; }
         public List<Rectangle> needles { get; } // список игл 
+        private HashSet<Rectangle> rectangles { get; } // крутой список игол
         public List<Line> conflictLines { get; }
 
         public CustomLineStorage customLineStorage { get; set; }
@@ -71,6 +77,7 @@ namespace GCodeConvertor
             workspaceCanvas = (Canvas)FindName(WORKSPACE_CANVAS_NAME);
             setupWorkspaceCanvasEvents();
             needles = new List<Rectangle>();
+            rectangles = new HashSet<Rectangle>();
             ellipses = new List<Ellipse>();
             conflictLines = new List<Line>();
             customLineStorage = new CustomLineStorage();
@@ -114,18 +121,76 @@ namespace GCodeConvertor
             conflictLines.Clear();
             deleteCustomItems();
             initLayer();
+            initSpringLines();
         }
+
+        private void initSpringLines()
+        {
+            List<Point> drawingPoints = new List<Point>();
+
+            foreach (Point point in activeLayer.thread)
+            {
+                drawingPoints.Add(new Point(getDrawingValueByThreadValue(point.X), getDrawingValueByThreadValue(point.Y)));
+            }
+
+            List<Point> bandPoints = getRubberBandPath(drawingPoints.ToArray());
+
+            int pointLastIndex = bandPoints.Count - 1;
+
+            for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++)
+            {
+                drawPredictedPoint(bandPoints[pointIndex].X, bandPoints[pointIndex].Y);
+
+                if (pointIndex != pointLastIndex)
+                {
+                    drawPredictedLine(bandPoints[pointIndex].X, bandPoints[pointIndex].Y, bandPoints[pointIndex + 1].X, bandPoints[pointIndex + 1].Y);
+                }
+            }
+        }
+
+        private void drawPredictedPoint(double  x, double y)
+        {
+            Ellipse drawingPoint = setupPredictEllipse();
+            ellipses.Add(drawingPoint);
+            Canvas.SetLeft(drawingPoint, x - ELLIPSE_SIZE / 2);
+            Canvas.SetTop(drawingPoint, y - ELLIPSE_SIZE / 2);
+            workspaceCanvas.Children.Add(drawingPoint);
+        }
+
+        private Ellipse setupPredictEllipse()
+        {
+            Ellipse ellipse = new Ellipse();
+            ellipse.Tag = getCustomElementTag();
+            ellipse.Height = PREDICTED_ELLIPSE_SIZE;
+            ellipse.Width = PREDICTED_ELLIPSE_SIZE;
+            ellipse.Fill = new SolidColorBrush(PREDICTED_ELLIPSE_COLOR);
+            return ellipse;
+        }
+
+        private void drawPredictedLine(double startX, double startY, double endX, double endY)
+        {
+            Line drawingLine = setupPredictedLine();
+            drawingLine.X1 = startX;
+            drawingLine.Y1 = startY;
+            drawingLine.X2 = endX;
+            drawingLine.Y2 = endY;
+            workspaceCanvas.Children.Add(drawingLine);
+        }
+
+        private Line setupPredictedLine()
+        {
+            Line line = new Line();
+            line.Tag = getCustomElementTag();
+            line.Fill = new SolidColorBrush(PREDICTED_LINE_COLOR);
+            line.Visibility = Visibility.Visible;
+            line.StrokeThickness = PREDICTED_LINE_SIZE;
+            line.Stroke = new SolidColorBrush(PREDICTED_LINE_COLOR);
+            return line;
+        }
+
 
         public void addDrawingPointsToActiveLayer(List<Point> points)
         {
-            //List<Point> threadPoints = new List<Point>();
-
-            //foreach(Point point in points)
-            //{
-            //    threadPoints.Add(new Point(
-            //        getThreadValueByTopologyValue((int)Math.Floor(point.X / cellSize)), 
-            //        getThreadValueByTopologyValue((int)Math.Floor(point.Y / cellSize))));
-            //}
             activeLayer.addAllThreadPoints(points);
             repaint();
         }
@@ -164,7 +229,7 @@ namespace GCodeConvertor
             {
                 for (int topologyY = 0; topologyY < topology.map.GetLength(1); topologyY++)
                 {
-                    Rectangle cell = setupCell(topology.map[topologyX, topologyY]);
+                    Rectangle cell = setupCell(topology.map[topologyX, topologyY], topologyX, topologyY);
 
                     Canvas.SetLeft(cell, cellSize * topologyX);
                     Canvas.SetTop(cell, cellSize * topologyY);
@@ -172,11 +237,19 @@ namespace GCodeConvertor
                     workspaceCanvas.Children.Add(cell);
                 }
             }
+
+            for (int i = 0; i < topology.map.GetUpperBound(1) + 1; i++)
+            {
+                for (int j = 0; j < topology.map.GetUpperBound(0) + 1; j++)
+                {
+                    if (topology.map[j, i] == 4) topology.map[j, i] = 3;
+                }
+            }
             //ItemsList.Add(new CustomItem(activeLayer.name, "12"));
             //layerListBox.SelectedIndex = 0;
         }
 
-        private Rectangle setupCell(int cellType)
+        private Rectangle setupCell(int cellType, int topologyX, int topologyY)
         {
             Rectangle cell = new Rectangle();
 
@@ -192,9 +265,14 @@ namespace GCodeConvertor
             {
                 cell.Fill = new SolidColorBrush(Colors.Green);
             }
-            else if (cellType == 3)
+            else if (cellType == 3 || cellType == 4)
             {
                 cell.Fill = new SolidColorBrush(Colors.Black);
+                if (cellType == 3)
+                {
+                    setupRectangle(topologyX, topologyY);
+                }
+                
                 needles.Add(cell);
             }
             else
@@ -205,6 +283,30 @@ namespace GCodeConvertor
             cell.MouseLeftButtonDown += element_MouseLeftButtonDown;
 
             return cell;
+        }
+
+        private void setupRectangle(int i, int j)
+        {
+            int downHeight = 0;
+            int rightWidth = 0;
+            while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
+            {
+                ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
+                rightWidth = 0;
+                while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
+                {
+                    ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
+                    rightWidth++;
+                }
+                downHeight++;
+            }
+            Rectangle rectangleToAdd = new Rectangle();
+            rectangleToAdd.Height = (downHeight) * cellSize;
+            rectangleToAdd.Width = (rightWidth + 1) * cellSize;
+            rectangleToAdd.StrokeThickness = 1;
+            Canvas.SetTop(rectangleToAdd, cellSize * j);
+            Canvas.SetLeft(rectangleToAdd, cellSize * i);
+            rectangles.Add(rectangleToAdd);
         }
 
         private void initLayer()
@@ -448,6 +550,244 @@ namespace GCodeConvertor
             return iterations;
         }
 
+        private double FindDistanceToSegment(Point pt, Point p1, Point p2)
+        {
+            Point closest;
+            double dx = p2.X - p1.X;
+            double dy = p2.Y - p1.Y;
+            if ((dx == 0) && (dy == 0))
+            {
+                // Это точка не отрезка.
+                closest = p1;
+                dx = pt.X - p1.X;
+                dy = pt.Y - p1.Y;
+                return Math.Sqrt(dx * dx + dy * dy);
+            }
+
+            // Вычислим t, который минимизирует расстояние.
+            double t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) /
+                (dx * dx + dy * dy);
+
+            // Посмотрим, представляет ли это один из сегментов
+            // конечные точки или точка в середине.
+            if (t < 0)
+            {
+                closest = new Point(p1.X, p1.Y);
+                dx = pt.X - p1.X;
+                dy = pt.Y - p1.Y;
+            }
+            else if (t > 1)
+            {
+                closest = new Point(p2.X, p2.Y);
+                dx = pt.X - p2.X;
+                dy = pt.Y - p2.Y;
+            }
+            else
+            {
+                closest = new Point(p1.X + t * dx, p1.Y + t * dy);
+                dx = pt.X - closest.X;
+                dy = pt.Y - closest.Y;
+            }
+
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        private List<Point> getRubberBandPath(Point[] route)
+        {
+            route = RemoveExtraPoints(route.ToList(), 1).ToArray();
+            route = RoutePreprocessing(route, cellSize);
+            var result = new List<Point>();
+            var sigmentStart = 0;
+            result.Add(route[0]);
+            Point point;
+            Rectangle block = null;
+            bool isInsert;
+            for (int i = 1; i < route.GetLength(0); i++)
+            {
+                point = route[i];
+                isInsert = false;
+
+                for (int j = sigmentStart; j < i; j++)
+                {
+                    foreach (Rectangle rectangle in rectangles)
+                    {
+                        Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
+                        double distance = FindDistanceToSegment(rectangleCenter, route[j], point);
+
+                        Boolean isBlock = false;
+                        if (distance < rectangle.Width / 2) isBlock = true;
+                        if (isBlock)
+                        {
+                            double angle = -Math.Atan2(route[j].Y - point.Y, route[j].X - point.X);
+                            if (angle > Math.PI / 4 || angle < -3 * Math.PI / 4)
+                            {
+                                isInsert = true;
+                                block = rectangle;
+                                sigmentStart = j;
+                            }
+                            else
+                            {
+                                isInsert = true;
+                                block = rectangle;
+                                sigmentStart = j;
+                                break;
+                            }
+
+                        }
+                    }
+                }
+
+                if (isInsert)
+                {
+                    Point leftTop = new Point(Canvas.GetLeft(block) - cellSize / 2, Canvas.GetTop(block) - cellSize / 2);
+                    Point rightTop = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) - cellSize / 2);
+                    Point rightDown = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) + block.Height);
+                    Point leftDown = new Point(Canvas.GetLeft(block) - cellSize / 2, Canvas.GetTop(block) + block.Height);
+
+                    Point[] segment = new Point[i - sigmentStart];
+                    Array.Copy(route, sigmentStart, segment, 0, i - sigmentStart);
+
+                    double leftTopMinDistance = GetAvgDistance(leftTop, segment);
+                    double rightTopMinDistance = GetAvgDistance(rightTop, segment);
+                    double rightDownMinDistance = GetAvgDistance(rightDown, segment);
+                    double leftDownMinDistance = GetAvgDistance(leftDown, segment);
+
+
+                    double minDistance = double.MaxValue;
+                    double angle = -Math.Atan2(route[i].Y - route[sigmentStart].Y, route[i].X - route[sigmentStart].X);
+                    Point nearestPoint;
+
+                    // левый верх
+                    if ((-Math.PI < angle && angle <= -Math.PI / 2 || 0 <= angle && angle < Math.PI / 2) && leftTopMinDistance < minDistance)
+                    {
+                        minDistance = leftTopMinDistance;
+                        nearestPoint = leftTop;
+                    }
+                    // правый верх
+                    if ((-Math.PI / 2 <= angle && angle < 0 || Math.PI / 2 < angle && angle <= Math.PI) && rightTopMinDistance < minDistance)
+                    {
+                        minDistance = rightTopMinDistance;
+                        nearestPoint = rightTop;
+                    }
+                    // правый низ
+                    if ((0 < angle && angle <= Math.PI / 2 || -Math.PI <= angle && angle < -Math.PI / 2) && rightDownMinDistance < minDistance)
+                    {
+                        minDistance = rightDownMinDistance;
+                        nearestPoint = rightDown;
+                    }
+                    // левый низ
+                    if ((Math.PI / 2 <= angle && angle < Math.PI || -Math.PI / 2 < angle && angle <= 0) && leftDownMinDistance < minDistance)
+                    {
+                        minDistance = leftDownMinDistance;
+                        nearestPoint = leftDown;
+                    }
+                    result.Add(nearestPoint);
+                    sigmentStart = i - 1;
+                    route[sigmentStart] = nearestPoint;
+                }
+            }
+            if (result.Count > 1) result.Add(route.Last());
+            return RemoveExtraPoints(result, 1);
+            //return result;
+        }
+
+        public static Point[] RoutePreprocessing(Point[] route, double segmentLength)
+        {
+            List<Point> subdividedRoute = new List<Point>();
+
+            for (int i = 0; i < route.Length - 1; i++)
+            {
+                Point start = route[i];
+                Point end = route[i + 1];
+
+                double distance = GetDistance(start, end);
+                int segmentsCount = (int)Math.Ceiling(distance / segmentLength);
+
+                double deltaX = (end.X - start.X) / distance * segmentLength;
+                double deltaY = (end.Y - start.Y) / distance * segmentLength;
+
+                for (int j = 0; j < segmentsCount; j++)
+                {
+                    double newX = start.X + deltaX * j;
+                    double newY = start.Y + deltaY * j;
+                    subdividedRoute.Add(new Point(newX, newY));
+                }
+            }
+
+            subdividedRoute.Add(route[route.Length - 1]);
+
+            return subdividedRoute.ToArray();
+        }
+
+        public List<Point> RemoveExtraPoints(List<Point> subdividedRoute, int count)
+        {
+            List<Point> start;
+            do
+            {
+                start = new List<Point>(subdividedRoute);
+
+                for (int i = 0; i < subdividedRoute.Count - 2;)
+                {
+
+                    Boolean isBlock = false;
+                    foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                    {
+                        Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
+                        double distance = FindDistanceToSegment(rectangleCenter, subdividedRoute[i], subdividedRoute[i + 2]);
+
+                        if (distance < rectangle.Width / 2 || IsPointInsideTriangle(subdividedRoute[i], subdividedRoute[i + 1], subdividedRoute[i + 2], rectangleCenter))
+                        {
+                            isBlock = true;
+                            break;
+                        }
+                    }
+                    if (!isBlock)
+                    {
+                        subdividedRoute.RemoveAt(i + 1);
+                    }
+                    else i += count;
+                }
+            }
+            while (subdividedRoute.Count != start.Count);
+            return subdividedRoute;
+        }
+
+        static bool IsPointInsideTriangle(Point A, Point B, Point C, Point P)
+        {
+            // Вычисляем площади треугольника ABC и трех подтреугольников с использованием формулы Герона
+            double ABC = Math.Abs((A.X * (B.Y - C.Y) + B.X * (C.Y - A.Y) + C.X * (A.Y - B.Y)) / 2.0);
+            double ABP = Math.Abs((A.X * (B.Y - P.Y) + B.X * (P.Y - A.Y) + P.X * (A.Y - B.Y)) / 2.0);
+            double APC = Math.Abs((A.X * (P.Y - C.Y) + P.X * (C.Y - A.Y) + C.X * (A.Y - P.Y)) / 2.0);
+            double PBC = Math.Abs((P.X * (B.Y - C.Y) + B.X * (C.Y - P.Y) + C.X * (P.Y - B.Y)) / 2.0);
+
+            // Если сумма площадей подтреугольников равна площади треугольника ABC, то точка P внутри треугольника
+            return Math.Abs(ABC - (ABP + APC + PBC)) < 5;
+        }
+
+        private static double GetAvgDistance(Point point, Point[] route)
+        {
+            double avgDistance = 0;
+            double distance = 0;
+            int count = 0;
+            foreach (Point p in route)
+            {
+                distance = GetDistance(p, point);
+                if (distance < 100)
+                {
+                    avgDistance += distance;
+                    count++;
+                }
+            }
+            return avgDistance / count;
+        }
+
+        private static double GetDistance(Point p1, Point p2)
+        {
+            double deltaX = p2.X - p1.X;
+            double deltaY = p2.Y - p1.Y;
+            return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+        }
+
         private Line drawLine(double previousDrawingX, double previousDrawingY, double currentDrawingX, double currentDrawingY)
         {
             Line drawingLine = setupLine();
@@ -516,7 +856,6 @@ namespace GCodeConvertor
             }
             return false;
         }
-
 
         private double getDrawingValueByThreadValue(double threadValue)
         {
