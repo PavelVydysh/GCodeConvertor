@@ -1,9 +1,15 @@
 ﻿namespace GCodeConvertor.UI
 {
-    internal interface ITopologable
+    public interface ITopologable
     {
         bool isDataCorrect();
 
         void setTopology();
+
+        string getName();
+
+        string getProjectFullPath();
+
+        string getProjectName();
     }
 }

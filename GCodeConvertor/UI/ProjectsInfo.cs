@@ -20,7 +20,7 @@ namespace GCodeConvertor.UI
                 {
                     projectsInfos =  new List<ProjectsInfoItem>();
                 }
-                return projectsInfos;
+                return projectsInfos;   
             }
             set { projectsInfos = value; }
         }
@@ -31,6 +31,7 @@ namespace GCodeConvertor.UI
             {
                 projectsInfos.Add(projectsInfoItem);
             }
+            ProjectLoader.saveProjectsInfo(this);
         }
         
         public ProjectsInfo() { 

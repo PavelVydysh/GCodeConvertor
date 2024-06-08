@@ -54,7 +54,7 @@ namespace GCodeConvertor.ProjectForm
         Layer activeLayer;
 
         LayerStorage storage;
-        ObservableCollection<InstrumentItem> workspaceInstruments { get; set; }
+        ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
         ObservableCollection<CustomItem> ItemsList { get; set; }
 
         List<Hotkey> hotkeys;
@@ -84,8 +84,9 @@ namespace GCodeConvertor.ProjectForm
             activeLayer = new Layer();
             storage.addLayer(activeLayer);
 
-            workspaceInstruments = new ObservableCollection<InstrumentItem>();
-            instrumentItemsList.ItemsSource = workspaceInstruments;
+            
+            workspaceInstruments = new ObservableCollection<InstrumentButtonInfo>();
+            IntrumentListBox.ItemsSource = workspaceInstruments;
 
             hotkeys = new List<Hotkey>();
             pressedKeys = new List<Key>();
@@ -98,12 +99,9 @@ namespace GCodeConvertor.ProjectForm
             WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(workspaceDrawingControl);
             WorkspaceInstrument moving = new MoveWorkspaceInstrument(workspaceDrawingControl);
 
-            InstrumentItem instrumentItem = new InstrumentItem("Проведение нити", drawing, workspaceDrawingControl);
-            workspaceInstruments.Add(instrumentItem);
-            InstrumentItem instrumentItem2 = new InstrumentItem("Приближение", zooming, workspaceDrawingControl);
-            workspaceInstruments.Add(instrumentItem2);
-            InstrumentItem instrumentItem3 = new InstrumentItem("Перемещение", moving, workspaceDrawingControl);
-            workspaceInstruments.Add(instrumentItem3);
+            workspaceInstruments.Add(new InstrumentButtonInfo("Кисть", drawing));
+            workspaceInstruments.Add(new InstrumentButtonInfo("Зум", zooming));
+            workspaceInstruments.Add(new InstrumentButtonInfo("Движение", moving));
 
             List<Key> drawingHotkeys = new List<Key>();
             drawingHotkeys.Add(Key.F2);
@@ -117,7 +115,6 @@ namespace GCodeConvertor.ProjectForm
             hotkeys.Add(new Hotkey(drawingHotkeys, drawing, workspaceDrawingControl));
             hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, workspaceDrawingControl));
             hotkeys.Add(new Hotkey(movingHotkeys, moving, workspaceDrawingControl));
-
         }
 
         private void OpenScriptForm(object sender, RoutedEventArgs e)
@@ -125,6 +122,38 @@ namespace GCodeConvertor.ProjectForm
             GScriptWindow GSWindow = new GScriptWindow(wdc);
             GSWindow.Show();
         }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            openProjectForm.Close();
+            this.Close();
+        }
+
+        private void MoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void HideWindow(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void ChooseInstrument(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                InstrumentButtonInfo instrument = e.AddedItems[0] as InstrumentButtonInfo;
+                if (instrument != null)
+                {
+                    wdc.setActiveWorkspaceInstrument(instrument.workspaceInstrument);
+                }
+            }
+        }
+
 
         //private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         //{
@@ -238,24 +267,24 @@ namespace GCodeConvertor.ProjectForm
         //    }
         //}
 
-        private void openMenu(object sender, RoutedEventArgs e)
-        {
+        //private void openMenu(object sender, RoutedEventArgs e)
+        //{
 
-            DoubleAnimation anim = new DoubleAnimation();
-            if (RightMenu.Width > 0)
-            {
-                anim.From = 250;
-                anim.To = 0;
-                anim.Duration = TimeSpan.FromSeconds(0.2);
-                RightMenu.BeginAnimation(WidthProperty, anim);
-                return;
-            }
+        //    DoubleAnimation anim = new DoubleAnimation();
+        //    if (RightMenu.Width > 0)
+        //    {
+        //        anim.From = 250;
+        //        anim.To = 0;
+        //        anim.Duration = TimeSpan.FromSeconds(0.2);
+        //        RightMenu.BeginAnimation(WidthProperty, anim);
+        //        return;
+        //    }
 
-            anim.From = 0;
-            anim.To = 250;
-            anim.Duration = TimeSpan.FromSeconds(0.2);
-            RightMenu.BeginAnimation(WidthProperty, anim);
-        }
+        //    anim.From = 0;
+        //    anim.To = 250;
+        //    anim.Duration = TimeSpan.FromSeconds(0.2);
+        //    RightMenu.BeginAnimation(WidthProperty, anim);
+        //}
 
         private void Canvas_OnMouseMove(object sender, MouseEventArgs e)
         {
@@ -282,49 +311,49 @@ namespace GCodeConvertor.ProjectForm
             ProjectSettings.preset.savePreset();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            bool isAllEnded = true;
+        //private void Button_Click_1(object sender, RoutedEventArgs e)
+        //{
+        //    bool isAllEnded = true;
 
-            foreach(Layer layer in ProjectSettings.preset.layers) {
-                if (layer.isEnable)
-                    isAllEnded &= layer.isEnded();
-            }
+        //    foreach(Layer layer in ProjectSettings.preset.layers) {
+        //        if (layer.isEnable)
+        //            isAllEnded &= layer.isEnded();
+        //    }
 
-            if(isAllEnded)
-            {
-                List<Layer> layersToGenerate = new List<Layer>();
-                foreach (Layer layer in ProjectSettings.preset.layers)
-                {
-                    if (layer.isEnable)
-                        layersToGenerate.Add(layer);
-                }
+        //    if(isAllEnded)
+        //    {
+        //        List<Layer> layersToGenerate = new List<Layer>();
+        //        foreach (Layer layer in ProjectSettings.preset.layers)
+        //        {
+        //            if (layer.isEnable)
+        //                layersToGenerate.Add(layer);
+        //        }
 
-                if ((bool)manyCheck.IsChecked)
-                {
-                    List<Layer> tempList = new List<Layer>();
-                    for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
-                    {
-                        tempList.AddRange(layersToGenerate);
-                    }
-                    layersToGenerate = tempList;
-                }
-                GCodeGenerator.generate(layersToGenerate);
-            }
-            else
-            {
-                MessageBox.Show("Закончите слой для генерации g-code'а!", "Невозможно сгенерировать g-code!");
-            }
-        }
+        //        if ((bool)manyCheck.IsChecked)
+        //        {
+        //            List<Layer> tempList = new List<Layer>();
+        //            for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
+        //            {
+        //                tempList.AddRange(layersToGenerate);
+        //            }
+        //            layersToGenerate = tempList;
+        //        }
+        //        GCodeGenerator.generate(layersToGenerate);
+        //    }
+        //    else
+        //    {
+        //        MessageBox.Show("Закончите слой для генерации g-code'а!", "Невозможно сгенерировать g-code!");
+        //    }
+        //}
 
-        private void manyCheck_Checked(object sender, RoutedEventArgs e)
-        {
-            layerZ_Count.IsEnabled = true;
-        }
-        private void manyCheck_Unchecked(object sender, RoutedEventArgs e)
-        {
-            layerZ_Count.IsEnabled = false;
-        }
+        //private void manyCheck_Checked(object sender, RoutedEventArgs e)
+        //{
+        //    layerZ_Count.IsEnabled = true;
+        //}
+        //private void manyCheck_Unchecked(object sender, RoutedEventArgs e)
+        //{
+        //    layerZ_Count.IsEnabled = false;
+        //}
         private void CanvasMain_Loaded(object sender, RoutedEventArgs e)
         {
 
@@ -978,15 +1007,38 @@ namespace GCodeConvertor.ProjectForm
             project3DVisualizer.Show();
         }
 
-        private void dockPanel_Loaded(object sender, RoutedEventArgs e)
+        private void WorkspaceContainerLoaded(object sender, RoutedEventArgs e)
         {
             wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
             wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
-            dockPanel.Children.Add(wdc);
+            WorkspaceContainer.Children.Add(wdc);
             setupInstruments(wdc);
+            //LayerControl layerControl = new LayerControl(wdc);
+            //putMeHere.Children.Add(layerControl);
+        }
 
-            LayerControl layerControl = new LayerControl(wdc);
-            putMeHere.Children.Add(layerControl);
+        //private void dockPanel_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+        //    wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
+        //    dockPanel.Children.Add(wdc);
+        //    setupInstruments(wdc);
+
+        //    LayerControl layerControl = new LayerControl(wdc);
+        //    putMeHere.Children.Add(layerControl);
+        //}
+    }
+
+    public class InstrumentButtonInfo
+    {
+        public string name;
+        public WorkspaceInstrument workspaceInstrument;
+
+        public InstrumentButtonInfo(string name, WorkspaceInstrument workspaceInstrument)
+        {
+            this.name = name;
+            this.workspaceInstrument = workspaceInstrument;
         }
     }
+
 }

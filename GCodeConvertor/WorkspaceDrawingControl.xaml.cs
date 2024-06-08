@@ -121,7 +121,10 @@ namespace GCodeConvertor
             conflictLines.Clear();
             deleteCustomItems();
             initLayer();
-            initSpringLines();
+            if (activeLayer.isStarted())
+            {
+                initSpringLines();
+            }
         }
 
         private void initSpringLines()

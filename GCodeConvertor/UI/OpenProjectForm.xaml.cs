@@ -19,7 +19,7 @@ namespace GCodeConvertor.UI
     {
         public ObservableCollection<ProjectItem> projectItems;
 
-        private ProjectsInfo projectInfo;
+        public ProjectsInfo projectInfo { get; set; }
 
         public OpenProjectForm()
         {
@@ -56,7 +56,7 @@ namespace GCodeConvertor.UI
         private string getModifiedFileDate(string pathToProject)
         {
             FileInfo projectFileInfo = new FileInfo(pathToProject);
-            return projectFileInfo.LastAccessTime.ToShortTimeString() + " " + projectFileInfo.LastAccessTime.ToShortDateString();
+            return projectFileInfo.LastAccessTime.ToShortDateString() + " " + projectFileInfo.LastAccessTime.ToShortTimeString();
         }
 
         private void setupFormProperties()
@@ -182,16 +182,6 @@ namespace GCodeConvertor.UI
             }
         }
 
-        //private void OpenTrackableProject(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (sender is ListBoxItem item && item.DataContext is ProjectItem projectItem)
-        //    {
-        //        if (projectItem != null && projectItem.IsAccessable)
-        //        {
-        //            openProject(projectItem.ProjectPath + "/" + projectItem.ProjectName + ".gcd");
-        //        }
-        //    }
-        //}
     }
 
     public class ProjectItem

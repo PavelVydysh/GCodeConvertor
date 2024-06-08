@@ -136,15 +136,15 @@ namespace GCodeConvertor
                         break;
 
                     case "PlatformH":
-                        if (PlatformH < 100)
+                        if (PlatformH < 50)
                         {
-                            error = "Длина платформы по оси Y не может быть меньше 100 мм";
+                            error = "Длина платформы по оси Y не может быть меньше 50 мм";
                         }
                         break;
                     case "PlatformW":
-                        if (PlatformW < 100)
+                        if (PlatformW < 50)
                         {
-                            error = "Длина платформы по оси X не может быть меньше 100 мм";
+                            error = "Длина платформы по оси X не может быть меньше 50 мм";
                         }
                         break;
                     case "HeadIdentationX":

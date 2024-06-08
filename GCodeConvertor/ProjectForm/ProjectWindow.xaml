@@ -5,9 +5,199 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.ProjectForm"
         mc:Ignorable="d"
-        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized" 
-        >
-    <DockPanel Name="dockPanel" LastChildFill="True" Loaded="dockPanel_Loaded">
+        WindowStyle="None"
+        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized">
+    <Window.Resources>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+       BorderBrush="{TemplateBinding BorderBrush}" 
+       BorderThickness="{TemplateBinding BorderThickness}" 
+       CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                             VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                         BorderBrush="{TemplateBinding BorderBrush}" 
+                         BorderThickness="{TemplateBinding BorderThickness}" 
+                         CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                   Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CreateButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                 BorderBrush="{TemplateBinding BorderBrush}" 
+                 BorderThickness="{TemplateBinding BorderThickness}" 
+                 CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                           Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="ProjectTypeBlockStyle" TargetType="Grid">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Margin" Value="10, 5"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                    <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding topology.name}" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+                <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+            </Grid>
+        </Border>
+        
+        
+        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+                <Grid Margin="5">
+                    <ListBox x:Name="IntrumentListBox" 
+                             Background="{StaticResource BackgroundBrush}" 
+                             BorderThickness="0"
+                             Grid.Row="1" Padding="5, 5, 5, 5" 
+                             HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                             SelectionChanged="ChooseInstrument"
+                             d:ItemsSource="{d:SampleData ItemCount=2}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="5">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="5">
+                                    <Grid Style="{StaticResource ProjectTypeBlockStyle}">
+                                        <TextBlock Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding name}" Background="Transparent"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+            <Grid x:Name="WorkspaceContainer" Grid.Column="1" Background="{StaticResource WorkspaceBrush}" Loaded="WorkspaceContainerLoaded">
+                
+            </Grid>
+        </Grid>
+        <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid Background="{StaticResource BackgroundBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="2" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать G-код" Margin="0, 0, 10, 0" />
+                <Button Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0"/>
+            </Grid>
+        </Border>
+
+
+    </Grid>
+    
+    
+    <!--<DockPanel Name="dockPanel" LastChildFill="True" Loaded="dockPanel_Loaded">
         <Menu Height="25"  VerticalAlignment="Top" Background="Gray" DockPanel.Dock="Top">
             <Menu.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -47,5 +237,5 @@
 
 
 
-    </DockPanel>
+    </DockPanel>-->
 </Window>

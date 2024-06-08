@@ -215,7 +215,8 @@
                                      Background="{StaticResource BackgroundBrush}" 
                                      BorderThickness="0"
                                      Grid.Row="1" Padding="10, 5, 10, 5" 
-                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" 
+                                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+                                     SelectionChanged="ChooseProjectType"
                                      d:ItemsSource="{d:SampleData ItemCount=2}">
                                 <ListBox.ItemContainerStyle>
                                     <Style TargetType="ListBoxItem">
@@ -246,7 +247,7 @@
                                     <DataTemplate>
                                         <Border CornerRadius="5">
                                             <Grid Style="{StaticResource ProjectTypeBlockStyle}">
-                                                <TextBlock Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding ProjectType}" Background="Transparent">
+                                                <TextBlock Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding name}" Background="Transparent">
                                                 </TextBlock>
                                             </Grid>
                                         </Border>
@@ -259,68 +260,8 @@
                 </Border>
             </Grid>
             <Grid Grid.Column="1">
-                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,1">
-                    <local:MeshThreadPlacementPanel/>
-                    <!--<StackPanel Margin="20,15,20,15">
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Название" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Расположение" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" FontWeight="Bold" Text="Настройки платформы:" Margin="0,0,0,10"/>
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Длина платформы по оси X:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Длина платформы по оси Y:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ платформы по оси X:"/>
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ платформы по оси Y:"/>
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Диаметр сопла:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Точность:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Диаметр иглы:" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                            </StackPanel>
-                        </Grid>
-                        <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" FontWeight="Bold" Text="Настройки расстановки игл:" Margin="0,0,0,10"/>
-                        <Grid Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,15,0">
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ игл по оси X:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Отступ игл по оси Y:"/>
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Шаг игл по оси X:" />
-                                <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" Text="Шаг игл по оси Y:"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                                <TextBox Style="{StaticResource TextBoxStyle}"></TextBox>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>-->
+                <Border x:Name="projecTypeContainer" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,1">
+                    
                 </Border>
             </Grid>
             
@@ -333,7 +274,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="1" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать" Margin="0, 0, 10, 0"/>
+            <Button Grid.Column="1" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать" Click="CreateProject" Margin="0, 0, 10, 0" />
             <Button Grid.Column="2" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Отмена" Click="CancelCreating" Margin="0, 0, 15, 0"/>
         </Grid>
     </Grid>

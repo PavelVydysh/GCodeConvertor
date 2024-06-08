@@ -18,11 +18,46 @@ namespace GCodeConvertor.UI
     /// <summary>
     /// Логика взаимодействия для TensionLinesPlacementPanel.xaml
     /// </summary>
-    public partial class TensionLinesPlacementPanel : UserControl
+    public partial class TensionLinesPlacementPanel : UserControl, ITopologable
     {
+        private static string DEFAULT_NAME = "Линии напряжения";
+
+        private string name;
+
         public TensionLinesPlacementPanel()
         {
             InitializeComponent();
+            name = DEFAULT_NAME;
+        }
+
+        public string getFullPath()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string getName()
+        {
+            return name;
+        }
+
+        public string getProjectFullPath()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string getProjectName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool isDataCorrect()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void setTopology()
+        {
+            throw new NotImplementedException();
         }
     }
 }

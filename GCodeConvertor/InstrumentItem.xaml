@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GCodeConvertor.WorkspaceInstruments"
              mc:Ignorable="d" Grid.Column="0">
-    <StackPanel x:Name="panelInstrument" Background="LightYellow" Width="100" Height="50">
-        <Label Name="labelInstrument" Content="{Binding elementName}" VerticalAlignment="Center"/>
+    <StackPanel x:Name="panelInstrument" Background="Transparent" Width="50" Height="50">
+        <TextBlock Name="labelInstrument" Text="{Binding elementName}" VerticalAlignment="Center" />
     </StackPanel>
 </UserControl>

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GCodeConvertor.ProjectForm;
+using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GCodeConvertor.UI
 {
@@ -20,12 +21,17 @@ namespace GCodeConvertor.UI
     /// </summary>
     public partial class MeshThreadPlacementPanel : UserControl, ITopologable
     {
-        TopologyModel topologyModel;
+        private static string DEFAULT_NAME = "Сетка";
+
+        private string name;
+        private TopologyModel topologyModel { get; set; }
+
 
         public MeshThreadPlacementPanel()
         {
             InitializeComponent();
             topologyModel = new TopologyModel();
+            name = DEFAULT_NAME;
             DataContext = topologyModel;
         }
 
@@ -36,7 +42,22 @@ namespace GCodeConvertor.UI
 
         public void setTopology()
         {
-            throw new NotImplementedException();
+            ProjectSettings.preset = new GlobalPreset(topologyModel);
+        }
+
+        public string getName()
+        {
+            return name;
+        }
+
+        public string getProjectFullPath()
+        {
+            return Path.Combine(topologyModel.PathProject, topologyModel.NameProject) + ".gcd";
+        }
+
+        public string getProjectName()
+        {
+            return topologyModel.NameProject;
         }
     }
 }

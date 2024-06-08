@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCodeConvertor.ProjectForm;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -24,8 +25,6 @@ namespace GCodeConvertor.UI
 
         public ObservableCollection<ProjectTypeItem> projectTypeItems;
 
-        private ITopologable topologable;
-
         public CreateProjectForm(OpenProjectForm openProjectForm)
         {
             this.openProjectForm = openProjectForm;
@@ -34,9 +33,12 @@ namespace GCodeConvertor.UI
             ProjectTypeListBox.ItemsSource = projectTypeItems;
             DataContext = this;
 
-            projectTypeItems.Add(new ProjectTypeItem("Тип 1"));
-            projectTypeItems.Add(new ProjectTypeItem("Тип 2"));
+            ITopologable meshTopologable = new MeshThreadPlacementPanel();
+            projectTypeItems.Add(new ProjectTypeItem(meshTopologable));
+            ITopologable linesTopologable = new TensionLinesPlacementPanel();
+            projectTypeItems.Add(new ProjectTypeItem(linesTopologable));
 
+            ProjectTypeListBox.SelectedIndex = 0;
         }
 
         private void projectTypeSearch(object sender, TextChangedEventArgs e)
@@ -63,11 +65,24 @@ namespace GCodeConvertor.UI
             {
                 if (item is ProjectTypeItem currentItem)
                 {
-                    return currentItem.ProjectType.Contains(projectTypeSearchBlock.Text, StringComparison.OrdinalIgnoreCase);
+                    return currentItem.topologable.getName().Contains(projectTypeSearchBlock.Text, StringComparison.OrdinalIgnoreCase);
                 }
                 return false;
             };
             view.Refresh();
+        }
+
+        private void ChooseProjectType(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                ProjectTypeItem projectType = e.AddedItems[0] as ProjectTypeItem;
+                if (projectType != null)
+                {
+                    Border element = (Border)this.FindName("projecTypeContainer");
+                    element.Child = (FrameworkElement)projectType.topologable;
+                }
+            }
         }
 
         private void Window_StateChanged(object sender, EventArgs e)
@@ -114,15 +129,32 @@ namespace GCodeConvertor.UI
             openProjectForm.Visibility = Visibility.Visible;
             this.Close();
         }
+
+        private void CreateProject(object sender, RoutedEventArgs e)
+        {
+            Border element = (Border)this.FindName("projecTypeContainer");
+            ITopologable topologable = (ITopologable)element.Child;
+            if (topologable.isDataCorrect())
+            {
+                topologable.setTopology();
+                ProjectSettings.preset.savePreset();
+                openProjectForm.projectInfo.addProjectInfo(new ProjectsInfo.ProjectsInfoItem(topologable.getProjectName(), topologable.getProjectFullPath()));
+                ProjectWindow pw = new ProjectWindow(openProjectForm);
+                pw.Show();
+                this.Close();
+            }
+        }
     }
 
     public class ProjectTypeItem
     {
-        public string ProjectType { get; set; }
+        public string name { get; set; }
+        public ITopologable topologable { get; set; }
 
-        public ProjectTypeItem(string projectType)
+        public ProjectTypeItem(ITopologable topologable)
         {
-            ProjectType = projectType;
+            this.topologable = topologable;
+            name = topologable.getName();
         }
 
     }
