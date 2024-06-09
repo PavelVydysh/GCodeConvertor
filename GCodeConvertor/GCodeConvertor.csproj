@@ -8,8 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\brush_icon.png" />
     <None Remove="Resources\gcode_logo.ico" />
     <None Remove="Resources\loupe.png" />
+    <None Remove="Resources\move_icon.png" />
+    <None Remove="Resources\theme_icon.png" />
+    <None Remove="Resources\toggle_combo.png" />
+    <None Remove="Resources\zoom_icon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,11 +28,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\brush_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\gcode_logo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\loupe.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\move_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\theme_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\toggle_combo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\zoom_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 

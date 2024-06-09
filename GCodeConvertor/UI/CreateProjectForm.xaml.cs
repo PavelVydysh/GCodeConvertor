@@ -31,7 +31,6 @@ namespace GCodeConvertor.UI
             InitializeComponent();
             projectTypeItems = new ObservableCollection<ProjectTypeItem>();
             ProjectTypeListBox.ItemsSource = projectTypeItems;
-            DataContext = this;
 
             ITopologable meshTopologable = new MeshThreadPlacementPanel();
             projectTypeItems.Add(new ProjectTypeItem(meshTopologable));

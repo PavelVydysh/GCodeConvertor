@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:GCodeConvertor.ProjectForm"
         mc:Ignorable="d"
         WindowStyle="None"
-        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized">
+        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico"
+        SizeChanged="WindowSizeChanged"
+        Activated="Window_Activated"
+        Deactivated="Window_Deactivated">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
@@ -95,9 +99,17 @@
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
-        <Style x:Key="ProjectTypeBlockStyle" TargetType="Grid">
+        <Style x:Key="InstrumentBlockStyle" TargetType="Grid">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Margin" Value="10, 5"/>
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+        <Style x:Key="LayersPopupStyle" TargetType="Popup">
+            <Setter Property="Placement" Value="Top" />
+            <Setter Property="StaysOpen" Value="True" />
+            <Setter Property="AllowsTransparency" Value="True" />
+            <Setter Property="PopupAnimation" Value="Fade" />
+            <Setter Property="Width" Value="325" />
+            <Setter Property="Height" Value="450" />
         </Style>
     </Window.Resources>
     <Grid>
@@ -139,7 +151,7 @@
                              Grid.Row="1" Padding="5, 5, 5, 5" 
                              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                              SelectionChanged="ChooseInstrument"
-                             d:ItemsSource="{d:SampleData ItemCount=2}">
+                             ItemsSource="{Binding workspaceInstruments}">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
@@ -168,8 +180,8 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="5">
-                                    <Grid Style="{StaticResource ProjectTypeBlockStyle}">
-                                        <TextBlock Style="{StaticResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding name}" Background="Transparent"/>
+                                    <Grid Style="{StaticResource InstrumentBlockStyle}" >
+                                        <Image Source="{Binding pathToIcon}" Width="22" Height="22"></Image>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -189,7 +201,18 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="2" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать G-код" Margin="0, 0, 10, 0" />
-                <Button Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0"/>
+                <Button Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
+                <Popup x:Name="LayersPopup" Style="{StaticResource LayersPopupStyle}">
+                    <Border x:Name="LayersContainer"
+                            Background="{StaticResource BackgroundBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="10">
+                            
+                    </Border>
+                    
+                </Popup>
             </Grid>
         </Border>
 

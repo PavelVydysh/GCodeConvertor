@@ -150,10 +150,6 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="67*"/>
-            <ColumnDefinition Width="133*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
@@ -209,7 +205,7 @@
                     </TextBox>
                     <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект" Click="CreateNewProject"></Button>
                     <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
-                    <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки"></Button>
+                    <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки" Click="OpenSettingsWindow"></Button>
                 </Grid>
             </Border>
             <ListBox x:Name="ProjectItemListBox" Style="{StaticResource CustomListBoxStyle}" 

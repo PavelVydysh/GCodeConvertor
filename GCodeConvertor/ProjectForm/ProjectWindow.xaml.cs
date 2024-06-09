@@ -25,6 +25,7 @@ using GCodeConvertor.Project3D;
 using System.Windows.Forms.Design;
 using GCodeConvertor.UI;
 using GCodeConvertor.GScript;
+using System.Windows.Controls.Primitives;
 
 namespace GCodeConvertor.ProjectForm
 {
@@ -54,7 +55,7 @@ namespace GCodeConvertor.ProjectForm
         Layer activeLayer;
 
         LayerStorage storage;
-        ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
+        public ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
         ObservableCollection<CustomItem> ItemsList { get; set; }
 
         List<Hotkey> hotkeys;
@@ -64,16 +65,35 @@ namespace GCodeConvertor.ProjectForm
         System.Windows.Shapes.Rectangle selectionRect;
         public ProjectWindow(OpenProjectForm openProjectForm)
         {
+            this.openProjectForm = openProjectForm;
+
             InitializeComponent();
 
-            this.openProjectForm = openProjectForm;
+            this.DataContext = ProjectSettings.preset;
+
+            wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+            workspaceInstruments = new ObservableCollection<InstrumentButtonInfo>();
+
+            IntrumentListBox.ItemsSource = workspaceInstruments;
+            WorkspaceInstrument drawing = new DrawingWorkspaceInstrument(wdc);
+            WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(wdc);
+            WorkspaceInstrument moving = new MoveWorkspaceInstrument(wdc);
+            workspaceInstruments.Add(new InstrumentButtonInfo("Кисть", drawing, "pack://application:,,,/Resources/brush_icon.png"));
+            workspaceInstruments.Add(new InstrumentButtonInfo("Зум", zooming, "pack://application:,,,/Resources/zoom_icon.png"));
+            workspaceInstruments.Add(new InstrumentButtonInfo("Движение", moving, "pack://application:,,,/Resources/move_icon.png"));
+
+            IntrumentListBox.SelectedIndex = 0;
+
+            WorkspaceContainer.Children.Add(wdc);
+
+            LayerControl layerControl = new LayerControl(wdc);
+            LayersContainer.Child = layerControl;
+            LayersPopup.IsOpen = true;
 
             PreviewKeyUp += Window_KeyUp;
 
-            DataContext = ProjectSettings.preset;
-          
-          
-          
+            
+
             storage = new LayerStorage();
             layerEllipses = new List<Ellipse>();
             selectedEllipses = new List<Ellipse>();
@@ -85,23 +105,11 @@ namespace GCodeConvertor.ProjectForm
             storage.addLayer(activeLayer);
 
             
-            workspaceInstruments = new ObservableCollection<InstrumentButtonInfo>();
-            IntrumentListBox.ItemsSource = workspaceInstruments;
+            
+            
 
             hotkeys = new List<Hotkey>();
             pressedKeys = new List<Key>();
-
-        }
-
-        private void setupInstruments(WorkspaceDrawingControl workspaceDrawingControl)
-        {
-            WorkspaceInstrument drawing = new DrawingWorkspaceInstrument(workspaceDrawingControl);
-            WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(workspaceDrawingControl);
-            WorkspaceInstrument moving = new MoveWorkspaceInstrument(workspaceDrawingControl);
-
-            workspaceInstruments.Add(new InstrumentButtonInfo("Кисть", drawing));
-            workspaceInstruments.Add(new InstrumentButtonInfo("Зум", zooming));
-            workspaceInstruments.Add(new InstrumentButtonInfo("Движение", moving));
 
             List<Key> drawingHotkeys = new List<Key>();
             drawingHotkeys.Add(Key.F2);
@@ -112,9 +120,9 @@ namespace GCodeConvertor.ProjectForm
             List<Key> movingHotkeys = new List<Key>();
             movingHotkeys.Add(Key.F3);
 
-            hotkeys.Add(new Hotkey(drawingHotkeys, drawing, workspaceDrawingControl));
-            hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, workspaceDrawingControl));
-            hotkeys.Add(new Hotkey(movingHotkeys, moving, workspaceDrawingControl));
+            hotkeys.Add(new Hotkey(drawingHotkeys, drawing, wdc));
+            hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, wdc));
+            hotkeys.Add(new Hotkey(movingHotkeys, moving, wdc));
         }
 
         private void OpenScriptForm(object sender, RoutedEventArgs e)
@@ -152,6 +160,11 @@ namespace GCodeConvertor.ProjectForm
                     wdc.setActiveWorkspaceInstrument(instrument.workspaceInstrument);
                 }
             }
+        }
+
+        private void ShowLayersPopup(object sender, RoutedEventArgs e)
+        {
+            LayersPopup.IsOpen = !LayersPopup.IsOpen;
         }
 
 
@@ -1009,12 +1022,22 @@ namespace GCodeConvertor.ProjectForm
 
         private void WorkspaceContainerLoaded(object sender, RoutedEventArgs e)
         {
-            wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
-            wdc.workspaceIntrument = new DrawingWorkspaceInstrument(wdc);
-            WorkspaceContainer.Children.Add(wdc);
-            setupInstruments(wdc);
-            //LayerControl layerControl = new LayerControl(wdc);
-            //putMeHere.Children.Add(layerControl);
+           
+        }
+
+        private void WindowSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            LayersPopup.IsOpen = false;
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            LayersPopup.IsOpen = true;
+        }
+
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            LayersPopup.IsOpen = false;
         }
 
         //private void dockPanel_Loaded(object sender, RoutedEventArgs e)
@@ -1031,13 +1054,15 @@ namespace GCodeConvertor.ProjectForm
 
     public class InstrumentButtonInfo
     {
-        public string name;
-        public WorkspaceInstrument workspaceInstrument;
+        public string name { get; set; }
+        public WorkspaceInstrument workspaceInstrument { get; set; }
+        public string pathToIcon { get; set; }
 
-        public InstrumentButtonInfo(string name, WorkspaceInstrument workspaceInstrument)
+        public InstrumentButtonInfo(string name, WorkspaceInstrument workspaceInstrument, string pathToIcon)
         {
             this.name = name;
             this.workspaceInstrument = workspaceInstrument;
+            this.pathToIcon = pathToIcon;
         }
     }
 

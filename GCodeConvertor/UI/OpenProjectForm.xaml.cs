@@ -182,6 +182,12 @@ namespace GCodeConvertor.UI
             }
         }
 
+        private void OpenSettingsWindow(object sender, RoutedEventArgs e)
+        {
+            MainSettings mainSettings = new MainSettings(this);
+            Visibility = Visibility.Collapsed;
+            mainSettings.Show();
+        }
     }
 
     public class ProjectItem

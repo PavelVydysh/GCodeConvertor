@@ -48,7 +48,7 @@ namespace GCodeConvertor.WorkspaceInstruments
         private Point startSelectingPoint;
         private Rectangle selectingRectangle;
 
-        public DrawingWorkspaceInstrument(WorkspaceDrawingControl workspaceDrawingControl) : base(workspaceDrawingControl) { }
+        public DrawingWorkspaceInstrument (WorkspaceDrawingControl workspaceDrawingControl) : base(workspaceDrawingControl) { }
 
         public override void execute(EventType eventType, object sender, EventArgs e)
         {
@@ -425,8 +425,8 @@ namespace GCodeConvertor.WorkspaceInstruments
                             new Point(getThreadValueByTopologyValue(currentTopologyX),
                             getThreadValueByTopologyValue(currentTopologyY)))) 
                             {
-                            drawPoint(getDrawingValueByTopologyValue(currentTopologyX), getDrawingValueByTopologyValue(currentTopologyY));
                             workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
+                            workspaceDrawingControl.repaint();
                         }
                         else
                         {
@@ -488,62 +488,30 @@ namespace GCodeConvertor.WorkspaceInstruments
             //    workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
             //}                
 
+            //if (isLineCrossTheNeedles(new Point(previousDrawingX, previousDrawingY), new Point(currentDrawingX, currentDrawingY)))
+            //{
+            //    return;
+            //}
+
             workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
             workspaceDrawingControl.repaint();
         }
 
-        private Ellipse drawPoint(double currentDrawingX, double currentDrawingY)
-        {
-            Ellipse drawingPoint = setupEllipse();
-            workspaceDrawingControl.ellipses.Add(drawingPoint);
-            Canvas.SetLeft(drawingPoint, currentDrawingX - ELLIPSE_SIZE / 2);
-            Canvas.SetTop(drawingPoint, currentDrawingY - ELLIPSE_SIZE / 2);
-            workspaceDrawingControl.workspaceCanvas.Children.Add(drawingPoint);
-            return drawingPoint;
-        }
+        //private bool isLineCrossTheNeedles(Point previousPoint, Point currentPoint)
+        //{
+        //    LineGeometry lineGeometry = new LineGeometry(previousPoint, currentPoint);
 
-        private Line setupLine()
-        {
-            Line line = new Line();
-            line.Tag = workspaceDrawingControl.getCustomElementTag();
-            line.Fill = new SolidColorBrush(LINE_COLOR);
-            line.Visibility = Visibility.Visible;
-            line.StrokeThickness = LINE_SIZE;
-            line.Stroke = new SolidColorBrush(LINE_COLOR);
-            line.MouseRightButtonDown += workspaceDrawingControl.element_MouseRightButtonDown;
-
-            return line;
-        }
-
-        private Ellipse setupEllipse()
-        {
-            Ellipse ellipse = new Ellipse();
-            ellipse.Tag = workspaceDrawingControl.getCustomElementTag();
-            ellipse.Height = ELLIPSE_SIZE;
-            ellipse.Width = ELLIPSE_SIZE;
-            ellipse.Fill = new SolidColorBrush(POINT_COLOR);
-            ellipse.MouseLeftButtonDown += workspaceDrawingControl.element_MouseLeftButtonDown;
-            ellipse.MouseMove += workspaceDrawingControl.element_MouseMove;
-            ellipse.MouseRightButtonDown += workspaceDrawingControl.element_MouseRightButtonDown;
-
-            return ellipse;
-        }
-
-        private bool isLineCrossTheNeedles(Point previousPoint, Point currentPoint)
-        {
-            LineGeometry lineGeometry = new LineGeometry(previousPoint, currentPoint);
-
-            foreach (Rectangle needle in workspaceDrawingControl.needles)
-            {
-                RectangleGeometry rectangleGeometry = new RectangleGeometry(
-                    new Rect(Canvas.GetLeft(needle), Canvas.GetTop(needle), needle.Width, needle.Height));
-                if (lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        //    foreach (Rectangle needle in workspaceDrawingControl.needles)
+        //    {
+        //        RectangleGeometry rectangleGeometry = new RectangleGeometry(
+        //            new Rect(Canvas.GetLeft(needle), Canvas.GetTop(needle), needle.Width, needle.Height));
+        //        if (lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty)
+        //        {
+        //            return true;
+        //        }
+        //    }
+        //    return false;
+        //}
 
     }
 }

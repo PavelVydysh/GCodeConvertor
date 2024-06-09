@@ -31,7 +31,11 @@ namespace GCodeConvertor
     /// </summary>
     public partial class WorkspaceDrawingControl : UserControl
     {
-        //?????????????????????????? - надо куда-то вынести, дублируется в инструменте рисования и здесь
+        private static SolidColorBrush WORKSPACE_START_POINT_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceStartPointBrush"];
+        private static SolidColorBrush WORKSPACE_BACKGROUND_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceBackgroundBrush"];
+        private static SolidColorBrush WORKSPACE_NEEDLE_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceNeedleBrush"];
+        private static SolidColorBrush WORKSPACE_PLATFORM_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspacePlatformBrush"];
+
         private static Color POINT_COLOR = Colors.Red;
         public const double ELLIPSE_SIZE = 5;
         private static Color LINE_COLOR = Colors.Red;
@@ -120,11 +124,11 @@ namespace GCodeConvertor
             ellipses.Clear();
             conflictLines.Clear();
             deleteCustomItems();
-            initLayer();
             if (activeLayer.isStarted())
             {
                 initSpringLines();
             }
+            initLayer();
         }
 
         private void initSpringLines()
@@ -142,7 +146,7 @@ namespace GCodeConvertor
 
             for (int pointIndex = 0; pointIndex <= pointLastIndex; pointIndex++)
             {
-                drawPredictedPoint(bandPoints[pointIndex].X, bandPoints[pointIndex].Y);
+                //drawPredictedPoint(bandPoints[pointIndex].X, bandPoints[pointIndex].Y);
 
                 if (pointIndex != pointLastIndex)
                 {
@@ -262,15 +266,15 @@ namespace GCodeConvertor
 
             if (cellType == 1)
             {
-                cell.Fill = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFBE98"));
+                cell.Fill = WORKSPACE_PLATFORM_BRUSH;
             }
             else if (cellType == 2)
             {
-                cell.Fill = new SolidColorBrush(Colors.Green);
+                cell.Fill = WORKSPACE_START_POINT_BRUSH;
             }
             else if (cellType == 3 || cellType == 4)
             {
-                cell.Fill = new SolidColorBrush(Colors.Black);
+                cell.Fill = WORKSPACE_NEEDLE_BRUSH;
                 if (cellType == 3)
                 {
                     setupRectangle(topologyX, topologyY);
@@ -280,7 +284,7 @@ namespace GCodeConvertor
             }
             else
             {
-                cell.Fill = new SolidColorBrush(Colors.White);
+                cell.Fill = WORKSPACE_BACKGROUND_BRUSH;
             }
 
             cell.MouseLeftButtonDown += element_MouseLeftButtonDown;
@@ -365,7 +369,7 @@ namespace GCodeConvertor
                 }
             }
             //ДОБАВИТЬ ПЕРЕМЕННУЮ ДЛЯ АВТОКОНФЛИКТОВ
-            if(true)
+            if(false)
             {
                 if(conflictLines.Count > 0)
                 {

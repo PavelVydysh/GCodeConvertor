@@ -12,10 +12,10 @@
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
 
-            <ListBox Grid.Column="0" Grid.Row="1" x:Name="layerListBox" Height="385" Width="175" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" SelectionChanged="layerListBox_SelectionChanged">
+            <ListBox Grid.Row="0" x:Name="layerListBox"  Width="300" Height="400"  HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" SelectionChanged="layerListBox_SelectionChanged">
                 
             </ListBox>
-            <StackPanel Orientation="Horizontal"  Width="175" Margin="0, 0, 0, 5">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0, 5, 0, 0">
 
                 <Button Content="up" Click="moveLayerUp" HorizontalAlignment="Right" Margin="0,0,10,0" Height="25" Width="25" Tag="{Binding LabelContent}"/>
                 <Button Content="dn" Click="moveLayerDown" HorizontalAlignment="Right" Margin="0,0,10,0" Height="25" Width="25" Tag="{Binding LabelContent}"/>
