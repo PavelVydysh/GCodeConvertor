@@ -7,6 +7,8 @@
     <Color x:Key="BorderColor">#3C3F41</Color>
     <Color x:Key="CreateButtonColor">#3C7DD9</Color>
     <Color x:Key="ErrorColor">#FF6B6B</Color>
+    <Color x:Key="DeleteColor">#FF3A3A</Color>
+    <Color x:Key="AddColor">#CCE8FF</Color>
     <Color x:Key="WorkspaceColor">#1e1e1e</Color>
     <Color x:Key="StartPointColor">#4CAF50</Color>
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
@@ -21,4 +23,6 @@
     <SolidColorBrush x:Key="WorkspacePlatformBrush" Color="{StaticResource BorderColor}"/>
     <SolidColorBrush x:Key="WorkspaceNeedleBrush" Color="{StaticResource ForegroundColor}"/>
     <SolidColorBrush x:Key="WorkspaceStartPointBrush" Color="{StaticResource StartPointColor}"/>
+    <SolidColorBrush x:Key="DeleteLayerBrush" Color="{StaticResource DeleteColor}"/>
+    <SolidColorBrush x:Key="AddLayerBrush" Color="{StaticResource AddColor}"/>
 </ResourceDictionary>

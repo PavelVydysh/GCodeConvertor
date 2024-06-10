@@ -15,8 +15,8 @@ namespace GCodeConvertor
     [System.Xml.Serialization.XmlInclude(typeof(Point))]
     public class Layer
     {
-        private const string DEFAULT_NAME = "Без имени";
-        private const float DEFAULT_HEIGHT = 12;
+        public const string DEFAULT_NAME = "Без имени";
+        public const float DEFAULT_HEIGHT = 12;
 
         public Guid guid { get; }
         public string name { get; set; }

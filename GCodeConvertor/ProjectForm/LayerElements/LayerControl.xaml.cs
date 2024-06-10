@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCodeConvertor.UI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -78,7 +79,9 @@ namespace GCodeConvertor.ProjectForm.LayerElements
         {
             if (layerItems.Count == 1)
             {
-                MessageBox.Show("Это единственный слой. Создайте еще один, чтобы удалить текущий.");
+                MessageWindow messageWindow = new MessageWindow("Невозможно удалить слой!", "Текущий слой является единственным.");
+                messageWindow.ShowDialog();
+                //MessageBox.Show("Это единственный слой. Создайте еще один, чтобы удалить текущий.");
                 return;
             }
 
@@ -95,7 +98,9 @@ namespace GCodeConvertor.ProjectForm.LayerElements
 
             if (!selectedLayerItem.layer.isEnded())
             {
-                MessageBox.Show("Текущий слой не закончен");
+                MessageWindow messageWindow = new MessageWindow("Невозможно создать новый слой!", "Закончите текущий слой прежде, чем создать новый слой.");
+                messageWindow.ShowDialog();
+                //MessageBox.Show("Текущий слой не закончен");
                 return;
             }
 

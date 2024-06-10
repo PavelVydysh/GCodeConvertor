@@ -11,12 +11,12 @@
         Background="Transparent" AllowsTransparency="true">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -31,11 +31,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -44,12 +44,12 @@
             </Setter>
         </Style>
         <Style x:Key="TextBoxButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="15,5"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -68,10 +68,10 @@
             </Setter>
         </Style>
         <Style x:Key="BodyTextBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="CaretBrush" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="MinWidth" Value="120"/>
@@ -91,20 +91,20 @@
             <Setter Property="MinHeight" Value="30"/>
         </Style>
         <Style x:Key="ProjectTextBlockNameStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
         <Style x:Key="ProjectTextBlockPathStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
         <Style x:Key="ProjectTextBlockDateStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
@@ -117,7 +117,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBox">
-                        <Border Background="{StaticResource BackgroundBrush}">
+                        <Border Background="{DynamicResource BackgroundBrush}">
                             <ScrollViewer Padding="{TemplateBinding Padding}"
                                   Focusable="false"
                                   HorizontalScrollBarVisibility="Auto"
@@ -125,7 +125,7 @@
                                 <ScrollViewer.Resources>
                                     <Style TargetType="ScrollBar">
                                         <Setter Property="Width" Value="10"/>
-                                        <Setter Property="Background" Value="{StaticResource BorderBrush}"/>
+                                        <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
                                         <Setter Property="BorderThickness" Value="0"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
@@ -154,7 +154,7 @@
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow" Grid.ColumnSpan="2">
+        <Grid Grid.Row="0" Background="{DynamicResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -163,19 +163,19 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
                 <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
-                <TextBlock Text="Добро пожаловать в G-Code Converter" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
+                <TextBlock Text="Добро пожаловать в G-Code Converter" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel>
 
-            <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
-            <Button Grid.Column="2" Style="{StaticResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
-            <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+            <Button Grid.Column="1" Style="{DynamicResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+            <Button Grid.Column="2" Style="{DynamicResource HeaderButtonStyle}" Content="□" Width="50" Height="40" Click="MaximizeWindow"/>
+            <Button Grid.Column="3" Style="{DynamicResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
         </Grid>
-        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}" Grid.ColumnSpan="2">
+        <Grid Grid.Row="1" Background="{DynamicResource BackgroundBrush}" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,1">
+            <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,1">
                 <Grid Grid.Row="0" Margin="20,20,20,20" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -187,15 +187,15 @@
 
                     <Image Grid.Column="0" Margin="0,0,15,0" Source="pack://application:,,,/Resources/loupe.png" Width="20" Height="20"></Image>
                     <TextBlock Name="projectSearchCue" Grid.Column="1" 
-                               Style="{StaticResource BodyTextCueStyle}"
+                               Style="{DynamicResource BodyTextCueStyle}"
                            Text="Поиск проекта..." 
-                           Foreground="{StaticResource SecondaryBrush}"                        
+                           Foreground="{DynamicResource SecondaryBrush}"                        
                            VerticalAlignment="Center" 
                            HorizontalAlignment="Stretch"
                            Width="auto"
                            Margin="5,0,15,0"/>
 
-                    <TextBox Name="projectSearch" Grid.Column="1" Style="{StaticResource BodyTextBoxStyle}" 
+                    <TextBox Name="projectSearch" Grid.Column="1" Style="{DynamicResource BodyTextBoxStyle}" 
                         Background="Transparent"                        
                         VerticalAlignment="Center" 
                         HorizontalAlignment="Stretch"
@@ -203,20 +203,20 @@
                         Margin="0,0,15,0"
                         TextChanged="projectSearch_TextChanged">
                     </TextBox>
-                    <Button Grid.Column="2" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Новый проект" Click="CreateNewProject"></Button>
-                    <Button Grid.Column="3" Margin="0,0,15,0" Style="{StaticResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
-                    <Button Grid.Column="4" Style="{StaticResource TextBoxButtonStyle}" Content="Настройки" Click="OpenSettingsWindow"></Button>
+                    <Button Grid.Column="2" Margin="0,0,15,0" Style="{DynamicResource TextBoxButtonStyle}" Content="Новый проект" Click="CreateNewProject"></Button>
+                    <Button Grid.Column="3" Margin="0,0,15,0" Style="{DynamicResource TextBoxButtonStyle}" Content="Открыть" Height="31" VerticalAlignment="Top" Click="OpenProject"></Button>
+                    <Button Grid.Column="4" Style="{DynamicResource TextBoxButtonStyle}" Content="Настройки" Click="OpenSettingsWindow"></Button>
                 </Grid>
             </Border>
-            <ListBox x:Name="ProjectItemListBox" Style="{StaticResource CustomListBoxStyle}" 
+            <ListBox x:Name="ProjectItemListBox" Style="{DynamicResource CustomListBoxStyle}" 
                  Grid.Row="1" Padding="10, 5, 10, 5" 
                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
                  SelectionChanged="OpenTrackableProject"
                  d:ItemsSource="{d:SampleData ItemCount=5}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-                        <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
@@ -228,8 +228,8 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
+                                            <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -242,7 +242,7 @@
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border CornerRadius="5">
-                            <Grid Style="{StaticResource ProjectBlockStyle}">
+                            <Grid Style="{DynamicResource ProjectBlockStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -253,11 +253,11 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
-                                        <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{StaticResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
+                                        <TextBlock x:Name="ProjectNameBlock" Grid.Row="0" Style="{DynamicResource ProjectTextBlockNameStyle}" Text="{Binding ProjectName}" Background="Transparent">
                                         </TextBlock>
-                                        <TextBlock Grid.Row="1" Style="{StaticResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
+                                        <TextBlock Grid.Row="1" Style="{DynamicResource ProjectTextBlockPathStyle}" Text="{Binding ProjectPath}" Background="Transparent"></TextBlock>
                                     </Grid>
-                                    <TextBlock Style="{StaticResource ProjectTextBlockDateStyle}" VerticalAlignment="Center" Grid.Column="1" Text="{Binding ModifiedDate}" Background="Transparent">
+                                    <TextBlock Style="{DynamicResource ProjectTextBlockDateStyle}" VerticalAlignment="Center" Grid.Column="1" Text="{Binding ModifiedDate}" Background="Transparent">
                                     </TextBlock>
                                 </Grid>
                             </Grid>

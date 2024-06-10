@@ -40,17 +40,26 @@ namespace GCodeConvertor.ProjectForm.LayerElements
             layer.isEnable = false;
         }
 
-        private void editLayerHeight(object sender, RoutedEventArgs e)
+        private void heightTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            float currentHeight;
-
-            if(float.TryParse(heightTextBox.Text, out currentHeight) == false)
+            double heightValue;
+            if (double.TryParse(heightTextBox.Text, out heightValue))
             {
-                MessageBox.Show("Недопустимое значение высоты для слоя");
-                heightTextBox.Text = layer.height.ToString();
+                if(heightValue > 0)
+                {
+                    return;
+                }
             }
+            heightTextBox.Text = Layer.DEFAULT_HEIGHT.ToString();
+        }
 
-            layer.height = currentHeight;
+        private void nameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(nameTextBox.Text != string.Empty)
+            {
+                return;
+            }
+            nameTextBox.Text = Layer.DEFAULT_NAME.ToString();
         }
     }
 }

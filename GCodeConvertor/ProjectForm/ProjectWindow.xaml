@@ -109,7 +109,7 @@
             <Setter Property="AllowsTransparency" Value="True" />
             <Setter Property="PopupAnimation" Value="Fade" />
             <Setter Property="Width" Value="325" />
-            <Setter Property="Height" Value="450" />
+            <Setter Property="Height" Value="475" />
         </Style>
     </Window.Resources>
     <Grid>

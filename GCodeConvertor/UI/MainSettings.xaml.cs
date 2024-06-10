@@ -20,6 +20,7 @@ namespace GCodeConvertor.UI
     public partial class MainSettings : Window
     {
         private OpenProjectForm openProjectForm;
+        string currentTheme;
 
         public MainSettings(OpenProjectForm openProjectForm)
         {
@@ -50,7 +51,7 @@ namespace GCodeConvertor.UI
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
-            openProjectForm.Close();
+            openProjectForm.Visibility = Visibility.Visible;
             this.Close();
         }
 
@@ -73,5 +74,45 @@ namespace GCodeConvertor.UI
             this.Close();
         }
 
+        private void ThemeComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            currentTheme = Settings.Default.Theme;
+            ChangeCurrentTheme(currentTheme);
+        }
+
+        private void SaveSettings(object sender, RoutedEventArgs e)
+        {
+            currentTheme = Settings.Default.Theme;
+            ChangeCurrentTheme(currentTheme);
+        }
+
+        private void CancelSettings(object sender, RoutedEventArgs e)
+        {
+            ChangeCurrentTheme(currentTheme);
+        }
+
+        private void ChangeCurrentTheme(string themeName)
+        {
+            foreach (ComboBoxItem item in ThemeComboBox.Items)
+            {
+                if (item.Tag.ToString() == themeName)
+                {
+                    ThemeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+        }
+
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ThemeComboBox.SelectedItem != null)
+            {
+                string selectedTheme = ((ComboBoxItem)ThemeComboBox.SelectedItem).Tag.ToString();
+                Settings.Default.Theme = selectedTheme;
+                Settings.Default.Save();
+                this.Resources.MergedDictionaries.Clear();
+                ((App)Application.Current).ApplySavedTheme();
+            }
+        }
     }
 }
