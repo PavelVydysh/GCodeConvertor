@@ -158,8 +158,8 @@ namespace GCodeConvertor.UI
         private void CreateNewProject(object sender, RoutedEventArgs e)
         {
             CreateProjectForm createProjectForm = new CreateProjectForm(this);
+            createProjectForm.Show();
             this.Visibility = Visibility.Collapsed;
-            createProjectForm.ShowDialog();
         }
 
         private void openProject(string pathToProject)
@@ -180,13 +180,13 @@ namespace GCodeConvertor.UI
                     openProject(trackableProject.ProjectPath);
                 }
             }
+            ProjectItemListBox.SelectedItem = null;
         }
 
         private void OpenSettingsWindow(object sender, RoutedEventArgs e)
         {
             MainSettings mainSettings = new MainSettings(this);
-            Visibility = Visibility.Collapsed;
-            mainSettings.Show();
+            mainSettings.ShowDialog();
         }
     }
 

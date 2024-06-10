@@ -44,26 +44,30 @@ namespace GCodeConvertor.ProjectForm.LayerElements
         private void initLayerItems()
         {
 
-            layerItems = new ObservableCollection<LayerItem>();
+            if(layerListBox.SelectedItem == null)
+            {
+                layerItems = new ObservableCollection<LayerItem>();
 
-            if (ProjectSettings.preset.layers.Count == 0)
-            {
-                Layer layer = new Layer();
-                ProjectSettings.preset.addLayer(layer);
-                LayerItem layerItem = new LayerItem(layer);
-                layerItems.Add(layerItem);
-            }
-            else
-            {
-                foreach (Layer layer in ProjectSettings.preset.layers)
+                if (ProjectSettings.preset.layers.Count == 0)
                 {
+                    Layer layer = new Layer();
+                    ProjectSettings.preset.addLayer(layer);
                     LayerItem layerItem = new LayerItem(layer);
                     layerItems.Add(layerItem);
                 }
-            }
+                else
+                {
+                    foreach (Layer layer in ProjectSettings.preset.layers)
+                    {
+                        LayerItem layerItem = new LayerItem(layer);
+                        layerItems.Add(layerItem);
+                    }
+                }
 
-            layerListBox.ItemsSource = layerItems;
-            layerListBox.SelectedItem = layerItems.First();
+                layerListBox.ItemsSource = layerItems;
+                layerListBox.SelectedItem = layerItems.First();
+            }
+            
         }
 
         private void layerListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -106,7 +110,7 @@ namespace GCodeConvertor.ProjectForm.LayerElements
 
             Layer layer = new Layer();
 
-            ProjectSettings.preset.addLayer(layer);
+            ProjectSettings.preset.insertLayer(0, layer);
 
             LayerItem layerItem = new LayerItem(layer);
             layerItems.Insert(0, layerItem);

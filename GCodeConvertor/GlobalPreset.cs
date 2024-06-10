@@ -1,4 +1,5 @@
-﻿using Polenter.Serialization;
+﻿using GCodeConvertor.UI;
+using Polenter.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,6 +51,11 @@ namespace GCodeConvertor
             layers.Add(layer);
         }
 
+        public void insertLayer(int position, Layer layer)
+        {
+            layers.Insert(position, layer);
+        }
+
         public Layer getLayerByGuid(string name)
         {
             foreach (Layer layer in layers)
@@ -87,14 +93,17 @@ namespace GCodeConvertor
             {
                 var serializer = new SharpSerializer();
                 serializer.Serialize(this, $"{topology.path}\\{topology.name}.gcd");
-                MessageBox.Show("Пресет успешно сохранён",
-                                "Создание пресета",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
+                //MessageBox.Show("Пресет успешно сохранён",
+                //                "Создание пресета",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Information);
+                MessageWindow messageWindow = new MessageWindow("Проект успешно сохранен!", $"Проект сохранен в файл: \n {topology.path}\\{topology.name}.gcd");
+                messageWindow.ShowDialog();
             }
             catch (Exception ex) 
             {
-                MessageBox.Show(ex.Message);
+                MessageWindow messageWindow = new MessageWindow("Ошибка сохранения проекта!", "Не удалось сохранить проект.");
+                messageWindow.ShowDialog();
             }
         }
 
@@ -109,7 +118,8 @@ namespace GCodeConvertor
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageWindow messageWindow = new MessageWindow("Ошибка загрузки проекта!", "Не удалось загрузить проект.");
+                messageWindow.ShowDialog();
             }
             
         }

@@ -6,7 +6,43 @@
         xmlns:local="clr-namespace:GCodeConvertor.GScript"
         mc:Ignorable="d"
         Title="GScriptWindow" Height="533" Width="637">
-    <Grid>
+    <Window.Resources>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsSelectionActive" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
@@ -21,12 +57,28 @@
 
         <!-- TextBox для номеров строк -->
         <ScrollViewer Grid.Column="0" Grid.Row="0" VerticalScrollBarVisibility="Hidden" Name="lineNumbersScrollViewer">
-            <TextBox x:Name="lineNumbersTextBox" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontSize="16" FontFamily="Arial"/>
+            <TextBox x:Name="lineNumbersTextBox" 
+                     IsReadOnly="True" 
+                     VerticalScrollBarVisibility="Auto" 
+                     TextWrapping="Wrap" 
+                     FontSize="16" 
+                     FontFamily="Arial"
+                     Style="{DynamicResource TextBoxStyle}"
+                     BorderBrush ="{DynamicResource BorderBrush}"
+                     BorderThickness="0,0,1,0"/>
         </ScrollViewer>
 
         <!-- TextBox для текста -->
         <ScrollViewer Grid.Column="1" Grid.Row="0" VerticalScrollBarVisibility="Auto" Name="textScrollViewer" ScrollChanged="textScrollViewer_ScrollChanged">
-            <TextBox x:Name="textBox" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" FontSize="16" FontFamily="Arial" TextChanged="TextBox_TextChanged"/>
+            <TextBox x:Name="textBox" 
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="True" 
+                     VerticalScrollBarVisibility="Auto" 
+                     FontSize="16" FontFamily="Arial" 
+                     TextChanged="TextBox_TextChanged"
+                     Style="{DynamicResource TextBoxStyle}"
+                     BorderBrush ="{DynamicResource BorderBrush}"
+                     BorderThickness="0,0,1,0"/>
         </ScrollViewer>
 
         <Grid Grid.Column="2" Grid.Row="0">
@@ -43,7 +95,18 @@
         </Grid>
 
         <ScrollViewer Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" VerticalScrollBarVisibility="Auto" Name="consoleScroll" ScrollChanged="textScrollViewer_ScrollChanged">
-            <TextBox x:Name="console" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" FontSize="16" FontFamily="Arial" Height="150" IsReadOnly="True"/>
+            <TextBox x:Name="console" 
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="True" 
+                     VerticalScrollBarVisibility="Auto" 
+                     FontSize="16" 
+                     FontFamily="Arial" 
+                     Height="150" 
+                     IsReadOnly="True"
+                     Style="{DynamicResource TextBoxStyle}"
+                     BorderBrush ="{DynamicResource BorderBrush}"
+                     BorderThickness="0,1,0,0"
+                     Padding="5"/>
         </ScrollViewer>
     </Grid>
 </Window>

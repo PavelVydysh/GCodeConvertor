@@ -13,12 +13,12 @@
         Deactivated="Window_Deactivated">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -33,11 +33,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -46,12 +46,12 @@
             </Setter>
         </Style>
         <Style x:Key="CancelButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="15,5"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -70,12 +70,12 @@
             </Setter>
         </Style>
         <Style x:Key="CreateButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource CreateButtonBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="15,5"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource CreateButtonBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CreateButtonBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -93,9 +93,45 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                 BorderBrush="{TemplateBinding BorderBrush}" 
+                 BorderThickness="{TemplateBinding BorderThickness}" 
+                 CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                           Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="TextBlockStyle" TargetType="TextBlock">
-            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
@@ -112,6 +148,15 @@
             <Setter Property="Height" Value="475" />
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
+        <Style x:Key="FileMenuPopupStyle" TargetType="Popup">
+            <Setter Property="Placement" Value="Relative" />
+            <Setter Property="StaysOpen" Value="False" />
+            <Setter Property="AllowsTransparency" Value="True" />
+            <Setter Property="PopupAnimation" Value="Fade" />
+            <Setter Property="Width" Value="auto" />
+            <Setter Property="Height" Value="auto" />
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -119,8 +164,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
-            <Grid Background="{StaticResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
+        <Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Background="{DynamicResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -130,24 +175,149 @@
 
                 <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
                     <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
-                    <TextBlock Text="{Binding topology.name}" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
+                    <StackPanel x:Name="MenuItemsStackPanel" 
+                                Orientation="Horizontal">
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+                            <TextBlock Text="{Binding topology.name}" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,15,0"/>
+                        </Border>
+                        <Button x:Name="FileMenuButton"
+                            Style="{DynamicResource MenuButtonStyle}" 
+                            Width="auto" 
+                            Height="30"
+                            Click="ShowFileMenuPopUp"
+                            Content="Файл"
+                            VerticalAlignment="Center"
+                            Visibility="Visible"
+                            Margin="5,0,0,0">
+                        </Button>
+                        <Popup x:Name="FilePopup" Style="{DynamicResource FileMenuPopupStyle}">
+                            <Border Background="{DynamicResource BackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="5"
+                                    Padding="10">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                                    <Button x:Name="NewProjectMenuButton"
+                                            Style="{DynamicResource MenuButtonStyle}" 
+                                            Width="auto" 
+                                            Height="30"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Visibility="Visible"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="CreateNewProject">
+                                        <Grid HorizontalAlignment="Left">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image Width="16" Height="16" HorizontalAlignment="Left"  Grid.Column="0" Source="pack://application:,,,/Resources/new_project.png"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="Новый проект"
+                                                       HorizontalAlignment="Stretch">
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button>
+                                    <Button x:Name="SaveProjectMenuButton"
+                                            Style="{DynamicResource MenuButtonStyle}" 
+                                            Width="auto" 
+                                            Height="30"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Visibility="Visible"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="SaveProject">
+                                        <Grid HorizontalAlignment="Left">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left"  Source="pack://application:,,,/Resources/save_project.png"/>
+                                            <TextBlock  Grid.Column="1"
+                                                        Text="Сохранить"
+                                                        HorizontalAlignment="Stretch">
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button>
+                                    <Button x:Name="OpenExplorerMenuButton"
+                                            Style="{DynamicResource MenuButtonStyle}" 
+                                            Width="auto" 
+                                            Height="30"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Visibility="Visible"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="OpenProjectExplorer">
+                                        <Grid HorizontalAlignment="Left">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left"  Source="pack://application:,,,/Resources/folder.png"/>
+                                            <TextBlock  Grid.Column="1"
+                                                        Text="Показать в проводнике"
+                                                        HorizontalAlignment="Stretch">  
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button>
+                                    <Button x:Name="CloseProjectMenuButton"
+                                            Style="{DynamicResource MenuButtonStyle}" 
+                                            Width="auto" 
+                                            Height="30"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Stretch"
+                                            Visibility="Visible"
+                                            HorizontalContentAlignment="Stretch"
+                                            Click="CloseProject">
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Image HorizontalAlignment="Left" Width="16" Height="16" Grid.Column="0" Source="pack://application:,,,/Resources/close_project.png"/>
+                                            <TextBlock HorizontalAlignment="Stretch" Grid.Column="1"
+                                                        Text="Закрыть">
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                        <Button x:Name="ProectSettingsMenuButton"
+                                Style="{DynamicResource MenuButtonStyle}" 
+                                Width="auto" 
+                                Height="30"
+                                Content="Настройки проекта"
+                                VerticalAlignment="Center"
+                                Visibility="Visible">
+                        </Button>
+                        <Button x:Name="Project3DMenuButton"
+                                Style="{DynamicResource MenuButtonStyle}" 
+                                Width="auto" 
+                                Height="30"
+                                Content="3D визуализация"
+                                VerticalAlignment="Center"
+                                Visibility="Visible">
+                        </Button>
+                    </StackPanel>
+                   
                 </StackPanel>
 
-                <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
-                <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+                <Button Grid.Column="1" Style="{DynamicResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+                <Button Grid.Column="3" Style="{DynamicResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
             </Grid>
         </Border>
         
         
-        <Grid Grid.Row="1" Background="{StaticResource BackgroundBrush}">
+        <Grid Grid.Row="1" Background="{DynamicResource BackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
                 <Grid Margin="5">
                     <ListBox x:Name="IntrumentListBox" 
-                             Background="{StaticResource BackgroundBrush}" 
+                             Background="{DynamicResource BackgroundBrush}" 
                              BorderThickness="0"
                              Grid.Row="1" Padding="5, 5, 5, 5" 
                              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
@@ -155,8 +325,8 @@
                              ItemsSource="{Binding workspaceInstruments}">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
-                                <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
-                                <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
@@ -168,8 +338,8 @@
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter Property="Background" Value="{StaticResource SelectedBrush}"/>
-                                                    <Setter Property="BorderBrush" Value="{StaticResource SelectedBrush}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -181,7 +351,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="5">
-                                    <Grid Style="{StaticResource InstrumentBlockStyle}" >
+                                    <Grid Style="{DynamicResource InstrumentBlockStyle}" >
                                         <Image Source="{Binding pathToIcon}" Width="22" Height="22"></Image>
                                     </Grid>
                                 </Border>
@@ -190,29 +360,40 @@
                     </ListBox>
                 </Grid>
             </Border>
-            <Grid x:Name="WorkspaceContainer" Grid.Column="1" Background="{StaticResource WorkspaceBrush}" Loaded="WorkspaceContainerLoaded">
+            <Grid x:Name="WorkspaceContainer" Grid.Column="1" Background="{DynamicResource WorkspaceBrush}" Loaded="WorkspaceContainerLoaded">
                 
             </Grid>
         </Grid>
-        <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
-            <Grid Background="{StaticResource BackgroundBrush}">
+        <Border Grid.Row="2" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+            <Grid Background="{DynamicResource BackgroundBrush}">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="2" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать G-код" Margin="0, 0, 10, 0" />
-                <Button x:Name="ShowLayersButton" Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
-                <Popup x:Name="LayersPopup" Style="{StaticResource LayersPopupStyle}">
+                <Button Grid.Column="0" 
+                        Style="{DynamicResource CreateButtonStyle}" 
+                        Height="30" 
+                        Content="G-скрипт" 
+                        Margin="10, 0, 0, 0"
+                        Click="OpenScriptForm"/>
+                <Button Grid.Column="3" 
+                        Style="{DynamicResource CreateButtonStyle}" 
+                        Height="30" 
+                        Content="G-код" 
+                        Margin="0, 0, 10, 0"
+                        Click="CreateGCode"/>
+                <Button x:Name="ShowLayersButton" Grid.Column="2" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
+                <Popup x:Name="LayersPopup" Style="{DynamicResource LayersPopupStyle}">
                     <Border x:Name="LayersContainer"
-                            Background="{StaticResource BackgroundBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
+                            Background="{DynamicResource BackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
                             CornerRadius="5"
                             Padding="10">
-                            
+
                     </Border>
-                    
                 </Popup>
             </Grid>
         </Border>

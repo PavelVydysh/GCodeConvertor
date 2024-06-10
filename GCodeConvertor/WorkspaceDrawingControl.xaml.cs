@@ -294,26 +294,26 @@ namespace GCodeConvertor
 
         private void setupRectangle(int i, int j)
         {
-            int downHeight = 0;
-            int rightWidth = 0;
-            while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
-            {
-                ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
-                rightWidth = 0;
-                while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
-                {
-                    ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
-                    rightWidth++;
-                }
-                downHeight++;
-            }
-            Rectangle rectangleToAdd = new Rectangle();
-            rectangleToAdd.Height = (downHeight) * cellSize;
-            rectangleToAdd.Width = (rightWidth + 1) * cellSize;
-            rectangleToAdd.StrokeThickness = 1;
-            Canvas.SetTop(rectangleToAdd, cellSize * j);
-            Canvas.SetLeft(rectangleToAdd, cellSize * i);
-            rectangles.Add(rectangleToAdd);
+            //int downHeight = 0;
+            //int rightWidth = 0;
+            //while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
+            //{
+            //    ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
+            //    rightWidth = 0;
+            //    while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
+            //    {
+            //        ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
+            //        rightWidth++;
+            //    }
+            //    downHeight++;
+            //}
+            //Rectangle rectangleToAdd = new Rectangle();
+            //rectangleToAdd.Height = (downHeight) * cellSize;
+            //rectangleToAdd.Width = (rightWidth + 1) * cellSize;
+            //rectangleToAdd.StrokeThickness = 1;
+            //Canvas.SetTop(rectangleToAdd, cellSize * j);
+            //Canvas.SetLeft(rectangleToAdd, cellSize * i);
+            //rectangles.Add(rectangleToAdd);
         }
 
         private void initLayer()

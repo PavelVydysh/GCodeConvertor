@@ -12,12 +12,18 @@
     <None Remove="Resources\arrow-up.png" />
     <None Remove="Resources\brush_icon.png" />
     <None Remove="Resources\close-square.png" />
+    <None Remove="Resources\close_menu.png" />
+    <None Remove="Resources\close_project.png" />
     <None Remove="Resources\element-plus.png" />
     <None Remove="Resources\eye-slash.png" />
     <None Remove="Resources\eye.png" />
+    <None Remove="Resources\folder.png" />
     <None Remove="Resources\gcode_logo.ico" />
     <None Remove="Resources\loupe.png" />
+    <None Remove="Resources\menu_button.png" />
     <None Remove="Resources\move_icon.png" />
+    <None Remove="Resources\new_project.png" />
+    <None Remove="Resources\save_project.png" />
     <None Remove="Resources\theme_icon.png" />
     <None Remove="Resources\toggle_combo.png" />
     <None Remove="Resources\zoom_icon.png" />
@@ -46,6 +52,12 @@
     <Resource Include="Resources\close-square.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\close_menu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\close_project.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\element-plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -55,14 +67,26 @@
     <Resource Include="Resources\eye.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\folder.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\gcode_logo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\loupe.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\menu_button.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\move_icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\new_project.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\save_project.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\theme_icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

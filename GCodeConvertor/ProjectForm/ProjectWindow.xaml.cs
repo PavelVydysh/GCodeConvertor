@@ -26,6 +26,9 @@ using System.Windows.Forms.Design;
 using GCodeConvertor.UI;
 using GCodeConvertor.GScript;
 using System.Windows.Controls.Primitives;
+using static System.Net.Mime.MediaTypeNames;
+using System.Diagnostics;
+using System.IO;
 
 namespace GCodeConvertor.ProjectForm
 {
@@ -35,10 +38,9 @@ namespace GCodeConvertor.ProjectForm
     
     public partial class ProjectWindow : Window
     {
-        private enum DrawingStates{
-            SET_START_POINT,
-            DRAWING,
-            SET_END_POINT
+        private enum MenuState{
+            OPEN,
+            CLOSED
         }
 
         private double ELLIPSE_SIZE = 5;
@@ -56,6 +58,9 @@ namespace GCodeConvertor.ProjectForm
 
         LayerStorage storage;
         public ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
+        private MenuState currentMenuState;
+
+
         ObservableCollection<CustomItem> ItemsList { get; set; }
 
         List<Hotkey> hotkeys;
@@ -89,6 +94,8 @@ namespace GCodeConvertor.ProjectForm
             LayerControl layerControl = new LayerControl(wdc);
             LayersContainer.Child = layerControl;
             LayersPopup.IsOpen = true;
+
+            currentMenuState = MenuState.CLOSED;
 
             PreviewKeyUp += Window_KeyUp;
 
@@ -1042,8 +1049,8 @@ namespace GCodeConvertor.ProjectForm
 
         private void Window_Activated(object sender, EventArgs e)
         {
-            SetupPopPlacement();
-            LayersPopup.IsOpen = true;
+            //SetupPopPlacement();
+            //LayersPopup.IsOpen = true;
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -1051,6 +1058,96 @@ namespace GCodeConvertor.ProjectForm
             LayersPopup.IsOpen = false;
         }
 
+        private void ShowFileMenuPopUp(object sender, RoutedEventArgs e)
+        {
+            SetupFilePopPlacement();
+            FilePopup.IsOpen = true;
+        }
+
+        private void SetupFilePopPlacement()
+        {
+            FilePopup.PlacementTarget = WorkspaceContainer;
+            FilePopup.Placement = PlacementMode.Relative;
+            FilePopup.HorizontalOffset = 5;
+            FilePopup.VerticalOffset = 0;
+        }
+
+        private void CreateGCode(object sender, RoutedEventArgs e)
+        {
+            bool isAllEnded = true;
+
+            foreach (Layer layer in ProjectSettings.preset.layers)
+            {
+                if (layer.isEnable)
+                    isAllEnded &= layer.isEnded();
+            }
+
+            if (isAllEnded)
+            {
+                ProjectSettings.preset.layers.Reverse();
+                List<Layer> layersToGenerate = new List<Layer>();
+                foreach (Layer layer in ProjectSettings.preset.layers)
+                {
+                    if (layer.isEnable)
+                        layersToGenerate.Add(layer);
+                }
+
+                //if ((bool)manyCheck.IsChecked)
+                //{
+                //    List<Layer> tempList = new List<Layer>();
+                //    for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
+                //    {
+                //        tempList.AddRange(layersToGenerate);
+                //    }
+                //    layersToGenerate = tempList;
+                //}
+                GCodeGenerator.generate(layersToGenerate);
+                ProjectSettings.preset.layers.Reverse();
+            }
+            else
+            {
+                MessageWindow messageWindow = new MessageWindow("Невозможно сгенерировать G-код!", "Закончите все активные слои для генерации G-код.");
+                messageWindow.ShowDialog();
+            }
+        }
+
+        private void CreateNewProject(object sender, RoutedEventArgs e)
+        {
+            CreateProjectForm createProjectForm = new CreateProjectForm(openProjectForm);
+            createProjectForm.Show();
+            this.Close();
+        }
+
+        private void OpenProjectExplorer(object sender, RoutedEventArgs e)
+        {
+            string folderPath = ProjectSettings.preset.topology.path; 
+
+            if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = folderPath,
+                    UseShellExecute = true,
+                    Verb = "open"
+                });
+            }
+            else
+            {
+                MessageWindow messageWindow = new MessageWindow("Невозможно открыть путь в проводнике!", "Путь не найден или указан неверный путь.");
+                messageWindow.ShowDialog();
+            }
+        }
+
+        private void SaveProject(object sender, RoutedEventArgs e)
+        {
+            ProjectSettings.preset.savePreset();
+        }
+
+        private void CloseProject(object sender, RoutedEventArgs e)
+        {
+            openProjectForm.Visibility = Visibility.Visible;
+            this.Close();
+        }
         //private void dockPanel_Loaded(object sender, RoutedEventArgs e)
         //{
         //    wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
