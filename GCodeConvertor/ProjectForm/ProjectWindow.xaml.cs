@@ -164,7 +164,17 @@ namespace GCodeConvertor.ProjectForm
 
         private void ShowLayersPopup(object sender, RoutedEventArgs e)
         {
+            SetupPopPlacement();
+
             LayersPopup.IsOpen = !LayersPopup.IsOpen;
+        }
+
+        private void SetupPopPlacement()
+        {
+            LayersPopup.PlacementTarget = WorkspaceContainer;
+            LayersPopup.Placement = PlacementMode.Relative;
+            LayersPopup.HorizontalOffset = WorkspaceContainer.ActualWidth - LayersPopup.Width;
+            LayersPopup.VerticalOffset = WorkspaceContainer.ActualHeight - LayersPopup.Height;
         }
 
 
@@ -1032,6 +1042,7 @@ namespace GCodeConvertor.ProjectForm
 
         private void Window_Activated(object sender, EventArgs e)
         {
+            SetupPopPlacement();
             LayersPopup.IsOpen = true;
         }
 

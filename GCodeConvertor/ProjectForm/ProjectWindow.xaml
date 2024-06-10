@@ -104,12 +104,13 @@
             <Setter Property="Margin" Value="10"/>
         </Style>
         <Style x:Key="LayersPopupStyle" TargetType="Popup">
-            <Setter Property="Placement" Value="Top" />
+            <Setter Property="Placement" Value="Relative" />
             <Setter Property="StaysOpen" Value="True" />
             <Setter Property="AllowsTransparency" Value="True" />
             <Setter Property="PopupAnimation" Value="Fade" />
             <Setter Property="Width" Value="325" />
             <Setter Property="Height" Value="475" />
+            <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
     </Window.Resources>
     <Grid>
@@ -201,7 +202,7 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="2" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Создать G-код" Margin="0, 0, 10, 0" />
-                <Button Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
+                <Button x:Name="ShowLayersButton" Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
                 <Popup x:Name="LayersPopup" Style="{StaticResource LayersPopupStyle}">
                     <Border x:Name="LayersContainer"
                             Background="{StaticResource BackgroundBrush}"
