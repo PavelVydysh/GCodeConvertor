@@ -28,11 +28,13 @@ namespace GCodeConvertor.GScript
         CommandReader commandReader;
         WorkspaceDrawingControl workspaceDrawingControl;
         DispatcherCommand dispatcherCommand;
+        ProjectWindow projectWindow;
 
-        public GScriptWindow(WorkspaceDrawingControl workspaceDrawingControl)
+        public GScriptWindow(WorkspaceDrawingControl workspaceDrawingControl, ProjectWindow projectWindow)
         {
             InitializeComponent();
 
+            this.projectWindow = projectWindow;
             this.workspaceDrawingControl = workspaceDrawingControl;
             commandReader = new CommandReader(this);
             dispatcherCommand = new DispatcherCommand(workspaceDrawingControl);
@@ -221,6 +223,7 @@ namespace GCodeConvertor.GScript
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
+            projectWindow.GSWindow = null;
             this.Close();
         }
 

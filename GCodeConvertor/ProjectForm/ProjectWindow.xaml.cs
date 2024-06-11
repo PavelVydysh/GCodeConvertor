@@ -47,6 +47,7 @@ namespace GCodeConvertor.ProjectForm
         public OpenProjectForm openProjectForm;
         public ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
         private MenuState currentMenuState;
+        public GScriptWindow GSWindow = null;
 
         List<Hotkey> hotkeys;
         List<Key> pressedKeys;
@@ -102,7 +103,7 @@ namespace GCodeConvertor.ProjectForm
 
         private void OpenScriptForm(object sender, RoutedEventArgs e)
         {
-            GScriptWindow GSWindow = new GScriptWindow(wdc);
+            GSWindow = new GScriptWindow(wdc, this);
             GSWindow.Show();
         }
 
@@ -318,6 +319,10 @@ namespace GCodeConvertor.ProjectForm
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if(GSWindow is not null)
+            {
+                GSWindow.Close();
+            }
             checkSaving();
         }
 
