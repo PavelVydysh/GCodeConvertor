@@ -32,8 +32,7 @@ namespace GCodeConvertor
         {
             var result = Topology.fillNozzlesAndLayer(model);
             topology = result.topology;
-            layers = new List<Layer>();
-            layers.Add(result.layer);
+            layers = new List<Layer>() { result.layer };
         }
 
         public GlobalPreset(List<Layer> layers, Topology topology) 

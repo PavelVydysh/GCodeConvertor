@@ -21,7 +21,7 @@ namespace GCodeConvertor
         }
         public int HeadIdentationX { get; set; }
         public int HeadIdentationY { get; set; }
-        public int NozzleDiameter { get; set; }
+        public float NozzleDiameter { get; set; }
         public float Accuracy { get; set; } //Точность в миллиметрах
         public float Step { get; set; } // Шаг заполнения в миллиметрах
         public string Shape { get; set; } // форма фигуры точки в миллиметрах

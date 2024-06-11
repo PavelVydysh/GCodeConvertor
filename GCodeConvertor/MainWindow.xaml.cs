@@ -15,6 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using Point = System.Windows.Point;
+
 namespace GCodeConvertor
 {
     /// <summary>
@@ -31,11 +33,34 @@ namespace GCodeConvertor
             setCreateType(new CreateTypeA());
             topologyModel = new TopologyModel();
             this.DataContext = topologyModel;
+
+            Shape shape = new Shape(new List<Point>() { new Point(0,0), new Point(100, 0), new Point(100, 100), new Point(0, 100), new Point(0, 0) });
+            shape.saveShape();
+
+            TensionLines tensionLines = new TensionLines(new List<List<Point>>() { new List<Point>() { new Point(20,0), new Point(20, 100) }, new List<Point>() { new Point(0, 20), new Point(100, 20) } });
+            tensionLines.saveTensionLines();
         }
 
         private void CreateProjectA(object sender, RoutedEventArgs e)
         {
-            createType.create(topologyModel, this);
+            TopologyByLineModel topologyByLine = new TopologyByLineModel();
+            topologyByLine.NameProject = "test";
+            topologyByLine.Step = 100;
+            topologyByLine.TensionLines = "C:\\Users\\vicst\\Documents\\TensionLines.xml";
+            topologyByLine.Shape = "C:\\Users\\vicst\\Documents\\shape.xml";
+            topologyByLine.Accuracy = 1;
+            topologyByLine.HeadIdentationX = 5;
+            topologyByLine.HeadIdentationY = 5;
+            topologyByLine.NozzleDiameter = 1;
+            topologyByLine.PathProject = "C:\\Users\\vicst\\Documents\\";
+
+            GlobalPreset globalPreset = new GlobalPreset(topologyByLine);
+            ProjectSettings.preset = globalPreset;
+
+            ProjectWindow pw = new ProjectWindow();
+            pw.Show();
+            this.Close();
+            //createType.create(topologyModel, this);
         }
 
         void setCreateType(ICreateType createType)

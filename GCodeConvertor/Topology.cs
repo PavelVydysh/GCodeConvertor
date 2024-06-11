@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Animation;
 
+using Point = System.Windows.Point;
+
 namespace GCodeConvertor
 {
     [Serializable]
@@ -112,37 +114,37 @@ namespace GCodeConvertor
 
         }
 
-        public Topology(TopologyByLineModel model, Point[] shape, Point[][] tensionLines) 
+        public Topology(TopologyByLineModel model, List<Point> shape, List<List<Point>> tensionLines) 
         {
             this.name = model.NameProject;
             this.path = model.PathProject;
             this.accuracy = model.Accuracy;
 
             var size = getSizeOfShape(shape);
-            int[,] map = new int[(int)((size.height + model.HeadIdentationY * 2) / accuracy), (int)((size.width + model.HeadIdentationX * 2) / accuracy)];
+            this.map = new int[(int)((size.height + model.HeadIdentationY * 2) / accuracy), (int)((size.width + model.HeadIdentationX * 2) / accuracy)];
 
-            map[0, 0] = 2;
-            map[map.GetUpperBound(0), 0] = 2;
-            map[0, map.GetUpperBound(1)] = 2;
-            map[map.GetUpperBound(0), map.GetUpperBound(1)] = 2;
+            this.map[0, 0] = 2;
+            this.map[this.map.GetUpperBound(0), 0] = 2;
+            this.map[0, this.map.GetUpperBound(1)] = 2;
+            this.map[this.map.GetUpperBound(0), this.map.GetUpperBound(1)] = 2;
 
             for (int i = 0; i < (int)(size.height / accuracy); i++)
             {
                 for (int j = 0; j < (int)(size.width / accuracy); j++)
                 {
-                    map[i + (int)(model.HeadIdentationY / accuracy), j + (int)(model.HeadIdentationX / accuracy)] = 1;
+                    this.map[i + (int)(model.HeadIdentationY / accuracy), j + (int)(model.HeadIdentationX / accuracy)] = 1;
                 }
             }
         }
 
-        private (double width, double height) getSizeOfShape(Point[] points)
+        private (double width, double height) getSizeOfShape(List<Point> points)
         {
-            double minX = 0;
-            double maxX = int.MaxValue;
-            double minY = 0;
-            double maxY = int.MaxValue;
+            double minX = int.MaxValue;
+            double maxX = 0;
+            double minY = int.MaxValue;
+            double maxY = 0;
 
-            for(int i = 0; i < points.Length - 1; i++)
+            for(int i = 0; i < points.Count - 1; i++)
             {
                 minX = Math.Min(minX, points[i].X);
                 maxX = Math.Max(maxX, points[i].X);
@@ -155,28 +157,34 @@ namespace GCodeConvertor
 
         public static (Topology topology, Layer layer) fillNozzlesAndLayer(TopologyByLineModel model)
         {
-            Point[] shape = new Point[1]; // из файла
-            Point[][] tensionLines = {new Point[1], new Point[1], new Point[2]}; // из файла
+            Shape shape = new Shape();
+            shape.loadPreset(model.Shape);
 
-            Topology topology = new Topology(model, shape, tensionLines);
+            TensionLines tensionLines = new TensionLines();
+            tensionLines.loadPreset(model.TensionLines);
+
+            //Point[] shape = new Point[1]; // из файла
+            //Point[][] tensionLines = {new Point[1], new Point[1], new Point[2]}; // из файла
+
+            Topology topology = new Topology(model, shape.points, tensionLines.points);
             Layer layer = new Layer();
             //линии
-            foreach (Point[] line in tensionLines)
+            foreach (List<Point> line in tensionLines.points)
             {
                 makeFigure(topology, layer, model, line);
             }
 
             //форма
-            makeFigure(topology, layer, model, shape);
+            makeFigure(topology, layer, model, shape.points);
 
             //штриховка
-            List<Point> hatchingPoints = GetHatchingPoints(shape.ToList(), model.Step);
-            makeFigure(topology, layer, model, hatchingPoints.ToArray());
+            List<Point> hatchingPoints = GetHatchingPoints(shape.points, model.Step);
+            makeFigure(topology, layer, model, hatchingPoints);
 
             return (topology, layer);
         }
 
-        private static void makeFigure(Topology topology, Layer layer, TopologyByLineModel model, Point[] shape)
+        private static void makeFigure(Topology topology, Layer layer, TopologyByLineModel model, List<Point> shape)
         {
             List<Point> route = new List<Point>();
 
@@ -188,18 +196,25 @@ namespace GCodeConvertor
 
             Point start = findNearestToStart(startPoints, shape[0]);
 
-            layer.layerThread.Add(start);
-            for (int i = 0; i < shape.Length -1; i++) 
+            route.Add(start);
+            for (int i = 0; i < shape.Count; i++) 
             {
-                layer.layerThread.Add(shape[i]);
+                route.Add(new Point(shape[i].X + model.HeadIdentationX, shape[i].Y + model.HeadIdentationY));
             }
             Point pointForNozzle;
-            for( int i = 1; i < route.Count -2; i++)
+            for( int i = 1; i < route.Count -1; i++)
             {
-                pointForNozzle = getPointForNozzle(shape[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
-                //TODO поставить иглу, а то я не понял
+                pointForNozzle = getPointForNozzle(route[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
+                for(int x = (int)(pointForNozzle.X - model.NozzleDiameter / 2); x < (int)(pointForNozzle.X + model.NozzleDiameter / 2); x++)
+                {
+                    for (int y = (int)(pointForNozzle.Y - model.NozzleDiameter / 2); y < (int)(pointForNozzle.Y + model.NozzleDiameter / 2); y++)
+                    {
+                        topology.map[x, y] = 3;
+                    }
+                }
             }
-            layer.layerThread.Add(start);
+            route.Add(start);
+            layer.layerThread.AddRange(route);
         }
 
 
@@ -219,10 +234,10 @@ namespace GCodeConvertor
             return bisectorAngle;
         }
 
-        private static Point getPointForNozzle(Point point, double angle, int nozzleDiameter) 
+        private static Point getPointForNozzle(Point point, double angle, float nozzleDiameter) 
         {
             //вообще не уверен
-            int nozzleHalf = nozzleDiameter/2;
+            int nozzleHalf = (int)nozzleDiameter / 2;
             if (-Math.PI / 8 <= angle && angle < Math.PI / 8) 
             {
                 return new Point(point.X + nozzleHalf, point.Y);
