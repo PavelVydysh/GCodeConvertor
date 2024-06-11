@@ -97,33 +97,26 @@ namespace GCodeConvertor
             workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
-            workspaceCanvas.PreviewMouseMove += changeToolTipValue;
+            positionGrid.PreviewMouseMove += changeToolTipValue;
             workspaceCanvas.MouseWheel += element_MouseWheel;
-            workspaceCanvas.MouseEnter += element_MouseEnter;
-            workspaceCanvas.MouseLeave += element_MouseLeave;
+            positionGrid.MouseEnter += element_MouseEnter;
+            positionGrid.MouseLeave += element_MouseLeave;
             this.KeyDown += element_KeyDown;
         }
 
         private void element_MouseEnter(object sender, MouseEventArgs e)
         {
-            var mousePosition = e.GetPosition(workspaceCanvas);
-            positionToolTip.HorizontalOffset = mousePosition.X + 5;
-            positionToolTip.VerticalOffset = mousePosition.Y + 5;
-
-            if (!positionToolTip.IsOpen)
-            {
-                positionToolTip.IsOpen = true;
-            }
+            positionPopup.IsOpen = true;
+            updatePopupPosition(e);
         }
 
         private void element_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (positionToolTip.IsOpen)
+            if (positionPopup.IsOpen)
             {
-                positionToolTip.IsOpen = false;
+                positionPopup.IsOpen = false;
             }
         }
-
 
         private void changeToolTipValue(object sender, MouseEventArgs e)
         {
@@ -132,11 +125,16 @@ namespace GCodeConvertor
             xValue.Text = getThreadValueByTopologyValue(currentTopologyX).ToString();
             yValue.Text = getThreadValueByTopologyValue(currentTopologyY).ToString();
 
-            positionToolTip.IsOpen = true;
+            positionPopup.IsOpen = true;
 
-            var mousePosition = e.GetPosition(workspaceCanvas);
-            positionToolTip.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
-            positionToolTip.VerticalOffset = mousePosition.Y + 5;
+            updatePopupPosition(e);
+        }
+
+        private void updatePopupPosition(MouseEventArgs e)
+        {
+            var mousePosition = e.GetPosition(positionGrid);
+            positionPopup.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
+            positionPopup.VerticalOffset = mousePosition.Y + 5;
         }
 
         private void executeInstrument(EventType eventType, object sender, EventArgs e)
