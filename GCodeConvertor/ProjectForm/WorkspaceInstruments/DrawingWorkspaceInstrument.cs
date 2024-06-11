@@ -117,6 +117,10 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void mouseMoveOnCanvas(Canvas canvas, MouseEventArgs e)
         {
+            if (selectingRectangle == null)
+            {
+                return;
+            }
             if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.RightButton == MouseButtonState.Pressed)
             {
                 Point currentPoint = e.GetPosition(workspaceDrawingControl.workspaceCanvas);
@@ -346,19 +350,10 @@ namespace GCodeConvertor.WorkspaceInstruments
                 isDraggingEllipse = false;
                 point.ReleaseMouseCapture();
 
-                if (workspaceDrawingControl.topology.map[newTopologyX, newTopologyY] == 3 || workspaceDrawingControl.topology.map[newTopologyX, newTopologyY] == 4)
-                {
-                    MessageWindow messageWindow = new MessageWindow("Невозможно поставить точку на иглу!", 
-                        "Перемещение точки доступно только на клетки платформы, либо на область вокруг платформы.");
-                    messageWindow.ShowDialog();
-                    workspaceDrawingControl.repaint();
-                    return;
-                }
-
                 int index = workspaceDrawingControl.activeLayer.getThreadPoint(startDraggingPoint);
-                workspaceDrawingControl.activeLayer.changeThreadPoint(new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY)), index);
+                bool changeResult = workspaceDrawingControl.activeLayer.changeThreadPoint(new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY)), index);
                 int selectedIndex = workspaceDrawingControl.activeLayer.getSelectedThreadPoint(startDraggingPoint);
-                if (selectedIndex != -1)
+                if (selectedIndex != -1 && changeResult)
                 {
                     workspaceDrawingControl.activeLayer.selectedThread[selectedIndex] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
                 }

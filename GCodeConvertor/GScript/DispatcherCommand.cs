@@ -36,6 +36,7 @@ namespace GCodeConvertor.GScript
 
         public List<Point> buildScript(string[] commands, Point lastPoint)
         {
+            List<Point> tempPoints = new List<Point>();
             List<Point> points = new List<Point>();
             Point prevPoint = lastPoint;
             Point currentPoint;
@@ -83,15 +84,16 @@ namespace GCodeConvertor.GScript
                 }
                 else if (executableCommand is DrawCommand || executableCommand is NoStartDrawCommand)
                 {
-                    if (points.Count != 0)
+                    if (points.Count == 0)
                     {
-                        points.InsertRange(0, pWindow.activeLayer.thread);
+                        tempPoints.InsertRange(0, pWindow.activeLayer.thread);
                         //pWindow.addDrawingPointsToActiveLayer(points);
                     }
-                    List<Point> retPoints = executableCommand.execute(prevPoint, 0, pWindow.activeLayer.thread);
+                    List<Point> retPoints = executableCommand.execute(prevPoint, 0, tempPoints);
                     foreach (Point p in retPoints)
                     {
                         points.Add(p);
+                        tempPoints.Add(p);
                     }
                     currentPoint = retPoints[retPoints.Count - 1];
                 }

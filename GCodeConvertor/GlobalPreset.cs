@@ -20,10 +20,6 @@ namespace GCodeConvertor
     [XmlInclude(typeof(Layer))]
     public class GlobalPreset
     {
-        [XmlIgnore]
-        public static int topologyWidth;
-        [XmlIgnore]
-        public static int topologyHeight;
         public List<Layer> layers {get; set;}
 
         private Topology _topology;
@@ -31,8 +27,6 @@ namespace GCodeConvertor
             get { return _topology; } 
             set {
                 _topology = value;
-                topologyWidth = value.map.GetLength(0);
-                topologyHeight = value.map.GetLength(1);
             } 
         }
 
@@ -48,6 +42,23 @@ namespace GCodeConvertor
         {
             this.topology = topology;
             this.layers = layers;
+        }
+
+        public bool isPointTopologyCorrect(Point topologyPoint)
+        {
+            if(topologyPoint.X >= topology.map.GetLength(0) || topologyPoint.X < 0)
+            {
+                return false;
+            }
+            if (topologyPoint.Y >= topology.map.GetLength(1) || topologyPoint.Y < 0)
+            {
+                return false;
+            }
+            if (topology.map[(int)topologyPoint.X, (int)topologyPoint.Y] == 3 || topology.map[(int)topologyPoint.X, (int)topologyPoint.Y] == 4)
+            {
+                return false;
+            }
+            return true;
         }
 
         public void addLayer(Layer layer)

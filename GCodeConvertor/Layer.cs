@@ -75,7 +75,7 @@ namespace GCodeConvertor
 
         public void addThreadPoint(Point point)
         {
-            if (!isPointCorrect(point))
+            if (!ProjectSettings.preset.isPointTopologyCorrect(new Point(getTopologyValueByThreadValue(point.X), getTopologyValueByThreadValue(point.Y))))
                 return;
             changeHistory();
             thread.Add(point);
@@ -86,22 +86,17 @@ namespace GCodeConvertor
             List<Point> addingPoints = new List<Point>();
             foreach (Point point in points)
             {
-                if (!isPointCorrect(point))
+                if (!ProjectSettings.preset.isPointTopologyCorrect(new Point(getTopologyValueByThreadValue(point.X), getTopologyValueByThreadValue(point.Y))))
                     return;
                 addingPoints.Add(point);
             }
             changeHistory();
             thread.AddRange(addingPoints);
-
         }
 
-        private bool isPointCorrect(Point point)
+        private double getTopologyValueByThreadValue(double threadValue)
         {
-            if (point.X < 0 || point.X > GlobalPreset.topologyWidth)
-                return false;
-            if (point.Y < 0 || point.Y > GlobalPreset.topologyHeight)
-                return false;
-            return true;
+            return threadValue - 0.5;
         }
 
         public void removeThreadPoint(Point point) 
@@ -125,12 +120,13 @@ namespace GCodeConvertor
             }
             selectedThread.Clear();
         }
-        public void changeThreadPoint(Point newPoint, int position)
+        public bool changeThreadPoint(Point newPoint, int position)
         {
-            if (!isPointCorrect(newPoint))
-                return;
+            if (!ProjectSettings.preset.isPointTopologyCorrect(new Point(getTopologyValueByThreadValue(newPoint.X), getTopologyValueByThreadValue(newPoint.Y))))
+                return false;
             changeHistory();
             thread[position] = newPoint;
+            return true;
         }
 
         public void removeRangeThreadPoint(int index, int count)
