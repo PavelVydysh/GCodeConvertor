@@ -97,10 +97,10 @@ namespace GCodeConvertor
             workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
-            positionGrid.PreviewMouseMove += changeToolTipValue;
+            workspaceCanvas.PreviewMouseMove += changeToolTipValue;
             workspaceCanvas.MouseWheel += element_MouseWheel;
-            positionGrid.MouseEnter += element_MouseEnter;
-            positionGrid.MouseLeave += element_MouseLeave;
+            workspaceCanvas.MouseEnter += element_MouseEnter;
+            workspaceCanvas.MouseLeave += element_MouseLeave;
             this.KeyDown += element_KeyDown;
         }
 

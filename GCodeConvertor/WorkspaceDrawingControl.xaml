@@ -15,19 +15,18 @@
             <Setter Property="Height" Value="auto"/>
         </Style>
     </UserControl.Resources>
-    <Grid x:Name="positionGrid" Height="auto" Width="auto">
+    <Grid x:Name="positionGrid">
         <ScrollViewer  VerticalScrollBarVisibility="Auto" 
            HorizontalScrollBarVisibility="Auto" 
            Height="auto" Width="auto">
             <Grid x:Name="WorkPlace" Height="auto" Width="auto"
-       MouseWheel="element_MouseWheel"
-       MouseLeftButtonDown="element_MouseLeftButtonDown"
-       MouseLeftButtonUp="element_MouseLeftButtonUp"
-       MouseMove="element_MouseMove" >
+                   MouseWheel="element_MouseWheel"
+                   MouseLeftButtonDown="element_MouseLeftButtonDown"
+                   MouseLeftButtonUp="element_MouseLeftButtonUp"
+                   MouseMove="element_MouseMove" >
                 <Canvas x:Name="WorkspaceCanvas" 
- Background="Transparent" 
- Width="800" Height="800"
- ToolTipService.ShowDuration="2147483647" ToolTipService.InitialShowDelay="0">
+                         Background="Transparent" 
+                         Width="800" Height="800">
 
                 </Canvas>
             </Grid>
