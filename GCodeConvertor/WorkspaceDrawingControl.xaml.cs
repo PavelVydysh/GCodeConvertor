@@ -36,10 +36,10 @@ namespace GCodeConvertor
         private static SolidColorBrush WORKSPACE_NEEDLE_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceNeedleBrush"];
         private static SolidColorBrush WORKSPACE_PLATFORM_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspacePlatformBrush"];
 
-        private static Color POINT_COLOR = Colors.Red;
-        public const double ELLIPSE_SIZE = 5;
-        private static Color LINE_COLOR = Colors.Red;
-        private const double LINE_SIZE = 2;
+        public static Color POINT_COLOR = Colors.Red;
+        public static double ELLIPSE_SIZE = 5;
+        public static Color LINE_COLOR = Colors.Red;
+        public static double LINE_SIZE = 2;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private static Color CONFLICT_LINE_COLOR = Colors.Gray;
 
@@ -126,7 +126,7 @@ namespace GCodeConvertor
             deleteCustomItems();
             if (activeLayer.isStarted())
             {
-                initSpringLines();
+                //initSpringLines();
             }
             initLayer();
         }
@@ -155,24 +155,24 @@ namespace GCodeConvertor
             }
         }
 
-        private void drawPredictedPoint(double  x, double y)
-        {
-            Ellipse drawingPoint = setupPredictEllipse();
-            ellipses.Add(drawingPoint);
-            Canvas.SetLeft(drawingPoint, x - ELLIPSE_SIZE / 2);
-            Canvas.SetTop(drawingPoint, y - ELLIPSE_SIZE / 2);
-            workspaceCanvas.Children.Add(drawingPoint);
-        }
+        //private void drawPredictedPoint(double  x, double y)
+        //{
+        //    Ellipse drawingPoint = setupPredictEllipse();
+        //    ellipses.Add(drawingPoint);
+        //    Canvas.SetLeft(drawingPoint, x - ELLIPSE_SIZE / 2);
+        //    Canvas.SetTop(drawingPoint, y - ELLIPSE_SIZE / 2);
+        //    workspaceCanvas.Children.Add(drawingPoint);
+        //}
 
-        private Ellipse setupPredictEllipse()
-        {
-            Ellipse ellipse = new Ellipse();
-            ellipse.Tag = getCustomElementTag();
-            ellipse.Height = PREDICTED_ELLIPSE_SIZE;
-            ellipse.Width = PREDICTED_ELLIPSE_SIZE;
-            ellipse.Fill = new SolidColorBrush(PREDICTED_ELLIPSE_COLOR);
-            return ellipse;
-        }
+        //private Ellipse setupPredictEllipse()
+        //{
+        //    Ellipse ellipse = new Ellipse();
+        //    ellipse.Tag = getCustomElementTag();
+        //    ellipse.Height = PREDICTED_ELLIPSE_SIZE;
+        //    ellipse.Width = PREDICTED_ELLIPSE_SIZE;
+        //    ellipse.Fill = new SolidColorBrush(PREDICTED_ELLIPSE_COLOR);
+        //    return ellipse;
+        //}
 
         private void drawPredictedLine(double startX, double startY, double endX, double endY)
         {
@@ -232,6 +232,9 @@ namespace GCodeConvertor
         {
             cellSize = (double)(workspaceCanvas.Height / (topology.map.GetLength(1) > topology.map.GetLength(0) ? topology.map.GetLength(1) : topology.map.GetLength(0)));
 
+            ELLIPSE_SIZE = PREDICTED_LINE_SIZE = cellSize / 2;
+            LINE_SIZE = PREDICTED_LINE_SIZE = cellSize / 4;
+
             for (int topologyX = 0; topologyX < topology.map.GetLength(0); topologyX++)
             {
                 for (int topologyY = 0; topologyY < topology.map.GetLength(1); topologyY++)
@@ -241,19 +244,20 @@ namespace GCodeConvertor
                     Canvas.SetLeft(cell, cellSize * topologyX);
                     Canvas.SetTop(cell, cellSize * topologyY);
 
+                    if (topology.map[topologyX, topologyY] == 3)
+                        setupRectangle(topologyX, topologyY);
+
                     workspaceCanvas.Children.Add(cell);
                 }
             }
 
-            for (int i = 0; i < topology.map.GetUpperBound(1) + 1; i++)
+            for (int i = 0; i < topology.map.GetLength(0); i++)
             {
-                for (int j = 0; j < topology.map.GetUpperBound(0) + 1; j++)
+                for (int j = 0; j < topology.map.GetLength(1); j++)
                 {
-                    if (topology.map[j, i] == 4) topology.map[j, i] = 3;
+                    if (topology.map[i, j] == 4) topology.map[i, j] = 3;
                 }
             }
-            //ItemsList.Add(new CustomItem(activeLayer.name, "12"));
-            //layerListBox.SelectedIndex = 0;
         }
 
         private Rectangle setupCell(int cellType, int topologyX, int topologyY)
@@ -279,7 +283,6 @@ namespace GCodeConvertor
                 {
                     setupRectangle(topologyX, topologyY);
                 }
-                
                 needles.Add(cell);
             }
             else
@@ -294,26 +297,26 @@ namespace GCodeConvertor
 
         private void setupRectangle(int i, int j)
         {
-            //int downHeight = 0;
-            //int rightWidth = 0;
-            //while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
-            //{
-            //    ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
-            //    rightWidth = 0;
-            //    while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
-            //    {
-            //        ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
-            //        rightWidth++;
-            //    }
-            //    downHeight++;
-            //}
-            //Rectangle rectangleToAdd = new Rectangle();
-            //rectangleToAdd.Height = (downHeight) * cellSize;
-            //rectangleToAdd.Width = (rightWidth + 1) * cellSize;
-            //rectangleToAdd.StrokeThickness = 1;
-            //Canvas.SetTop(rectangleToAdd, cellSize * j);
-            //Canvas.SetLeft(rectangleToAdd, cellSize * i);
-            //rectangles.Add(rectangleToAdd);
+            int downHeight = 0;
+            int rightWidth = 0;
+            while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
+            {
+                ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
+                rightWidth = 0;
+                while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
+                {
+                    ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
+                    rightWidth++;
+                }
+                downHeight++;
+            }
+            Rectangle rectangleToAdd = new Rectangle();
+            rectangleToAdd.Height = (downHeight) * cellSize;
+            rectangleToAdd.Width = (rightWidth + 1) * cellSize;
+            rectangleToAdd.StrokeThickness = 1;
+            Canvas.SetTop(rectangleToAdd, cellSize * j);
+            Canvas.SetLeft(rectangleToAdd, cellSize * i);
+            rectangles.Add(rectangleToAdd);
         }
 
         private void initLayer()
@@ -348,6 +351,17 @@ namespace GCodeConvertor
                     conflictLines.Add(currentLine);
                 }
 
+                Line tempLine = null;
+
+                if (pointIndex != pointLastIndex)
+                {
+                    tempLine = drawLine(
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].X),
+                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].Y));
+                }
+
                 oldEllipse = currentEllipse;
                 currentEllipse = drawPoint(
                     getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
@@ -359,14 +373,7 @@ namespace GCodeConvertor
                     customLineStorage.addLine(new CustomLine(currentLine, oldEllipse, currentEllipse));
                 }
 
-                if (pointIndex != pointLastIndex)
-                {
-                    currentLine = drawLine(
-                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].X),
-                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex].Y),
-                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].X),
-                        getDrawingValueByThreadValue(activeLayer.thread[pointIndex + 1].Y));
-                }
+                currentLine = tempLine;
             }
             //ДОБАВИТЬ ПЕРЕМЕННУЮ ДЛЯ АВТОКОНФЛИКТОВ
             if(false)
@@ -737,7 +744,7 @@ namespace GCodeConvertor
                 {
 
                     Boolean isBlock = false;
-                    foreach (System.Windows.Shapes.Rectangle rectangle in rectangles)
+                    foreach (Rectangle rectangle in rectangles)
                     {
                         Point rectangleCenter = new Point(Canvas.GetLeft(rectangle) + rectangle.Width / 2, Canvas.GetTop(rectangle) + rectangle.Height / 2);
                         double distance = FindDistanceToSegment(rectangleCenter, subdividedRoute[i], subdividedRoute[i + 2]);

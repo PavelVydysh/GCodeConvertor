@@ -22,19 +22,45 @@ namespace GCodeConvertor.UI
     {
         public string title { get; set; }
         public string body { get; set; }
+        public string okButtonText { get; set; }
+        public string cancelButtonText { get; set; }
+        public bool resultMessageClick { get; set; }
+
 
         public MessageWindow(string title, string body)
         {
+            InitializeComponent();
+
             this.title = title;
             this.body = body;
+            this.okButtonText = "Ок";
 
-            InitializeComponent();
+            CancelButton.Visibility = Visibility.Collapsed;
 
             DataContext = this;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public MessageWindow(string title, string body, string okButtonText, string cancelButtonText)
         {
+            InitializeComponent();
+
+            this.title = title;
+            this.body = body;
+            this.cancelButtonText = cancelButtonText;
+            this.okButtonText = okButtonText;
+
+            DataContext = this;
+        }
+
+        private void CancelClick(object sender, RoutedEventArgs e)
+        {
+            resultMessageClick = false;
+            Close();
+        }
+
+        private void OkClick(object sender, RoutedEventArgs e)
+        {
+            resultMessageClick = true;
             Close();
         }
     }

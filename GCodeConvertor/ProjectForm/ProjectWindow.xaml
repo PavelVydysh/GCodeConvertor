@@ -10,7 +10,8 @@
         Icon="pack://application:,,,/Resources/gcode_logo.ico"
         SizeChanged="WindowSizeChanged"
         Activated="Window_Activated"
-        Deactivated="Window_Deactivated">
+        Deactivated="Window_Deactivated"
+        Closing="Window_Closing">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
@@ -146,7 +147,14 @@
             <Setter Property="PopupAnimation" Value="Fade" />
             <Setter Property="Width" Value="325" />
             <Setter Property="Height" Value="475" />
-            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="GCodePopupStyle" TargetType="Popup">
+            <Setter Property="Placement" Value="Relative" />
+            <Setter Property="StaysOpen" Value="True" />
+            <Setter Property="AllowsTransparency" Value="True" />
+            <Setter Property="PopupAnimation" Value="Fade" />
+            <Setter Property="Width" Value="auto" />
+            <Setter Property="Height" Value="auto" />
         </Style>
         <Style x:Key="FileMenuPopupStyle" TargetType="Popup">
             <Setter Property="Placement" Value="Relative" />
@@ -256,7 +264,7 @@
                                             <Image Grid.Column="0" Width="16" Height="16" HorizontalAlignment="Left"  Source="pack://application:,,,/Resources/folder.png"/>
                                             <TextBlock  Grid.Column="1"
                                                         Text="Показать в проводнике"
-                                                        HorizontalAlignment="Stretch">  
+                                                        HorizontalAlignment="Stretch">
                                             </TextBlock>
                                         </Grid>
                                     </Button>
@@ -300,15 +308,15 @@
                                 Visibility="Visible">
                         </Button>
                     </StackPanel>
-                   
+
                 </StackPanel>
 
                 <Button Grid.Column="1" Style="{DynamicResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
                 <Button Grid.Column="3" Style="{DynamicResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
             </Grid>
         </Border>
-        
-        
+
+
         <Grid Grid.Row="1" Background="{DynamicResource BackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80"/>
@@ -360,8 +368,9 @@
                     </ListBox>
                 </Grid>
             </Border>
-            <Grid x:Name="WorkspaceContainer" Grid.Column="1" Background="{DynamicResource WorkspaceBrush}" Loaded="WorkspaceContainerLoaded">
-                
+            <Grid x:Name="WorkspaceContainer" Grid.Column="1" Background="{DynamicResource WorkspaceBrush}" 
+                  Loaded="WorkspaceContainerLoaded">
+
             </Grid>
         </Grid>
         <Border Grid.Row="2" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
@@ -383,7 +392,38 @@
                         Height="30" 
                         Content="G-код" 
                         Margin="0, 0, 10, 0"
-                        Click="CreateGCode"/>
+                        Click="OpenGcodePopup"/>
+                <Popup x:Name="GCodePopup" Style="{DynamicResource GCodePopupStyle}">
+                    <Border Background="{DynamicResource BackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" 
+                                       Text="Настройки формирования G-код" 
+                                       Style="{DynamicResource TextBlockStyle}"
+                                       Margin="0,0,5,0"/>
+                            <Grid Grid.Row="1"
+                                  Margin="0,0,5,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                            </Grid>
+                            <Button  Grid.Row="2" 
+                                     Style="{DynamicResource CreateButtonStyle}" 
+                                     Height="30" 
+                                     Content="Сформировать"
+                                     Click="OpenGcodePopup"/>
+                        </Grid>
+                    </Border>
+                </Popup>
                 <Button x:Name="ShowLayersButton" Grid.Column="2" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
                 <Popup x:Name="LayersPopup" Style="{DynamicResource LayersPopupStyle}">
                     <Border x:Name="LayersContainer"
@@ -397,50 +437,5 @@
                 </Popup>
             </Grid>
         </Border>
-
-
     </Grid>
-    
-    
-    <!--<DockPanel Name="dockPanel" LastChildFill="True" Loaded="dockPanel_Loaded">
-        <Menu Height="25"  VerticalAlignment="Top" Background="Gray" DockPanel.Dock="Top">
-            <Menu.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <DockPanel HorizontalAlignment="Stretch"/>
-                </ItemsPanelTemplate>
-            </Menu.ItemsPanel>
-            <MenuItem Header="File" Click="MenuItem_Click">
-                <MenuItem Header="New Project" ></MenuItem>
-                <MenuItem Header="Open Project" Click="MenuItem_Click_1" ></MenuItem>
-                <Separator />
-                <MenuItem Header="Exit"></MenuItem>
-            </MenuItem>
-            <MenuItem Header="Menu" Click="openMenu" HorizontalAlignment="Right"></MenuItem>
-        </Menu>
-        <ScrollViewer   DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Width="100" Background="LightGray">
-            <ListBox x:Name="instrumentItemsList">
-
-
-            </ListBox>
-        </ScrollViewer>
-        <ScrollViewer Name="RightMenu" DockPanel.Dock="Right" RenderTransformOrigin="1,1" Panel.ZIndex="9999" Width="250">
-            <Canvas Height="1038" Width="250" Background="White">
-                <Button Content="Отобразить в 3D" Width="184" Canvas.Left="19" Canvas.Top="22" HorizontalAlignment="Center" VerticalAlignment="Center" Height="41" Click="Button_Click_2"/>
-                <Button Content="Сохранить пресет" Height="46" Canvas.Left="19" Canvas.Top="68" Width="184" Click="Button_Click"/>
-                <Button Content="Генерировать Gcode" Height="45" Canvas.Left="20" Canvas.Top="119" Width="184" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Button_Click_1"/>
-                <CheckBox Name="manyCheck" Content="Многослойная" Canvas.Left="61" Canvas.Top="190" Checked="manyCheck_Checked" Unchecked="manyCheck_Unchecked"/>
-                <Label Content="Множитель" Canvas.Left="34" Canvas.Top="212" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <TextBox Name="layerZ_Count" IsEnabled="False" Canvas.Left="110" TextWrapping="Wrap" Text="" Canvas.Top="216" Width="93" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                <Canvas x:Name="putMeHere" Height="691" Width="183" HorizontalAlignment="Center" Canvas.Top="243" VerticalAlignment="Top" Canvas.Left="20">
-
-                </Canvas>
-                <Button Content="SCR" Width="33" Canvas.Left="19" Canvas.Top="171" Height="41" Click="OpenScriptForm" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            </Canvas>
-        </ScrollViewer>
-
-
-
-
-
-    </DockPanel>-->
 </Window>

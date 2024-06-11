@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Polenter.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,23 +13,24 @@ using Point = System.Windows.Point;
 namespace GCodeConvertor
 {
     [Serializable]
-    [System.Xml.Serialization.XmlInclude(typeof(Point))]
+    [XmlInclude(typeof(Point))]
+    [XmlInclude(typeof(Guid))]
     public class Layer
     {
         public const string DEFAULT_NAME = "Без имени";
         public const float DEFAULT_HEIGHT = 12;
 
-        public Guid guid { get; }
+        public Guid guid { get; set; }
         public string name { get; set; }
         public float height { get; set; }
         public List<Point> thread { get; set; }
         public bool isEnable { get; set; }
 
-        [XmlIgnore]
+        [ExcludeFromSerialization]
         public List<Point> selectedThread { get; set; }
-        [XmlIgnore]
+        [ExcludeFromSerialization]
         public Stack<List<Point>> historyBack { get; set; }
-        [XmlIgnore]
+        [ExcludeFromSerialization]
         public Stack<List<Point>> historyForward { get; set; }
 
         public Layer(string name, float height)
@@ -166,7 +168,7 @@ namespace GCodeConvertor
             {
                 return false;
             }
-            return (this.guid.Equals(((Layer)obj).guid));
+            return (guid.Equals(((Layer)obj).guid) && thread.SequenceEqual(((Layer)obj).thread));
         }
 
         public int getThreadPoint(Point point)

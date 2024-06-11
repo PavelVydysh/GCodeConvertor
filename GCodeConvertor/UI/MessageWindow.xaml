@@ -108,8 +108,8 @@
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
-                    <!--<Button Style="{StaticResource CancelButtonStyle}" Height="30" Content="Отмена" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>-->
-                    <Button Style="{DynamicResource CreateButtonStyle}" Height="30" Width="60" Content="Ок" Margin="0, 0, 0, 0" Click="Button_Click" />
+                    <Button x:Name="CancelButton" Style="{StaticResource CancelButtonStyle}" Height="30" Content="{Binding cancelButtonText}" Margin="0, 0, 15, 0" Click="CancelClick"/>
+                    <Button x:Name="OkButton" Style="{DynamicResource CreateButtonStyle}" Height="30" Content="{Binding okButtonText}" Margin="0, 0, 0, 0" Click="OkClick" />
                 </StackPanel>
             </Grid>
         </Grid>

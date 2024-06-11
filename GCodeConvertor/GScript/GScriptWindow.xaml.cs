@@ -1,4 +1,5 @@
 ﻿using GCodeConvertor.ProjectForm;
+using GCodeConvertor.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -216,6 +217,24 @@ namespace GCodeConvertor.GScript
                 textBox.Text += "\n";
             }
             textBox.Text += "РИСУНОК;";
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void MoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void HideWindow(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
         }
     }
 }

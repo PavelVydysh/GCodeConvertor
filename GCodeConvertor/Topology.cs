@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,11 @@ namespace GCodeConvertor
         }
 
         public Topology() { }
+
+        public string getFullPath()
+        {
+            return Path.Combine(path, name) + ".gcd";
+        }
 
         private int[,] generate(TopologyModel model)
         {
@@ -73,6 +79,5 @@ namespace GCodeConvertor
                 }
             }
         }
-
     }
 }

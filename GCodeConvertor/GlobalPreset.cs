@@ -2,6 +2,7 @@
 using Polenter.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Printing;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Shapes;
 using System.Xml.Serialization;
 
 namespace GCodeConvertor
@@ -18,7 +20,9 @@ namespace GCodeConvertor
     [XmlInclude(typeof(Layer))]
     public class GlobalPreset
     {
+        [XmlIgnore]
         public static int topologyWidth;
+        [XmlIgnore]
         public static int topologyHeight;
         public List<Layer> layers {get; set;}
 
@@ -122,6 +126,24 @@ namespace GCodeConvertor
                 messageWindow.ShowDialog();
             }
             
+        }
+
+        public bool checkIsActualSaved()
+        {
+            try
+            {
+                var serializer = new SharpSerializer();
+                GlobalPreset tempPreset = (GlobalPreset)serializer.Deserialize(topology.getFullPath());
+                if(layers.SequenceEqual(tempPreset.layers))
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return false;
         }
     }
 }

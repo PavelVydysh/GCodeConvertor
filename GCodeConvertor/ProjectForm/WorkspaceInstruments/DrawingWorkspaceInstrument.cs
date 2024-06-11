@@ -16,7 +16,7 @@ using Ellipse = System.Windows.Shapes.Ellipse;
 using Color = System.Windows.Media.Color;
 using Point = System.Windows.Point;
 using System.Windows.Forms.VisualStyles;
-
+using GCodeConvertor.UI;
 
 namespace GCodeConvertor.WorkspaceInstruments
 {
@@ -30,7 +30,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             END
         }
 
-        private const string END_STATE_MESSAGE = "Слой является законченным";
+        private const string END_STATE_MESSAGE = "Слой является законченным!";
         private static Color POINT_COLOR = Colors.Red;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private const double ELLIPSE_SIZE = 5;
@@ -91,8 +91,19 @@ namespace GCodeConvertor.WorkspaceInstruments
             Line pressedLine = line;
             CustomLine customLine = workspaceDrawingControl.customLineStorage.getLineByInnerLine(pressedLine);
 
-            double threadX = getThreadValueByTopologyValue((int)Math.Floor(x / workspaceDrawingControl.cellSize));
-            double threadY = getThreadValueByTopologyValue((int)Math.Floor(y / workspaceDrawingControl.cellSize));
+            int topologyX = (int)Math.Floor(x / workspaceDrawingControl.cellSize);
+            int topologyY = (int)Math.Floor(y / workspaceDrawingControl.cellSize);
+
+            if (workspaceDrawingControl.topology.map[topologyX, topologyY] == 3 || workspaceDrawingControl.topology.map[topologyX, topologyY] == 4)
+            {
+                MessageWindow messageWindow = new MessageWindow("Невозможно добавить точку на иглу!",
+                    "Добавление точки доступно только на клетки платформы, либо на область вокруг платформы.");
+                messageWindow.ShowDialog();
+                return;
+            }
+
+            double threadX = getThreadValueByTopologyValue(topologyX);
+            double threadY = getThreadValueByTopologyValue(topologyY);
 
             Point point = new Point(threadX, threadY);
 
@@ -329,10 +340,21 @@ namespace GCodeConvertor.WorkspaceInstruments
         {
             if (isDraggingEllipse)
             {
-                isDraggingEllipse = false;
-                point.ReleaseMouseCapture();
                 int newTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
                 int newTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
+
+                isDraggingEllipse = false;
+                point.ReleaseMouseCapture();
+
+                if (workspaceDrawingControl.topology.map[newTopologyX, newTopologyY] == 3 || workspaceDrawingControl.topology.map[newTopologyX, newTopologyY] == 4)
+                {
+                    MessageWindow messageWindow = new MessageWindow("Невозможно поставить точку на иглу!", 
+                        "Перемещение точки доступно только на клетки платформы, либо на область вокруг платформы.");
+                    messageWindow.ShowDialog();
+                    workspaceDrawingControl.repaint();
+                    return;
+                }
+
                 int index = workspaceDrawingControl.activeLayer.getThreadPoint(startDraggingPoint);
                 workspaceDrawingControl.activeLayer.changeThreadPoint(new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY)), index);
                 int selectedIndex = workspaceDrawingControl.activeLayer.getSelectedThreadPoint(startDraggingPoint);
@@ -341,8 +363,6 @@ namespace GCodeConvertor.WorkspaceInstruments
                     workspaceDrawingControl.activeLayer.selectedThread[selectedIndex] = new Point(getThreadValueByTopologyValue(newTopologyX), getThreadValueByTopologyValue(newTopologyY));
                 }
                 workspaceDrawingControl.repaint();
-                //clearTable();
-                //repaintTable();
                 return;
             }
 
@@ -370,7 +390,8 @@ namespace GCodeConvertor.WorkspaceInstruments
             }
             else
             {
-                MessageBox.Show("Внутренняя ошибка");
+                MessageWindow messageWindow = new MessageWindow("Внутренняя ошибка!", "Возникла непредвиденная ошибка, перезапустите приложение.");
+                messageWindow.ShowDialog();
             }
 
             isDraggingEllipse = true;
@@ -416,8 +437,8 @@ namespace GCodeConvertor.WorkspaceInstruments
             switch (currentDrawingState)
             {
                 case DrawingStates.CONFLICT:
-                    MessageBoxResult result = MessageBox.Show("На указанном маршруте обнаружен конфликт: траектория сопла проходит через иглу.\n Нажмите \"Отмена\", чтобы вернуть траекторию в исходное состояние.\n" +
-                                                     "Нажмите \"Ок\" для решения конфликта вручную.", "Конфликт", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+                    MessageWindow messageConflictWindow = new MessageWindow("Обнаружен конфликт!", "На пути движения укладчика нити обнаружен конфликт. \nНеобходимо решить конфликт вручную, либо воспользоваться функцией автоматического решения конфликтов.");
+                    messageConflictWindow.ShowDialog();
                     break;
                 case DrawingStates.START:
                     if (cellType == 2) {
@@ -430,7 +451,8 @@ namespace GCodeConvertor.WorkspaceInstruments
                         }
                         else
                         {
-                            MessageBox.Show("Стартовая точка текущего слоя не совпадает со стартовыми точками других слоев.", "Недопустимая стартовая точка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageWindow messageStartPointWindow = new MessageWindow("Недопустимая стартовая точка!", "Стартовая точка текущего слоя не совпадает со стартовыми точками других слоев.");
+                            messageStartPointWindow.ShowDialog();
                         }
                     }
                     break; 
@@ -440,7 +462,8 @@ namespace GCodeConvertor.WorkspaceInstruments
                     }
                     break;
                 case DrawingStates.END:
-                    MessageBox.Show(END_STATE_MESSAGE);
+                    MessageWindow messageEndWindow = new MessageWindow(END_STATE_MESSAGE, "Невозможно добавить новую точку, слой закончен.");
+                    messageEndWindow.ShowDialog();
                     break;
             }
         }
@@ -462,56 +485,9 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void drawLine(int currentTopologyX, int currentTopologyY)
         {
-            //double previousDrawingX = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().X);
-            //double previousDrawingY = getDrawingValueByThreadValue(workspaceDrawingControl.activeLayer.thread.Last().Y);
-
-            //double currentDrawingX = getDrawingValueByTopologyValue(currentTopologyX);
-            //double currentDrawingY = getDrawingValueByTopologyValue(currentTopologyY);
-
-            //if (isLineCrossTheNeedles(new Point(previousDrawingX, previousDrawingY), new Point(currentDrawingX, currentDrawingY)))
-            //{
-            //    return;
-            //}
-
-            //Line line = setupLine();
-            //line.X1 = previousDrawingX;
-            //line.Y1 = previousDrawingY;
-            //line.X2 = currentDrawingX;
-            //line.Y2 = currentDrawingY;
-
-            //workspaceDrawingControl.workspaceCanvas.Children.Add(line);
-
-            //Ellipse ellipse = drawPoint(currentDrawingX, currentDrawingY);
-
-            //if (workspaceDrawingControl.ellipses.Count >= 2)
-            //{
-            //    workspaceDrawingControl.customLineStorage.addLine(new CustomLine(line, workspaceDrawingControl.ellipses[workspaceDrawingControl.ellipses.Count - 2], ellipse));
-            //}                
-
-            //if (isLineCrossTheNeedles(new Point(previousDrawingX, previousDrawingY), new Point(currentDrawingX, currentDrawingY)))
-            //{
-            //    return;
-            //}
-
             workspaceDrawingControl.activeLayer.addThreadPoint(new Point(getThreadValueByTopologyValue(currentTopologyX), getThreadValueByTopologyValue(currentTopologyY)));
             workspaceDrawingControl.repaint();
         }
-
-        //private bool isLineCrossTheNeedles(Point previousPoint, Point currentPoint)
-        //{
-        //    LineGeometry lineGeometry = new LineGeometry(previousPoint, currentPoint);
-
-        //    foreach (Rectangle needle in workspaceDrawingControl.needles)
-        //    {
-        //        RectangleGeometry rectangleGeometry = new RectangleGeometry(
-        //            new Rect(Canvas.GetLeft(needle), Canvas.GetTop(needle), needle.Width, needle.Height));
-        //        if (lineGeometry.FillContainsWithDetail(rectangleGeometry) != IntersectionDetail.Empty)
-        //        {
-        //            return true;
-        //        }
-        //    }
-        //    return false;
-        //}
 
     }
 }
