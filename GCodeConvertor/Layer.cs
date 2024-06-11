@@ -96,7 +96,7 @@ namespace GCodeConvertor
 
         private double getTopologyValueByThreadValue(double threadValue)
         {
-            return threadValue - 0.5;
+            return (int)Math.Floor(threadValue / ProjectSettings.preset.topology.accuracy);
         }
 
         public void removeThreadPoint(Point point) 

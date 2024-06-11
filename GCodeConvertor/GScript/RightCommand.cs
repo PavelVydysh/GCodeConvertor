@@ -14,7 +14,7 @@ namespace GCodeConvertor.GScript
 
         }
 
-        public override List<Point> execute(Point prevPoint, int steps, List<Point> points = null)
+        public override List<Point> execute(Point prevPoint, double steps, List<Point> points = null)
         {
             List<Point> pointsRet = new List<Point>();
             pointsRet.Add(new Point(prevPoint.X + steps, prevPoint.Y));

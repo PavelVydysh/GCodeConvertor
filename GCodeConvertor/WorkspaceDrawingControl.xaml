@@ -5,7 +5,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GCodeConvertor"
              mc:Ignorable="d">
-
+    <UserControl.Resources>
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Placement" Value="Relative"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{TemplateBinding Padding}"
+                CornerRadius="5">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <ScrollViewer  VerticalScrollBarVisibility="Auto" 
                HorizontalScrollBarVisibility="Auto" 
                Height="auto" Width="auto">
@@ -14,7 +37,23 @@
               MouseLeftButtonDown="element_MouseLeftButtonDown"
               MouseLeftButtonUp="element_MouseLeftButtonUp"
               MouseMove="element_MouseMove" >
-            <Canvas x:Name="WorkspaceCanvas" Background="Transparent" Width="800" Height="800"/>
+            <Canvas x:Name="WorkspaceCanvas" 
+                    Background="Transparent" 
+                    Width="800" Height="800"
+                    ToolTipService.ShowDuration="2147483647" ToolTipService.InitialShowDelay="0">
+                <Canvas.ToolTip>
+                    <ToolTip x:Name="positionToolTip">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="xValue" Grid.Column="0" FontSize="12" Margin="0,0,5,0"/>
+                            <TextBlock x:Name="yValue" Grid.Column="1" FontSize="12"/>
+                        </Grid>
+                    </ToolTip>
+                </Canvas.ToolTip>
+            </Canvas>
         </Grid>
     </ScrollViewer>
 </UserControl>

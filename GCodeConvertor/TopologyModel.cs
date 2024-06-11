@@ -196,9 +196,9 @@ namespace GCodeConvertor
                         }
                         break;
                     case "Accuracy":
-                        if (double.IsNegative(Accuracy) || !double.IsNormal(Accuracy))
+                        if (!isPowerOfTwo(Accuracy) || Accuracy > 4)
                         {
-                            error = "Неверное значение точности";
+                            error = "Значение точности должно быть не больше 4, либо быть степенью двойки";
                         }
                         break;
 
@@ -218,6 +218,11 @@ namespace GCodeConvertor
                 return error;
             }
             
+        }
+        private bool isPowerOfTwo(float value)
+        {
+            double log = Math.Log(Math.Abs(value), 2);
+            return (log % 1) == 0;
         }
     }
 }

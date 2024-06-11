@@ -68,7 +68,7 @@ namespace GCodeConvertor.GScript
 
                     if (isInt)
                     {
-                        List<Point> retPoints = executableCommand.execute(prevPoint, secondInteger);
+                        List<Point> retPoints = executableCommand.execute(prevPoint, secondInteger * (ProjectSettings.preset.topology.accuracy / 2));
                         currentPoint = retPoints[retPoints.Count - 1];
 
                     }

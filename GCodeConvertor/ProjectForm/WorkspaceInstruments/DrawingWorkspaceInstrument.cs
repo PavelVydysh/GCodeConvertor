@@ -463,19 +463,14 @@ namespace GCodeConvertor.WorkspaceInstruments
             }
         }
 
-        private double getDrawingValueByTopologyValue(int topologyValue)
-        {
-            return topologyValue * workspaceDrawingControl.cellSize + workspaceDrawingControl.cellSize / 2.0;
-        }
-
         private double getDrawingValueByThreadValue(double threadValue)
         {
-            return threadValue * workspaceDrawingControl.cellSize;
+            return threadValue / ProjectSettings.preset.topology.accuracy * workspaceDrawingControl.cellSize;
         }
 
         private double getThreadValueByTopologyValue(double topologyValue)
         {
-            return topologyValue + 0.5;
+            return topologyValue * ProjectSettings.preset.topology.accuracy + ProjectSettings.preset.topology.accuracy / 2;
         }
 
         private void drawLine(int currentTopologyX, int currentTopologyY)

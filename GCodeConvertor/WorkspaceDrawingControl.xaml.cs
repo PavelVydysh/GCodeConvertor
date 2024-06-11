@@ -97,9 +97,48 @@ namespace GCodeConvertor
             workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
+            workspaceCanvas.PreviewMouseMove += changeToolTipValue;
             workspaceCanvas.MouseWheel += element_MouseWheel;
+            workspaceCanvas.MouseEnter += element_MouseEnter;
+            workspaceCanvas.MouseLeave += element_MouseLeave;
             this.KeyDown += element_KeyDown;
         }
+
+        private void element_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var mousePosition = e.GetPosition(workspaceCanvas);
+            positionToolTip.HorizontalOffset = mousePosition.X + 5;
+            positionToolTip.VerticalOffset = mousePosition.Y + 5;
+
+            if (!positionToolTip.IsOpen)
+            {
+                positionToolTip.IsOpen = true;
+            }
+        }
+
+        private void element_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (positionToolTip.IsOpen)
+            {
+                positionToolTip.IsOpen = false;
+            }
+        }
+
+
+        private void changeToolTipValue(object sender, MouseEventArgs e)
+        {
+            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceCanvas).X / cellSize);
+            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceCanvas).Y / cellSize);
+            xValue.Text = getThreadValueByTopologyValue(currentTopologyX).ToString();
+            yValue.Text = getThreadValueByTopologyValue(currentTopologyY).ToString();
+
+            positionToolTip.IsOpen = true;
+
+            var mousePosition = e.GetPosition(workspaceCanvas);
+            positionToolTip.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
+            positionToolTip.VerticalOffset = mousePosition.Y + 5;
+        }
+
         private void executeInstrument(EventType eventType, object sender, EventArgs e)
         {
             if (workspaceIntrument is not null)
@@ -459,7 +498,7 @@ namespace GCodeConvertor
 
         private double getThreadValueByTopologyValue(double topologyValue)
         {
-            return topologyValue + 0.5;
+            return topologyValue * ProjectSettings.preset.topology.accuracy + ProjectSettings.preset.topology.accuracy / 2;
         }
 
         private ConflictResolver findConflictResolver(double fX, double fY, double sX, double sY)
@@ -873,7 +912,7 @@ namespace GCodeConvertor
 
         private double getDrawingValueByThreadValue(double threadValue)
         {
-            return threadValue * cellSize;
+            return threadValue / ProjectSettings.preset.topology.accuracy * cellSize;
         }
 
         private void Canvas_Loaded(object sender, RoutedEventArgs e)
