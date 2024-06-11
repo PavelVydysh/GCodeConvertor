@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCodeConvertor.UI;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -52,10 +53,8 @@ namespace GCodeConvertor
                 await writer.WriteLineAsync(gcode);
             }
 
-            MessageBox.Show($"GCode сгенерирован и помещён в файл. \n {pathToFile}",
-                                "Создание GCode`а",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information);
+            MessageWindow messageWindow = new MessageWindow("G-код сформирован!", $"G-код сформирован и помещён в файл. \n {pathToFile}");
+            messageWindow.ShowDialog();
         }
     }
 }

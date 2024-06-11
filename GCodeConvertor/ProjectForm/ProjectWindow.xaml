@@ -144,7 +144,7 @@
             <Setter Property="Placement" Value="Relative" />
             <Setter Property="StaysOpen" Value="True" />
             <Setter Property="AllowsTransparency" Value="True" />
-            <Setter Property="PopupAnimation" Value="Fade" />
+            <Setter Property="PopupAnimation" Value="Slide" />
             <Setter Property="Width" Value="325" />
             <Setter Property="Height" Value="475" />
         </Style>
@@ -152,9 +152,9 @@
             <Setter Property="Placement" Value="Relative" />
             <Setter Property="StaysOpen" Value="True" />
             <Setter Property="AllowsTransparency" Value="True" />
-            <Setter Property="PopupAnimation" Value="Fade" />
-            <Setter Property="Width" Value="auto" />
-            <Setter Property="Height" Value="auto" />
+            <Setter Property="PopupAnimation" Value="Slide" />
+            <Setter Property="Width" Value="325"/>
+            <Setter Property="Height" Value="200"/>
         </Style>
         <Style x:Key="FileMenuPopupStyle" TargetType="Popup">
             <Setter Property="Placement" Value="Relative" />
@@ -164,6 +164,22 @@
             <Setter Property="Width" Value="auto" />
             <Setter Property="Height" Value="auto" />
             <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="0,5,0,1.5"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CreateButtonBrush}"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Window.Resources>
     <Grid>
@@ -393,37 +409,6 @@
                         Content="G-код" 
                         Margin="0, 0, 10, 0"
                         Click="OpenGcodePopup"/>
-                <Popup x:Name="GCodePopup" Style="{DynamicResource GCodePopupStyle}">
-                    <Border Background="{DynamicResource BackgroundBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="5"
-                            Padding="10">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" 
-                                       Text="Настройки формирования G-код" 
-                                       Style="{DynamicResource TextBlockStyle}"
-                                       Margin="0,0,5,0"/>
-                            <Grid Grid.Row="1"
-                                  Margin="0,0,5,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
-                                </Grid.ColumnDefinitions>
-                            </Grid>
-                            <Button  Grid.Row="2" 
-                                     Style="{DynamicResource CreateButtonStyle}" 
-                                     Height="30" 
-                                     Content="Сформировать"
-                                     Click="OpenGcodePopup"/>
-                        </Grid>
-                    </Border>
-                </Popup>
                 <Button x:Name="ShowLayersButton" Grid.Column="2" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
                 <Popup x:Name="LayersPopup" Style="{DynamicResource LayersPopupStyle}">
                     <Border x:Name="LayersContainer"
@@ -433,6 +418,38 @@
                             CornerRadius="5"
                             Padding="10">
 
+                    </Border>
+                </Popup>
+                <Popup x:Name="GCodePopup" Style="{DynamicResource GCodePopupStyle}" PlacementTarget="{Binding ElementName=WorkspaceContainer}">
+                    <Border Background="{DynamicResource BackgroundBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1"
+            CornerRadius="5"
+            Padding="10">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" 
+                       Text="Настройки формирования G-код" 
+                       Style="{DynamicResource TextBlockStyle}"
+                       Margin="0,0,5,0" HorizontalAlignment="Center"/>
+                            <Grid Grid.Row="1" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Множитель слоев:" Style="{DynamicResource TextBlockStyle}" Margin="0,0,5,0"/>
+                                <TextBox Grid.Column="1" x:Name="layerFactor" Style="{DynamicResource TextBoxStyle}" Text="1" TextChanged="FactorChanged"/>
+                            </Grid>
+                            <Button  Grid.Row="2" 
+                                     Style="{DynamicResource CreateButtonStyle}" 
+                                     Height="30" 
+                                     Content="Сформировать"
+                                     Click="CreateGCode"/>
+                        </Grid>
                     </Border>
                 </Popup>
             </Grid>

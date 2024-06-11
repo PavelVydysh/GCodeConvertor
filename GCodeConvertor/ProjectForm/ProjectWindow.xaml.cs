@@ -141,22 +141,36 @@ namespace GCodeConvertor.ProjectForm
         {
             SetupPopPlacement();
 
-            LayersPopup.IsOpen = !LayersPopup.IsOpen;
+            if(LayersPopup.IsOpen && GCodePopup.IsOpen)
+            {
+                LayersPopup.IsOpen = false;
+                GCodePopup.HorizontalOffset = WorkspaceContainer.ActualWidth - GCodePopup.Width;
+                GCodePopup.VerticalOffset = WorkspaceContainer.ActualHeight - GCodePopup.Height;
+            }else if(!LayersPopup.IsOpen && GCodePopup.IsOpen)
+            {
+                LayersPopup.IsOpen = true;
+                SetupGcodePopPlacement();
+            }
+            else
+            {
+                LayersPopup.IsOpen = !LayersPopup.IsOpen;
+            } 
         }
 
         private void OpenGcodePopup(object sender, RoutedEventArgs e)
         {
             SetupGcodePopPlacement();
+            SetupPopPlacement();
 
-            LayersPopup.IsOpen = false;
-            GCodePopup.IsOpen = true;
+            LayersPopup.IsOpen = LayersPopup.IsOpen || !GCodePopup.IsOpen;
+            GCodePopup.IsOpen = !GCodePopup.IsOpen;
         }
 
         private void SetupGcodePopPlacement()
         {
             GCodePopup.PlacementTarget = WorkspaceContainer;
             GCodePopup.Placement = PlacementMode.Relative;
-            GCodePopup.HorizontalOffset = WorkspaceContainer.ActualWidth - GCodePopup.Width;
+            GCodePopup.HorizontalOffset = WorkspaceContainer.ActualWidth - LayersPopup.Width - GCodePopup.Width;
             GCodePopup.VerticalOffset = WorkspaceContainer.ActualHeight - GCodePopup.Height;
         }
 
@@ -191,6 +205,7 @@ namespace GCodeConvertor.ProjectForm
         private void WindowSizeChanged(object sender, SizeChangedEventArgs e)
         {
             LayersPopup.IsOpen = false;
+            GCodePopup.IsOpen = false;
         }
 
         private void Window_Activated(object sender, EventArgs e)
@@ -202,6 +217,7 @@ namespace GCodeConvertor.ProjectForm
         private void Window_Deactivated(object sender, EventArgs e)
         {
             LayersPopup.IsOpen = false;
+            GCodePopup.IsOpen = false;
         }
 
         private void ShowFileMenuPopUp(object sender, RoutedEventArgs e)
@@ -238,15 +254,20 @@ namespace GCodeConvertor.ProjectForm
                         layersToGenerate.Add(layer);
                 }
 
-                //if ((bool)manyCheck.IsChecked)
-                //{
-                //    List<Layer> tempList = new List<Layer>();
-                //    for (int i = 0; i < int.Parse(layerZ_Count.Text); i++)
-                //    {
-                //        tempList.AddRange(layersToGenerate);
-                //    }
-                //    layersToGenerate = tempList;
-                //}
+                List<Layer> tempList = new List<Layer>();
+                for (int i = 0; i < int.Parse(layerFactor.Text); i++)
+                {
+                    tempList.AddRange(layersToGenerate);
+                }
+                layersToGenerate = tempList;
+
+                if(layersToGenerate.Count == 0)
+                {
+                    MessageWindow messageWindow = new MessageWindow("Невозможно сгенерировать G-код!", "Не найдено активных слоев для формирования G-код.");
+                    messageWindow.ShowDialog();
+                    return;
+                }
+
                 GCodeGenerator.generate(layersToGenerate);
                 ProjectSettings.preset.layers.Reverse();
             }
@@ -313,6 +334,18 @@ namespace GCodeConvertor.ProjectForm
             }
         }
 
+        private void FactorChanged(object sender, TextChangedEventArgs e)
+        {
+            int factorValue;
+            if (int.TryParse(layerFactor.Text, out factorValue))
+            {
+                if (factorValue > 0)
+                {
+                    return;
+                }
+            }
+            layerFactor.Text = "1";
+        }
     }
 
     public class InstrumentButtonInfo
