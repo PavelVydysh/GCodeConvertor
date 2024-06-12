@@ -10,7 +10,8 @@
         Title="Новый проект"
         Icon="pack://application:,,,/Resources/gcode_logo.ico"
         Background="Transparent" AllowsTransparency="true"
-        StateChanged="Window_StateChanged"> 
+        StateChanged="Window_StateChanged"
+        WindowStartupLocation="CenterScreen"> 
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>

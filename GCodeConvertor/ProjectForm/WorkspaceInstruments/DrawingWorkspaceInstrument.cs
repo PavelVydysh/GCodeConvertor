@@ -117,6 +117,11 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void mouseMoveOnCanvas(Canvas canvas, MouseEventArgs e)
         {
+            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).X / workspaceDrawingControl.cellSize);
+            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceDrawingControl.workspaceCanvas).Y / workspaceDrawingControl.cellSize);
+            workspaceDrawingControl.CurrentThreadXPosition = getThreadValueByTopologyValue(currentTopologyX).ToString();
+            workspaceDrawingControl.CurrentThreadYPosition = getThreadValueByTopologyValue(currentTopologyY).ToString();
+
             if (selectingRectangle == null)
             {
                 return;

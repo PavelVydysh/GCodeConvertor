@@ -14,11 +14,13 @@
     <None Remove="Resources\close-square.png" />
     <None Remove="Resources\close_menu.png" />
     <None Remove="Resources\close_project.png" />
+    <None Remove="Resources\conflict_icon.png" />
     <None Remove="Resources\element-plus.png" />
     <None Remove="Resources\eye-slash.png" />
     <None Remove="Resources\eye.png" />
     <None Remove="Resources\folder.png" />
     <None Remove="Resources\gcode_logo.ico" />
+    <None Remove="Resources\line_block_icon.png" />
     <None Remove="Resources\loupe.png" />
     <None Remove="Resources\menu_button.png" />
     <None Remove="Resources\move_icon.png" />
@@ -58,6 +60,9 @@
     <Resource Include="Resources\close_project.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\conflict_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\element-plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -72,6 +77,9 @@
     </Resource>
     <Resource Include="Resources\gcode_logo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\line_block_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\loupe.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

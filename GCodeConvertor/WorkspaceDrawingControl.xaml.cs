@@ -23,13 +23,15 @@ using GCodeConvertor.WorkspaceInstruments;
 using static System.Windows.Forms.LinkLabel;
 using GCodeConvertor.AutoConflicts;
 using System.Diagnostics;
+using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace GCodeConvertor
 {
     /// <summary>
     /// Логика взаимодействия для WorkspaceDrawingControl.xaml
     /// </summary>
-    public partial class WorkspaceDrawingControl : UserControl
+    public partial class WorkspaceDrawingControl : UserControl, INotifyPropertyChanged
     {
         private static SolidColorBrush WORKSPACE_START_POINT_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceStartPointBrush"];
         private static SolidColorBrush WORKSPACE_BACKGROUND_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceBackgroundBrush"];
@@ -52,7 +54,9 @@ namespace GCodeConvertor
         // Константы имён элементов
         private const string WORKSPACE_CANVAS_NAME = "WorkspaceCanvas";
         private const string CUSTOM_ELEMENT_TAG = "custom";
-        
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         // Элементы UI элементов рабочей области
         public Canvas workspaceCanvas { get; }
         
@@ -71,6 +75,33 @@ namespace GCodeConvertor
         public WorkspaceInstrument workspaceIntrument { get; set; }
         public bool areAnyConflictsHere { get; set; }
 
+        private string currentThreadXPosition;
+        public string CurrentThreadXPosition {
+            get { return currentThreadXPosition; }
+            set
+            {
+                if (currentThreadXPosition != value)
+                {
+                    currentThreadXPosition = value;
+                    OnPropertyChanged("CurrentThreadXPosition");
+                }
+            }
+        }
+        private string currentThreadYPosition;
+
+        public string CurrentThreadYPosition
+        {
+            get { return currentThreadYPosition; }
+            set
+            {
+                if (currentThreadYPosition != value)
+                {
+                    currentThreadYPosition = value;
+                    OnPropertyChanged("CurrentThreadYPosition");
+                }
+            } 
+        }
+
         public WorkspaceDrawingControl(Topology topology)
         {
             InitializeComponent();
@@ -87,6 +118,14 @@ namespace GCodeConvertor
             customLineStorage = new CustomLineStorage();
         }
 
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
         private void setupWorkspaceCanvasEvents()
         {
             workspaceCanvas.Loaded += Canvas_Loaded;
@@ -97,45 +136,45 @@ namespace GCodeConvertor
             workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
-            workspaceCanvas.PreviewMouseMove += changeToolTipValue;
+            //workspaceCanvas.PreviewMouseMove += changeToolTipValue;
             workspaceCanvas.MouseWheel += element_MouseWheel;
-            workspaceCanvas.MouseEnter += element_MouseEnter;
-            workspaceCanvas.MouseLeave += element_MouseLeave;
+            //workspaceCanvas.MouseEnter += element_MouseEnter;
+            //workspaceCanvas.MouseLeave += element_MouseLeave;
             this.KeyDown += element_KeyDown;
         }
 
-        private void element_MouseEnter(object sender, MouseEventArgs e)
-        {
-            positionPopup.IsOpen = true;
-            updatePopupPosition(e);
-        }
+        //private void element_MouseEnter(object sender, MouseEventArgs e)
+        //{
+        //    positionPopup.IsOpen = true;
+        //    updatePopupPosition(e);
+        //}
 
-        private void element_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (positionPopup.IsOpen)
-            {
-                positionPopup.IsOpen = false;
-            }
-        }
+        //private void element_MouseLeave(object sender, MouseEventArgs e)
+        //{
+        //    if (positionPopup.IsOpen)
+        //    {
+        //        positionPopup.IsOpen = false;
+        //    }
+        //}
 
-        private void changeToolTipValue(object sender, MouseEventArgs e)
-        {
-            int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceCanvas).X / cellSize);
-            int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceCanvas).Y / cellSize);
-            xValue.Text = getThreadValueByTopologyValue(currentTopologyX).ToString();
-            yValue.Text = getThreadValueByTopologyValue(currentTopologyY).ToString();
+        //private void changeToolTipValue(object sender, MouseEventArgs e)
+        //{
+        //    int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceCanvas).X / cellSize);
+        //    int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceCanvas).Y / cellSize);
+        //    xValue.Text = getThreadValueByTopologyValue(currentTopologyX).ToString();
+        //    yValue.Text = getThreadValueByTopologyValue(currentTopologyY).ToString();
 
-            positionPopup.IsOpen = true;
+        //    positionPopup.IsOpen = true;
 
-            updatePopupPosition(e);
-        }
+        //    updatePopupPosition(e);
+        //}
 
-        private void updatePopupPosition(MouseEventArgs e)
-        {
-            var mousePosition = e.GetPosition(positionGrid);
-            positionPopup.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
-            positionPopup.VerticalOffset = mousePosition.Y + 5;
-        }
+        //private void updatePopupPosition(MouseEventArgs e)
+        //{
+        //    var mousePosition = e.GetPosition(positionGrid);
+        //    positionPopup.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
+        //    positionPopup.VerticalOffset = mousePosition.Y + 5;
+        //}
 
         private void executeInstrument(EventType eventType, object sender, EventArgs e)
         {
@@ -161,11 +200,29 @@ namespace GCodeConvertor
             ellipses.Clear();
             conflictLines.Clear();
             deleteCustomItems();
-            if (activeLayer.isStarted())
+            if (activeLayer.isStarted() && checkRubberBandStatus())
             {
-                //initSpringLines();
+                initSpringLines();
             }
             initLayer();
+        }
+
+        private bool checkRubberBandStatus()
+        {
+            if(Settings.Default.RubberBand == "On")
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool checkAutoConflictsStatus()
+        {
+            if(Settings.Default.ConflictResolving == "Auto")
+            {
+                return true;
+            }
+            return false;
         }
 
         private void initSpringLines()
@@ -316,10 +373,10 @@ namespace GCodeConvertor
             else if (cellType == 3 || cellType == 4)
             {
                 cell.Fill = WORKSPACE_NEEDLE_BRUSH;
-                if (cellType == 3)
-                {
-                    setupRectangle(topologyX, topologyY);
-                }
+                //if (cellType == 3)
+                //{
+                //    setupRectangle(topologyX, topologyY);
+                //}
                 needles.Add(cell);
             }
             else
@@ -336,17 +393,20 @@ namespace GCodeConvertor
         {
             int downHeight = 0;
             int rightWidth = 0;
-            while (ProjectSettings.preset.topology.map[j + downHeight, i] == 3)
+
+            while (ProjectSettings.preset.topology.map[i, j + rightWidth] == 3)
             {
-                ProjectSettings.preset.topology.map[j + downHeight, i] = 4;
+                ProjectSettings.preset.topology.map[i, j + downHeight] = 4;
+
                 rightWidth = 0;
-                while (ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] == 3)
+                while (ProjectSettings.preset.topology.map[i + rightWidth + 1, j + downHeight] == 3)
                 {
-                    ProjectSettings.preset.topology.map[j + downHeight, i + rightWidth + 1] = 4;
-                    rightWidth++;
+                    ProjectSettings.preset.topology.map[i + rightWidth + 1, j + downHeight] = 4;
+                    rightWidth++;   
                 }
                 downHeight++;
             }
+
             Rectangle rectangleToAdd = new Rectangle();
             rectangleToAdd.Height = (downHeight) * cellSize;
             rectangleToAdd.Width = (rightWidth + 1) * cellSize;
@@ -412,8 +472,7 @@ namespace GCodeConvertor
 
                 currentLine = tempLine;
             }
-            //ДОБАВИТЬ ПЕРЕМЕННУЮ ДЛЯ АВТОКОНФЛИКТОВ
-            if(false)
+            if(checkAutoConflictsStatus())
             {
                 if(conflictLines.Count > 0)
                 {
@@ -691,9 +750,9 @@ namespace GCodeConvertor
                 if (isInsert)
                 {
                     Point leftTop = new Point(Canvas.GetLeft(block) - cellSize / 2, Canvas.GetTop(block) - cellSize / 2);
-                    Point rightTop = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) - cellSize / 2);
-                    Point rightDown = new Point(Canvas.GetLeft(block) + block.Width, Canvas.GetTop(block) + block.Height);
-                    Point leftDown = new Point(Canvas.GetLeft(block) - cellSize / 2, Canvas.GetTop(block) + block.Height);
+                    Point rightTop = new Point(Canvas.GetLeft(block) + block.Width + cellSize / 2, Canvas.GetTop(block) - cellSize / 2);
+                    Point rightDown = new Point(Canvas.GetLeft(block) + block.Width + cellSize / 2, Canvas.GetTop(block) + block.Height + cellSize / 2);
+                    Point leftDown = new Point(Canvas.GetLeft(block) - cellSize / 2, Canvas.GetTop(block) + block.Height + cellSize / 2);
 
                     Point[] segment = new Point[i - sigmentStart];
                     Array.Copy(route, sigmentStart, segment, 0, i - sigmentStart);

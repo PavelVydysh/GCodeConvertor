@@ -43,11 +43,12 @@ namespace GCodeConvertor.ProjectForm
             CLOSED
         }
 
-        public WorkspaceDrawingControl wdc;
+        public WorkspaceDrawingControl wdc { get; set; }
         public OpenProjectForm openProjectForm;
         public ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
         private MenuState currentMenuState;
         public GScriptWindow GSWindow = null;
+        public string projectName { get; set; }
 
         List<Hotkey> hotkeys;
         List<Key> pressedKeys;
@@ -58,9 +59,11 @@ namespace GCodeConvertor.ProjectForm
 
             InitializeComponent();
 
-            this.DataContext = ProjectSettings.preset;
-
             wdc = new WorkspaceDrawingControl(ProjectSettings.preset.topology);
+            projectName = ProjectSettings.preset.topology.name;
+
+            DataContext = this;
+
             workspaceInstruments = new ObservableCollection<InstrumentButtonInfo>();
 
             IntrumentListBox.ItemsSource = workspaceInstruments;
@@ -233,6 +236,12 @@ namespace GCodeConvertor.ProjectForm
             FilePopup.Placement = PlacementMode.Relative;
             FilePopup.HorizontalOffset = 5;
             FilePopup.VerticalOffset = 0;
+        }
+
+        private void OpenProjectSettings(object sender, RoutedEventArgs e)
+        {
+            ProjectSettingsWindow projectSettingsWindow = new ProjectSettingsWindow();
+            projectSettingsWindow.ShowDialog();
         }
 
         private void CreateGCode(object sender, RoutedEventArgs e)

@@ -5,5 +5,11 @@
     <Setting Name="Theme" Type="System.String" Scope="User">
       <Value Profile="(Default)">Dark</Value>
     </Setting>
+    <Setting Name="ConflictResolving" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Manual</Value>
+    </Setting>
+    <Setting Name="RubberBand" Type="System.String" Scope="User">
+      <Value Profile="(Default)">On</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

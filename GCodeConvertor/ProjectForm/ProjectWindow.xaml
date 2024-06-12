@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GCodeConvertor.ProjectForm"
         mc:Ignorable="d"
         WindowStyle="None"
-        Title="{Binding topology.name}" Height="800" Width="1600" WindowState="Maximized"
+        Title="{Binding projectName}" Height="800" Width="1600" WindowState="Maximized"
         Icon="pack://application:,,,/Resources/gcode_logo.ico"
         SizeChanged="WindowSizeChanged"
         Activated="Window_Activated"
@@ -202,7 +202,7 @@
                     <StackPanel x:Name="MenuItemsStackPanel" 
                                 Orientation="Horizontal">
                         <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
-                            <TextBlock Text="{Binding topology.name}" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,15,0"/>
+                            <TextBlock Text="{Binding projectName}" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,15,0"/>
                         </Border>
                         <Button x:Name="FileMenuButton"
                             Style="{DynamicResource MenuButtonStyle}" 
@@ -312,6 +312,7 @@
                                 Width="auto" 
                                 Height="30"
                                 Content="Настройки проекта"
+                                Click="OpenProjectSettings"
                                 VerticalAlignment="Center"
                                 Visibility="Visible">
                         </Button>
@@ -396,6 +397,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" 
                         Style="{DynamicResource CreateButtonStyle}" 
@@ -403,13 +406,21 @@
                         Content="G-скрипт" 
                         Margin="10, 0, 0, 0"
                         Click="OpenScriptForm"/>
-                <Button Grid.Column="3" 
+                <Button Grid.Column="5" 
                         Style="{DynamicResource CreateButtonStyle}" 
                         Height="30" 
                         Content="G-код" 
                         Margin="0, 0, 10, 0"
                         Click="OpenGcodePopup"/>
-                <Button x:Name="ShowLayersButton" Grid.Column="2" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
+                <Button x:Name="ShowLayersButton" Grid.Column="4" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Слои" Margin="0, 0, 15, 0" Click="ShowLayersPopup"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="0,0,5,0">
+                    <TextBlock Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center" Text="X:" Margin="0,0,5,0"></TextBlock>
+                    <TextBlock Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding wdc.CurrentThreadXPosition}"></TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,10,0">
+                    <TextBlock Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center" Text="Y:" Margin="0,0,5,0"></TextBlock>
+                    <TextBlock Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center" Text="{Binding wdc.CurrentThreadYPosition}"></TextBlock>
+                </StackPanel>
                 <Popup x:Name="LayersPopup" Style="{DynamicResource LayersPopupStyle}">
                     <Border x:Name="LayersContainer"
                             Background="{DynamicResource BackgroundBrush}"

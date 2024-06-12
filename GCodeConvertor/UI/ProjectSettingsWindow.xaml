@@ -1,14 +1,13 @@
-﻿<Window x:Class="GCodeConvertor.UI.MainSettings"
+﻿<Window x:Class="GCodeConvertor.UI.ProjectSettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.UI"
         mc:Ignorable="d"
-        Title="Основные настройки" 
+        Title="Настройки проекта" 
         Height="500" Width="400"
         WindowStyle="None"
-        StateChanged="Window_StateChanged"
         Background="Transparent" AllowsTransparency="True"
         Icon="pack://application:,,,/Resources/gcode_logo.ico"
         WindowStartupLocation="CenterScreen">
@@ -235,7 +234,6 @@
             </Setter>
         </Style>
     </Window.Resources>
-    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -251,51 +249,81 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
                 <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
-                <TextBlock Text="Основные настройки" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
+                <TextBlock Text="Настройки проекта" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
             </StackPanel>
 
             <Button Grid.Column="1" Style="{DynamicResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
             <Button Grid.Column="3" Style="{DynamicResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
         </Grid>
         <Border Grid.Row="1" 
-                Background="{DynamicResource BackgroundBrush}" 
-                BorderBrush="{DynamicResource BorderBrush}" 
-                BorderThickness="0,1,0,1"
-                Padding="15">
-            <StackPanel>
+        Background="{DynamicResource BackgroundBrush}" 
+        BorderBrush="{DynamicResource BorderBrush}" 
+        BorderThickness="0,1,0,1"
+        Padding="15">
+            <StackPanel Orientation="Vertical">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="40"/>
                         <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Внешний вид" Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Text="Решение конфликтов" Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center"/>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Source="pack://application:,,,/Resources/theme_icon.png" Width="20" Height="20"></Image>
-                        <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Style="{DynamicResource SecondaryTextBlockStyle}" 
-                                   Text="Тема приложения:"></TextBlock>
-                        
+                        <Image Grid.Column="0" Source="pack://application:,,,/Resources/conflict_icon.png" Width="20" Height="20"></Image>
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" 
+                                   HorizontalAlignment="Left" Style="{DynamicResource SecondaryTextBlockStyle}" 
+                                   Text="Способ устранения:"></TextBlock>
                         <ComboBox   Grid.Column="2" 
-                                    x:Name="ThemeComboBox" 
+                            x:Name="ConflictComboBox" 
+                            Height="auto" 
+                            Margin="10,5,5,5"
+                            Style="{DynamicResource ThemeComboBoxStyle}"
+                            Loaded="ConflictComboBox_Loaded"
+                            SelectionChanged="ConflictComboBox_SelectionChanged"
+                            ItemContainerStyle="{DynamicResource ThemeComboBoxItemStyle}"
+                            >
+                            <ComboBoxItem Content="Ручной" Tag="Manual"/>
+                            <ComboBoxItem Content="Автоматический" Tag="Auto"/>
+                        </ComboBox>
+                    </Grid>
+                </Grid>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40"/>
+                        <RowDefinition Height="40"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Моделирование поведения нити" Style="{DynamicResource TextBlockStyle}" VerticalAlignment="Center"/>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Source="pack://application:,,,/Resources/line_block_icon.png" Width="20" Height="20"></Image>
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" 
+                   HorizontalAlignment="Left" Style="{DynamicResource SecondaryTextBlockStyle}" 
+                   Text="Состояние:"></TextBlock>
+                        <ComboBox   Grid.Column="2" 
+                                    x:Name="StringComboBox" 
                                     Height="auto" 
                                     Margin="10,5,5,5"
                                     Style="{DynamicResource ThemeComboBoxStyle}"
-                                    Loaded="ThemeComboBox_Loaded"
-                                    SelectionChanged="ThemeComboBox_SelectionChanged"
+                                    Loaded="StringComboBox_Loaded"
+                                    SelectionChanged="StringComboBox_SelectionChanged"
                                     ItemContainerStyle="{DynamicResource ThemeComboBoxItemStyle}"
                                     >
-                            <ComboBoxItem Content="Светлая" Tag="Light"/>
-                            <ComboBoxItem Content="Темная" Tag="Dark"/>
+                            <ComboBoxItem Content="Включено" Tag="On"/>
+                            <ComboBoxItem Content="Отключено" Tag="Off"/>
                         </ComboBox>
                     </Grid>
                 </Grid>
             </StackPanel>
         </Border>
-        
+
         <Grid Grid.Row="2" Background="{DynamicResource BackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
