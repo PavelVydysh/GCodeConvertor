@@ -44,6 +44,13 @@ namespace GCodeConvertor
             this.layers = layers;
         }
 
+        public GlobalPreset(TopologyByLineModel model)
+        {
+            var result = Topology.fillNozzlesAndLayer(model);
+            topology = result.topology;
+            layers = new List<Layer>() { result.layer };
+        }
+
         public bool isPointTopologyCorrect(Point topologyPoint)
         {
             if(topologyPoint.X >= topology.map.GetLength(0) || topologyPoint.X < 0)

@@ -26,7 +26,6 @@ namespace GCodeConvertor.UI
         private string name;
         private TopologyModel topologyModel { get; set; }
 
-
         public MeshThreadPlacementPanel()
         {
             InitializeComponent();
@@ -68,5 +67,6 @@ namespace GCodeConvertor.UI
                 topologyModel.PathProject = dialog.SelectedPath;
             }
         }
+
     }
 }

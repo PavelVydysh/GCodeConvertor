@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Path = System.IO.Path;
+using static GCodeConvertor.UI.ProjectsInfo;
+using Microsoft.Win32;
 
 namespace GCodeConvertor.UI
 {
@@ -24,15 +28,14 @@ namespace GCodeConvertor.UI
 
         private string name;
 
+        private TopologyByLineModel topologyByLineModel { get; set; }
+
         public TensionLinesPlacementPanel()
         {
             InitializeComponent();
             name = DEFAULT_NAME;
-        }
-
-        public string getFullPath()
-        {
-            throw new NotImplementedException();
+            topologyByLineModel = new TopologyByLineModel();
+            DataContext = topologyByLineModel;
         }
 
         public string getName()
@@ -42,22 +45,58 @@ namespace GCodeConvertor.UI
 
         public string getProjectFullPath()
         {
-            throw new NotImplementedException();
+            return Path.Combine(topologyByLineModel.PathProject, topologyByLineModel.NameProject) + ".gcd";
         }
 
         public string getProjectName()
         {
-            throw new NotImplementedException();
+            return topologyByLineModel.NameProject;
         }
 
         public bool isDataCorrect()
         {
-            throw new NotImplementedException();
+            return topologyByLineModel.Errors.Count == 0;
         }
 
         public void setTopology()
         {
-            throw new NotImplementedException();
+            GlobalPreset globalPreset = new GlobalPreset(topologyByLineModel);
+            ProjectSettings.preset = globalPreset;
+        }
+
+        private void ButtonDirectoryClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+                topologyByLineModel.PathProject = dialog.SelectedPath;
+            }
+        }
+
+        private void ButtonShapeClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "XML files(*.xml)|*.xml",
+
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                topologyByLineModel.PathShape = openFileDialog.FileName;
+            }
+        }
+
+        private void ButtonTensionLinesClick(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "XML files(*.xml)|*.xml",
+
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                topologyByLineModel.PathTensionLines = openFileDialog.FileName;
+            }
         }
     }
 }
