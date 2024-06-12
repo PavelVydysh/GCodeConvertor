@@ -125,7 +125,7 @@ namespace GCodeConvertor.UI
 
         private void CancelCreating(object sender, RoutedEventArgs e)
         {
-            openProjectForm.Visibility = Visibility.Visible;
+            openProjectForm.setVisible();
             this.Close();
         }
 

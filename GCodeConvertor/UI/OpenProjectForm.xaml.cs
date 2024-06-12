@@ -48,6 +48,12 @@ namespace GCodeConvertor.UI
             }
         }
 
+        public void setVisible()
+        {
+            this.Visibility = Visibility.Visible;
+            loadProjectsInfo();
+        }
+
         private bool checkIfProjectExists(string pathToProject)
         {
             return File.Exists(pathToProject);

@@ -51,7 +51,7 @@ namespace GCodeConvertor.UI
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
-            openProjectForm.Visibility = Visibility.Visible;
+            openProjectForm.setVisible();
             this.Close();
         }
 
@@ -70,7 +70,7 @@ namespace GCodeConvertor.UI
 
         private void CancelCreating(object sender, RoutedEventArgs e)
         {
-            openProjectForm.Visibility = Visibility.Visible;
+            openProjectForm.setVisible();
             this.Close();
         }
 

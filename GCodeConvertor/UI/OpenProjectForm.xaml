@@ -239,7 +239,6 @@
                         <!--<EventSetter Event="MouseLeftButtonDown" Handler="OpenTrackableProject"/>-->
                     </Style>
                 </ListBox.ItemContainerStyle>
-
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <Border CornerRadius="5">

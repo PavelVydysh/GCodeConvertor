@@ -106,6 +106,11 @@ namespace GCodeConvertor
         {
             InitializeComponent();
 
+            WORKSPACE_START_POINT_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceStartPointBrush"];
+            WORKSPACE_BACKGROUND_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceBackgroundBrush"];
+            WORKSPACE_NEEDLE_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceNeedleBrush"];
+            WORKSPACE_PLATFORM_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspacePlatformBrush"];
+
             this.topology = topology;
 
             //Инициализация Canvas (рабочей области)
@@ -136,45 +141,9 @@ namespace GCodeConvertor
             workspaceCanvas.MouseRightButtonUp += element_MouseRightButtonUp;
             workspaceCanvas.MouseLeftButtonUp += element_MouseLeftButtonUp;
             workspaceCanvas.MouseMove += element_MouseMove;
-            //workspaceCanvas.PreviewMouseMove += changeToolTipValue;
             workspaceCanvas.MouseWheel += element_MouseWheel;
-            //workspaceCanvas.MouseEnter += element_MouseEnter;
-            //workspaceCanvas.MouseLeave += element_MouseLeave;
             this.KeyDown += element_KeyDown;
         }
-
-        //private void element_MouseEnter(object sender, MouseEventArgs e)
-        //{
-        //    positionPopup.IsOpen = true;
-        //    updatePopupPosition(e);
-        //}
-
-        //private void element_MouseLeave(object sender, MouseEventArgs e)
-        //{
-        //    if (positionPopup.IsOpen)
-        //    {
-        //        positionPopup.IsOpen = false;
-        //    }
-        //}
-
-        //private void changeToolTipValue(object sender, MouseEventArgs e)
-        //{
-        //    int currentTopologyX = (int)Math.Floor(e.GetPosition(workspaceCanvas).X / cellSize);
-        //    int currentTopologyY = (int)Math.Floor(e.GetPosition(workspaceCanvas).Y / cellSize);
-        //    xValue.Text = getThreadValueByTopologyValue(currentTopologyX).ToString();
-        //    yValue.Text = getThreadValueByTopologyValue(currentTopologyY).ToString();
-
-        //    positionPopup.IsOpen = true;
-
-        //    updatePopupPosition(e);
-        //}
-
-        //private void updatePopupPosition(MouseEventArgs e)
-        //{
-        //    var mousePosition = e.GetPosition(positionGrid);
-        //    positionPopup.HorizontalOffset = mousePosition.X + 5; // Смещение от мыши
-        //    positionPopup.VerticalOffset = mousePosition.Y + 5;
-        //}
 
         private void executeInstrument(EventType eventType, object sender, EventArgs e)
         {
@@ -702,7 +671,7 @@ namespace GCodeConvertor
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        private List<Point> getRubberBandPath(Point[] route)
+        public List<Point> getRubberBandPath(Point[] route)
         {
             route = RemoveExtraPoints(route.ToList(), 1).ToArray();
             route = RoutePreprocessing(route, cellSize);

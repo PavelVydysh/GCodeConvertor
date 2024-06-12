@@ -322,7 +322,8 @@
                                 Height="30"
                                 Content="3D визуализация"
                                 VerticalAlignment="Center"
-                                Visibility="Visible">
+                                Visibility="Visible"
+                                Click="Open3DWindow">
                         </Button>
                     </StackPanel>
 

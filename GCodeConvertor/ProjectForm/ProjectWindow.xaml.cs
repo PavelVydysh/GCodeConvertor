@@ -48,6 +48,7 @@ namespace GCodeConvertor.ProjectForm
         public ObservableCollection<InstrumentButtonInfo> workspaceInstruments { get; set; }
         private MenuState currentMenuState;
         public GScriptWindow GSWindow = null;
+        public Project3dVisualizer project3DVisualizer = null;
         public string projectName { get; set; }
 
         List<Hotkey> hotkeys;
@@ -323,7 +324,7 @@ namespace GCodeConvertor.ProjectForm
         private void CloseProject(object sender, RoutedEventArgs e)
         { 
             this.Close();
-            openProjectForm.Visibility = Visibility.Visible;
+            openProjectForm.setVisible();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -331,6 +332,10 @@ namespace GCodeConvertor.ProjectForm
             if(GSWindow is not null)
             {
                 GSWindow.Close();
+            }
+            if (project3DVisualizer is not null)
+            {
+                project3DVisualizer.Close();
             }
             checkSaving();
         }
@@ -359,6 +364,12 @@ namespace GCodeConvertor.ProjectForm
                 }
             }
             layerFactor.Text = "1";
+        }
+
+        private void Open3DWindow(object sender, RoutedEventArgs e)
+        {
+            project3DVisualizer = new Project3dVisualizer(this, layerFactor.Text);
+            project3DVisualizer.ShowDialog();
         }
     }
 
