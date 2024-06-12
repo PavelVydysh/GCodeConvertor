@@ -59,5 +59,14 @@ namespace GCodeConvertor.UI
         {
             return topologyModel.NameProject;
         }
+
+        private void ButtonDirectoryClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+            if (dialog.ShowDialog().GetValueOrDefault())
+            {
+                topologyModel.PathProject = dialog.SelectedPath;
+            }
+        }
     }
 }

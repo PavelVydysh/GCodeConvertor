@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,7 +28,8 @@ namespace GCodeConvertor
         private static int DEFAULT_ACCURACY = 1;
 
         public string NameProject { get; set; }
-        public string PathProject { get; set; }
+        private string _pathProject { get; set; }
+        public string PathProject { get => _pathProject; set { if (_pathProject != value) { _pathProject = value; OnPropertyChanged(); }}}
         public int PlatformH { get; set; }
         public int PlatformW { get; set; }
         public int HeadIdentationX { get; set; }
@@ -88,13 +90,9 @@ namespace GCodeConvertor
             return false;
         }
 
-        protected void OnPropertyChanged(string name)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public string Error

@@ -64,6 +64,44 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="FolderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="2"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="5,5,0,1.5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                 BorderBrush="{TemplateBinding BorderBrush}" 
+                                 BorderThickness="{TemplateBinding BorderThickness}" 
+                                 CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                               Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SelectedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <StackPanel Margin="20,15,20,15">
         <Grid Margin="0,0,0,10">
@@ -85,15 +123,24 @@
                         </Binding>
                     </TextBox.Text>
                 </TextBox>
-                <TextBox Style="{StaticResource TextBoxStyle}">
-                    <TextBox.Text>
-                        <Binding Path="PathProject">
-                            <Binding.ValidationRules>
-                                <DataErrorValidationRule />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </TextBox>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" Style="{StaticResource TextBoxStyle}">
+                        <TextBox.Text>
+                            <Binding Path="PathProject">
+                                <Binding.ValidationRules>
+                                    <DataErrorValidationRule />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <Button Grid.Column="1" Style="{DynamicResource FolderButtonStyle}" Click="ButtonDirectoryClick">
+                        <Image Source="pack://application:,,,/Resources/folder.png"></Image>
+                    </Button>
+                </Grid>
             </StackPanel>
         </Grid>
         <TextBlock Style="{StaticResource PropertiesTextBlockStyle}" FontWeight="Bold" Text="Настройки платформы:" Margin="0,0,0,10"/>
