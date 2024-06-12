@@ -45,14 +45,14 @@ namespace GCodeConvertor
         {
             TopologyByLineModel topologyByLine = new TopologyByLineModel();
             topologyByLine.NameProject = "test";
-            topologyByLine.Step = 100;
-            topologyByLine.TensionLines = "C:\\Users\\vicst\\Documents\\TensionLines.xml";
-            topologyByLine.Shape = "C:\\Users\\vicst\\Documents\\shape.xml";
+            topologyByLine.Step = 2;
+            topologyByLine.TensionLines = "C:\\Users\\radev\\Documents\\TensionLines.xml";
+            topologyByLine.Shape = "C:\\Users\\radev\\Documents\\shape.xml";
             topologyByLine.Accuracy = 1;
             topologyByLine.HeadIdentationX = 5;
             topologyByLine.HeadIdentationY = 5;
             topologyByLine.NozzleDiameter = 1;
-            topologyByLine.PathProject = "C:\\Users\\vicst\\Documents\\";
+            topologyByLine.PathProject = "C:\\Users\\radev\\Documents\\";
 
             GlobalPreset globalPreset = new GlobalPreset(topologyByLine);
             ProjectSettings.preset = globalPreset;

@@ -30,7 +30,7 @@ namespace GCodeConvertor
             try
             {
                 var serializer = new SharpSerializer();
-                serializer.Serialize(this, "C:\\Users\\vicst\\Documents\\shape.xml");
+                serializer.Serialize(this, "C:\\Users\\radev\\Documents\\shape.xml");
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace GCodeConvertor
             try
             {
                 var serializer = new SharpSerializer();
-                serializer.Serialize(this, "C:\\Users\\vicst\\Documents\\TensionLines.xml");
+                serializer.Serialize(this, "C:\\Users\\radev\\Documents\\TensionLines.xml");
             }
             catch (Exception ex)
             {

@@ -152,7 +152,7 @@ namespace GCodeConvertor
                 maxY = Math.Max(maxY, points[i].Y);
             }
 
-            return (maxX - minX, maxY - minY);
+            return (maxX - minX +3, maxY - minY + 3);
         }
 
         public static (Topology topology, Layer layer) fillNozzlesAndLayer(TopologyByLineModel model)
@@ -199,12 +199,17 @@ namespace GCodeConvertor
             route.Add(start);
             for (int i = 0; i < shape.Count; i++) 
             {
-                route.Add(new Point(shape[i].X + model.HeadIdentationX, shape[i].Y + model.HeadIdentationY));
+                route.Add(new Point(shape[i].X + model.HeadIdentationX +2 , shape[i].Y + model.HeadIdentationY+2));
             }
             Point pointForNozzle;
-            for( int i = 1; i < route.Count -1; i++)
-            {
-                pointForNozzle = getPointForNozzle(route[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
+            for( int i = 1; i < route.Count ; i++)
+            {   if (i == route.Count - 1) {
+                    pointForNozzle = getPointForNozzle(route[i], getAngleBisector(route[i - 1], route[i],start), model.NozzleDiameter);
+                }
+                else
+                {
+                    pointForNozzle = getPointForNozzle(route[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
+                }
                 for(int x = (int)(pointForNozzle.X - model.NozzleDiameter / 2); x < (int)(pointForNozzle.X + model.NozzleDiameter / 2); x++)
                 {
                     for (int y = (int)(pointForNozzle.Y - model.NozzleDiameter / 2); y < (int)(pointForNozzle.Y + model.NozzleDiameter / 2); y++)
