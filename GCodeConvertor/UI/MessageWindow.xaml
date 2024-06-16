@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GCodeConvertor.UI"
         mc:Ignorable="d"
-        Title="MessageWindow" Height="300" Width="400"
+        Title="{Binding title}" Height="300" Width="400"
         WindowStyle="None"
         Background="Transparent"
         AllowsTransparency="True"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico" >
     <Window.Resources>
         <Style x:Key="CancelButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
