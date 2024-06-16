@@ -201,11 +201,11 @@ namespace GCodeConvertor
                 }
                 
             }
-            for (int i = 0; i < route.Count; i++)
+            for (int i = 1; i < route.Count; i++)
             {
                 route[i] = new Point(route[i].X + 0.5, route[i].Y + 0.5);
             }
-            route.Add(new Point(start.X + 0.5, start.Y + 0.5));
+            route.Add(start);
             layer.thread.AddRange(route);
         }
 
