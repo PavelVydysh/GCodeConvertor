@@ -40,7 +40,10 @@ namespace GCodeConvertor.Project3D
         private double _lineLength;
         public double lineLength { get { return _lineLength; } set { if (_lineLength != value) { _lineLength = value; OnPropertyChanged(); } } }
         private double _workTime;
-        public double workTime { get { return _workTime;  } set { if (_workTime != value) { _workTime = value; OnPropertyChanged(); } } }
+
+        private double maxLineLength;
+
+        public double workTime { get { return _workTime; } set { if (_workTime != value) { _workTime = value; OnPropertyChanged(); } } }
 
         private List<Point3D> rubberBandPoints;
 
@@ -77,12 +80,12 @@ namespace GCodeConvertor.Project3D
                 setupLineLength();
                 setupTimeline();
             }
-            
+
         }
 
         private void setupTimeline()
         {
-            if(TimelineSlider is not null)
+            if (TimelineSlider is not null)
             {
                 double maxWorkTime = setupMaxWorkTime();
                 TimelineSlider.Minimum = 0;
@@ -93,12 +96,13 @@ namespace GCodeConvertor.Project3D
 
         private double setupMaxWorkTime()
         {
-            return Math.Round(lineLength / speed, 2);
+            return Math.Round(maxLineLength / speed, 2);
         }
 
         private void TimelineSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             workTime = Math.Round(TimelineSlider.Value, 2);
+            double realWorkTime = TimelineSlider.Value;
 
             Viewport3D.Children.Clear();
 
@@ -106,7 +110,7 @@ namespace GCodeConvertor.Project3D
 
             Point3D previousPoint = rubberBandPoints[0];
 
-            double currentMaxLength = workTime * speed;
+            double currentMaxLength = realWorkTime * speed;
             double currentLength = 0;
 
             for (int pointIndex = 1; pointIndex < rubberBandPoints.Count; pointIndex++)
@@ -122,16 +126,26 @@ namespace GCodeConvertor.Project3D
                     line.Points.Add(rubberBandPoints[pointIndex]);
                     Viewport3D.Children.Add(line);
 
-                    previousPoint = rubberBandPoints[pointIndex];
+                    previousPoint = rubberBandPoints[pointIndex
+                        ];
                 }
                 else
                 {
                     Point3D currentPoint = PointAtDistanceBetweenPoints(previousPoint, rubberBandPoints[pointIndex], currentMaxLength - currentLength);
+                    currentLength += currentMaxLength - currentLength;
                     line.Points.Add(previousPoint);
                     line.Points.Add(currentPoint);
                     Viewport3D.Children.Add(line);
                     break;
                 }
+            }
+            if (TimelineSlider.Value == TimelineSlider.Maximum)
+            {
+                lineLength = maxLineLength;
+            }
+            else
+            {
+                lineLength = Math.Round(currentLength, 2);
             }
         }
 
@@ -199,7 +213,8 @@ namespace GCodeConvertor.Project3D
 
             List<Layer> layers = getGoodLayers();
 
-            if(layers == null || layers.Count == 0) {
+            if (layers == null || layers.Count == 0)
+            {
                 return false;
             }
 
@@ -247,7 +262,7 @@ namespace GCodeConvertor.Project3D
                 length += DistanceBetweenPoints(previousPoint, rubberBandPoints[pointIndex]);
                 previousPoint = rubberBandPoints[pointIndex];
             }
-            lineLength = Math.Round(length, 2);
+            maxLineLength = Math.Round(length, 2);
         }
 
         private List<Layer> getGoodLayers()
@@ -258,7 +273,7 @@ namespace GCodeConvertor.Project3D
 
             foreach (Layer layer in ProjectSettings.preset.layers)
             {
-                if(layer.isEnable && layer.isEnded())
+                if (layer.isEnable && layer.isEnded())
                 {
                     goodLayers.Add(layer);
                 }
@@ -306,8 +321,8 @@ namespace GCodeConvertor.Project3D
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            
+
         }
-        
+
     }
 }

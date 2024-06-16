@@ -241,7 +241,7 @@ namespace GCodeConvertor.ProjectForm
 
         private void OpenProjectSettings(object sender, RoutedEventArgs e)
         {
-            ProjectSettingsWindow projectSettingsWindow = new ProjectSettingsWindow();
+            ProjectSettingsWindow projectSettingsWindow = new ProjectSettingsWindow(this);
             projectSettingsWindow.ShowDialog();
         }
 

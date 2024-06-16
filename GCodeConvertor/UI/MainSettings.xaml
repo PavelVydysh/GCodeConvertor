@@ -11,7 +11,8 @@
         StateChanged="Window_StateChanged"
         Background="Transparent" AllowsTransparency="True"
         Icon="pack://application:,,,/Resources/gcode_logo.ico"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
     <Window.Resources>
         <Style x:Key="HeaderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>

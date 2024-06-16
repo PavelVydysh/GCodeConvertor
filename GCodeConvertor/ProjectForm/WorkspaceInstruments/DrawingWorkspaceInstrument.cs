@@ -31,10 +31,9 @@ namespace GCodeConvertor.WorkspaceInstruments
         }
 
         private const string END_STATE_MESSAGE = "Слой является законченным!";
-        private static Color POINT_COLOR = Colors.Red;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private const double ELLIPSE_SIZE = 5;
-        private static Color LINE_COLOR = Colors.Red;
+        private static SolidColorBrush LINE_BRUSH = (SolidColorBrush)Application.Current.Resources["LineBrush"];
         private const double LINE_SIZE = 2;
         private const double SELECTING_RECTANGLE_STROKE_THIKNESS = 2;
         private static Color SELECTING_RECTANGLE_COLOR = Colors.Blue;
@@ -200,8 +199,9 @@ namespace GCodeConvertor.WorkspaceInstruments
 
         private void pressOnButton(WorkspaceDrawingControl window, KeyEventArgs e)
         {
+            isDraggingEllipse = false;
             //TODO: перенести, чтобы и в кнопках можно было делать
-            if(Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Z))
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) && Keyboard.IsKeyDown(Key.Z))
             {
                 workspaceDrawingControl.activeLayer.backHistory();
                 workspaceDrawingControl.repaint();
@@ -316,7 +316,7 @@ namespace GCodeConvertor.WorkspaceInstruments
             if (workspaceDrawingControl.activeLayer.isDotSelected(selectedPoint))
             {
                 workspaceDrawingControl.activeLayer.selectedThread.Remove(selectedPoint);
-                point.Fill = new SolidColorBrush(POINT_COLOR);
+                point.Fill = LINE_BRUSH;
             }
             else
             {

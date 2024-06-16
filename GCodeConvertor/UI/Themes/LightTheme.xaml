@@ -11,6 +11,7 @@
     <Color x:Key="AddColor">#CCE8FF</Color>
     <Color x:Key="WorkspaceColor">#FFFFFF</Color>
     <Color x:Key="StartPointColor">#4CAF50</Color>
+    <Color x:Key="LineColor">#3C7DD9</Color>
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource ForegroundColor}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
@@ -25,4 +26,5 @@
     <SolidColorBrush x:Key="WorkspaceStartPointBrush" Color="{StaticResource StartPointColor}"/>
     <SolidColorBrush x:Key="DeleteLayerBrush" Color="{StaticResource DeleteColor}"/>
     <SolidColorBrush x:Key="AddLayerBrush" Color="{StaticResource AddColor}"/>
+    <SolidColorBrush x:Key="LineBrush" Color="{StaticResource LineColor}"/>
 </ResourceDictionary>

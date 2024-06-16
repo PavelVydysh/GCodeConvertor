@@ -20,6 +20,8 @@
     <None Remove="Resources\eye.png" />
     <None Remove="Resources\folder.png" />
     <None Remove="Resources\gcode_logo.ico" />
+    <None Remove="Resources\g_code_off.png" />
+    <None Remove="Resources\g_code_on.png" />
     <None Remove="Resources\line_block_icon.png" />
     <None Remove="Resources\loupe.png" />
     <None Remove="Resources\menu_button.png" />
@@ -77,6 +79,12 @@
     </Resource>
     <Resource Include="Resources\gcode_logo.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\g_code_off.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\g_code_on.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\line_block_icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

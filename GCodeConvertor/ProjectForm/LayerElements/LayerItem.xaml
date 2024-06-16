@@ -76,8 +76,8 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="CheckBox">
                                 <StackPanel Orientation="Horizontal">
-                                    <Image x:Name="TrueImage" Width="30" Height="30" Source="pack://application:,,,/Resources/eye.png" Visibility="Collapsed"/>
-                                    <Image x:Name="FalseImage"  Width="30" Height="30" Source="pack://application:,,,/Resources/eye-slash.png" Visibility="Collapsed"/>
+                                    <Image x:Name="TrueImage" Width="30" Height="30" Source="pack://application:,,,/Resources/g_code_on.png" Visibility="Collapsed"/>
+                                    <Image x:Name="FalseImage"  Width="30" Height="30" Source="pack://application:,,,/Resources/g_code_off.png" Visibility="Collapsed"/>
                                     <ContentPresenter/>
                                 </StackPanel>
                                 <ControlTemplate.Triggers>

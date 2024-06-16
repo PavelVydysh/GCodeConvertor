@@ -18,7 +18,7 @@ namespace GCodeConvertor
         private static int DEFAULT_NOZZLE_DIAMETER = 1;
         private static int DEFAULT_NEEDLE_DIAMETER = 1;
         private static int DEFAULT_ACCURACY = 1;
-        private static int DEFAULT_STEP = 2;
+        private static int DEFAULT_STEP = 20;
 
         public string NameProject { get; set; }
         private string _pathProject { get; set; }
@@ -150,9 +150,9 @@ namespace GCodeConvertor
                         }
                         break;
                     case "Step":
-                        if (Step <= 0)
+                        if (Step < 10)
                         {
-                            error = "Шаг должен быть больше 0 мм";
+                            error = "Шаг должен быть больше, либо равен 10 мм";
                         }
                         break;
                     case "PathShape":

@@ -15,8 +15,8 @@ namespace GCodeConvertor
     {
         private static string DEFAULT_PROJECT_NAME = "untitled";
         private static string DEFAULT_PROJECT_PATH = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        private static int DEFAULT_PLATFORM_WITDH = 100;
-        private static int DEFAULT_PLATFORM_HEIGHT = 100;
+        private static int DEFAULT_PLATFORM_WITDH = 50;
+        private static int DEFAULT_PLATFORM_HEIGHT = 50;
         private static int DEFAULT_HEAD_IDENTATION_X = 10;
         private static int DEFAULT_HEAD_IDENTATION_Y = 10;
         private static int DEFAULT_NOZZLE_DIAMETER = 1;

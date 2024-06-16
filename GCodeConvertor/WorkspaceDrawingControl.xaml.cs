@@ -37,6 +37,7 @@ namespace GCodeConvertor
         private static SolidColorBrush WORKSPACE_BACKGROUND_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceBackgroundBrush"];
         private static SolidColorBrush WORKSPACE_NEEDLE_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceNeedleBrush"];
         private static SolidColorBrush WORKSPACE_PLATFORM_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspacePlatformBrush"];
+        private static SolidColorBrush LINE_BRUSH = (SolidColorBrush)Application.Current.Resources["LineBrush"];
 
         public static Color POINT_COLOR = Colors.Red;
         public static double ELLIPSE_SIZE = 5;
@@ -44,9 +45,6 @@ namespace GCodeConvertor
         public static double LINE_SIZE = 2;
         private static Color SELECTED_POINT_COLOR = Colors.BlueViolet;
         private static Color CONFLICT_LINE_COLOR = Colors.Gray;
-
-        private static Color PREDICTED_ELLIPSE_COLOR = Colors.Black;
-        private static double PREDICTED_ELLIPSE_SIZE = 5;
         private static Color PREDICTED_LINE_COLOR = Colors.Black;
         private static double PREDICTED_LINE_SIZE = 2;
         //??????????????????????????
@@ -110,6 +108,7 @@ namespace GCodeConvertor
             WORKSPACE_BACKGROUND_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceBackgroundBrush"];
             WORKSPACE_NEEDLE_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspaceNeedleBrush"];
             WORKSPACE_PLATFORM_BRUSH = (SolidColorBrush)Application.Current.Resources["WorkspacePlatformBrush"];
+            LINE_BRUSH = (SolidColorBrush)Application.Current.Resources["LineBrush"];
 
             this.topology = topology;
 
@@ -525,7 +524,6 @@ namespace GCodeConvertor
             int indexOfEndPoint = activeLayer.getThreadPoint(threadEndPoint);
 
             activeLayer.insertBeforePositionThreadPoint(point, indexOfEndPoint);
-            MessageBox.Show("");
         }
 
         private double getThreadValueByTopologyValue(double topologyValue)
@@ -903,10 +901,10 @@ namespace GCodeConvertor
         {
             Line line = new Line();
             line.Tag = getCustomElementTag();
-            line.Fill = new SolidColorBrush(LINE_COLOR);
+            line.Fill = LINE_BRUSH;
             line.Visibility = Visibility.Visible;
             line.StrokeThickness = LINE_SIZE;
-            line.Stroke = new SolidColorBrush(LINE_COLOR);
+            line.Stroke = LINE_BRUSH;
             line.MouseRightButtonDown += element_MouseRightButtonDown;
 
             return line;
@@ -918,7 +916,7 @@ namespace GCodeConvertor
             ellipse.Tag = getCustomElementTag();
             ellipse.Height = ELLIPSE_SIZE;
             ellipse.Width = ELLIPSE_SIZE;
-            ellipse.Fill = new SolidColorBrush(POINT_COLOR);
+            ellipse.Fill = LINE_BRUSH;
             if(isSelected)
             {
                 ellipse.Fill = new SolidColorBrush(SELECTED_POINT_COLOR);

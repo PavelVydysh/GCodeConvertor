@@ -144,7 +144,7 @@
             <Setter Property="Placement" Value="Relative" />
             <Setter Property="StaysOpen" Value="True" />
             <Setter Property="AllowsTransparency" Value="True" />
-            <Setter Property="PopupAnimation" Value="Slide" />
+            <Setter Property="PopupAnimation" Value="Fade" />
             <Setter Property="Width" Value="325" />
             <Setter Property="Height" Value="475" />
         </Style>
@@ -152,7 +152,7 @@
             <Setter Property="Placement" Value="Relative" />
             <Setter Property="StaysOpen" Value="True" />
             <Setter Property="AllowsTransparency" Value="True" />
-            <Setter Property="PopupAnimation" Value="Slide" />
+            <Setter Property="PopupAnimation" Value="Fade" />
             <Setter Property="Width" Value="325"/>
             <Setter Property="Height" Value="200"/>
         </Style>
@@ -316,6 +316,15 @@
                                 VerticalAlignment="Center"
                                 Visibility="Visible">
                         </Button>
+                        <Button x:Name="GScriptMenuButton"
+                                Style="{DynamicResource MenuButtonStyle}" 
+                                Width="auto" 
+                                Height="30"
+                                Content="G-скрипт"
+                                Click="OpenScriptForm"
+                                VerticalAlignment="Center"
+                                Visibility="Visible">
+                        </Button>
                         <Button x:Name="Project3DMenuButton"
                                 Style="{DynamicResource MenuButtonStyle}" 
                                 Width="auto" 
@@ -401,12 +410,6 @@
                     <ColumnDefinition Width="auto"/>
                     <ColumnDefinition Width="auto"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" 
-                        Style="{DynamicResource CreateButtonStyle}" 
-                        Height="30" 
-                        Content="G-скрипт" 
-                        Margin="10, 0, 0, 0"
-                        Click="OpenScriptForm"/>
                 <Button Grid.Column="5" 
                         Style="{DynamicResource CreateButtonStyle}" 
                         Height="30" 

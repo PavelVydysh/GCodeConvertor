@@ -20,74 +20,40 @@ namespace GCodeConvertor.UI
     public partial class MainSettings : Window
     {
         private OpenProjectForm openProjectForm;
+
+        string startTheme;
         string currentTheme;
 
         public MainSettings(OpenProjectForm openProjectForm)
         {
             this.openProjectForm = openProjectForm;
+            startTheme = Settings.Default.Theme;
 
             InitializeComponent();
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
+        private void SaveSettings(object sender, RoutedEventArgs e)
         {
-            if (this.WindowState == WindowState.Maximized)
-            {
-                this.WindowState = WindowState.Normal;
-            }
+            saveSettings(currentTheme);
+            startTheme = currentTheme;
+            Close();
         }
 
-        private void MaximizeWindow(object sender, RoutedEventArgs e)
+        private void saveSettings(string themeName)
         {
-            if (this.WindowState == WindowState.Normal)
-            {
-                this.WindowState = WindowState.Maximized;
-            }
-            else
-            {
-                this.WindowState = WindowState.Normal;
-            }
+            Settings.Default.Theme = themeName;
+            Settings.Default.Save();
+            ((App)Application.Current).ApplySavedTheme();
         }
 
-        private void CloseWindow(object sender, RoutedEventArgs e)
+        private void CancelSettings(object sender, RoutedEventArgs e)
         {
-            openProjectForm.setVisible();
-            this.Close();
-        }
-
-        private void MoveWindow(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.DragMove();
-            }
-        }
-
-        private void HideWindow(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void CancelCreating(object sender, RoutedEventArgs e)
-        {
-            openProjectForm.setVisible();
-            this.Close();
+            ChangeCurrentTheme(startTheme);
         }
 
         private void ThemeComboBox_Loaded(object sender, RoutedEventArgs e)
         {
             currentTheme = Settings.Default.Theme;
-            ChangeCurrentTheme(currentTheme);
-        }
-
-        private void SaveSettings(object sender, RoutedEventArgs e)
-        {
-            currentTheme = Settings.Default.Theme;
-            ChangeCurrentTheme(currentTheme);
-        }
-
-        private void CancelSettings(object sender, RoutedEventArgs e)
-        {
             ChangeCurrentTheme(currentTheme);
         }
 
@@ -107,11 +73,51 @@ namespace GCodeConvertor.UI
         {
             if (ThemeComboBox.SelectedItem != null)
             {
-                string selectedTheme = ((ComboBoxItem)ThemeComboBox.SelectedItem).Tag.ToString();
-                Settings.Default.Theme = selectedTheme;
-                Settings.Default.Save();
-                this.Resources.MergedDictionaries.Clear();
-                ((App)Application.Current).ApplySavedTheme();
+                currentTheme = ((ComboBoxItem)ThemeComboBox.SelectedItem).Tag.ToString();
+                saveSettings(currentTheme);
+            }
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void MoveWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
+
+        private void HideWindow(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void Window_Closing(object sender, EventArgs e)
+        {
+            if (currentTheme != startTheme)
+            {
+                MessageWindow messageWindow = new MessageWindow("Присутствуют несохраненные изменения!", "Сохранить выбранные настройки?", "Сохранить", "Не сохранять");
+                messageWindow.ShowDialog();
+                if (messageWindow.resultMessageClick)
+                {
+                    saveSettings(currentTheme);
+                }
+                else
+                {
+                    saveSettings(startTheme);
+                }
             }
         }
     }

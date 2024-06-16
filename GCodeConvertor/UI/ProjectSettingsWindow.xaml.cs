@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GCodeConvertor.ProjectForm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,17 +20,22 @@ namespace GCodeConvertor.UI
     /// </summary>
     public partial class ProjectSettingsWindow : Window
     {
+        ProjectWindow projectWindow;
+
         private string currentConflictResolveType;
         private string currentRubberType;
 
-        public ProjectSettingsWindow()
+        public ProjectSettingsWindow(ProjectWindow projectWindow)
         {
+            this.projectWindow = projectWindow;
+
             InitializeComponent();
         }
 
         private void SaveSettings(object sender, RoutedEventArgs e)
         {
             saveCurrentSettings();
+            Close();
         }
 
         private void saveCurrentSettings()
@@ -99,15 +105,6 @@ namespace GCodeConvertor.UI
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
-            if(currentConflictResolveType != Settings.Default.ConflictResolving || currentRubberType != Settings.Default.RubberBand)
-            {
-                MessageWindow messageWindow = new MessageWindow("Присутствуют несохраненные изменения!", "Сохранить выбранные настройки?", "Сохранить", "Не сохранять");
-                messageWindow.ShowDialog();
-                if (messageWindow.resultMessageClick)
-                {
-                    saveCurrentSettings();
-                }
-            }
             this.Close();
         }
 
@@ -130,6 +127,20 @@ namespace GCodeConvertor.UI
             {
                 this.WindowState = WindowState.Normal;
             }
+        }
+
+        private void Window_Closing(object sender, EventArgs e)
+        {
+            if (currentConflictResolveType != Settings.Default.ConflictResolving || currentRubberType != Settings.Default.RubberBand)
+            {
+                MessageWindow messageWindow = new MessageWindow("Присутствуют несохраненные изменения!", "Сохранить выбранные настройки?", "Сохранить", "Не сохранять");
+                messageWindow.ShowDialog();
+                if (messageWindow.resultMessageClick)
+                {
+                    saveCurrentSettings();
+                }
+            }
+            projectWindow.wdc.repaint();
         }
     }
 }
