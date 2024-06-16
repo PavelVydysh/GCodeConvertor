@@ -84,11 +84,7 @@ namespace GCodeConvertor.GScript
                 }
                 else if (executableCommand is DrawCommand || executableCommand is NoStartDrawCommand)
                 {
-                    if (points.Count == 0)
-                    {
-                        tempPoints.InsertRange(0, pWindow.activeLayer.thread);
-                        //pWindow.addDrawingPointsToActiveLayer(points);
-                    }
+                    tempPoints.InsertRange(0, pWindow.activeLayer.thread);
                     List<Point> retPoints = executableCommand.execute(prevPoint, 0, tempPoints);
                     foreach (Point p in retPoints)
                     {
@@ -101,6 +97,7 @@ namespace GCodeConvertor.GScript
                 if (currentPoint == prevPoint)
                 {
                     points.Add(currentPoint);
+                    tempPoints.Add(currentPoint);
                 }
                 prevPoint = currentPoint;
             }

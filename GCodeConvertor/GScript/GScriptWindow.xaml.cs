@@ -98,22 +98,23 @@ namespace GCodeConvertor.GScript
 
             string[] commands = commandReader.readCommands();
             console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Сборка скрипта завершена успешно." + "\n";
+            console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Предобработка скрипта начата." + "\n";
+            List<System.Windows.Point> points = dispatcherCommand.buildScript(commands, workspaceDrawingControl.activeLayer.thread[workspaceDrawingControl.activeLayer.thread.Count - 1]);
+            console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Предобработка скрипта завершена успешно." + "\n";
+
+            console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта начато." + "\n";
+
+            if (isPointsOnNeedle(points))
+            {
+                console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Ошибка времени выполнения:\n" + " Точка попадает на иглу." + "\n";
+                return;
+            }
+            workspaceDrawingControl.addDrawingPointsToActiveLayer(points);
+
+            console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта завершно успешно." + "\n";
             try
             {
-                console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Предобработка скрипта начата." + "\n";
-                List<System.Windows.Point> points = dispatcherCommand.buildScript(commands, workspaceDrawingControl.activeLayer.thread[workspaceDrawingControl.activeLayer.thread.Count - 1]);
-                console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Предобработка скрипта завершена успешно." + "\n";
-
-                console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта начато." + "\n";
-
-                if (isPointsOnNeedle(points))
-                {
-                    console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Ошибка времени выполнения:\n" + " Точка попадает на иглу." + "\n";
-                    return;
-                }
-                workspaceDrawingControl.addDrawingPointsToActiveLayer(points);
-
-                console.Text += "[" + DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") + "]" + " Выполнение скрипта завершно успешно." + "\n";
+                
             }
             catch (Exception ex)
             {

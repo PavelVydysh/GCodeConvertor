@@ -544,7 +544,7 @@ namespace GCodeConvertor
                 fIterations = checkDirection(midPosX, midPosY, -1, 1);
                 sIterations = checkDirection(midPosX, midPosY, 1, -1);
 
-                if (fIterations >= sIterations)
+                if (fIterations > sIterations)
                 {
                     return new FrontUpConflictResolver();
                 }
@@ -558,7 +558,7 @@ namespace GCodeConvertor
                 fIterations = checkDirection(midPosX, midPosY, 1, 1);
                 sIterations = checkDirection(midPosX, midPosY, -1, -1);
 
-                if (fIterations <= sIterations)
+                if (fIterations < sIterations)
                 {
                     return new FrontBottomConflictResolver();
                 }
@@ -586,7 +586,7 @@ namespace GCodeConvertor
                 fIterations = checkDirection(midPosX, midPosY, -1, 0);
                 sIterations = checkDirection(midPosX, midPosY, 1, 0);
 
-                if (fIterations <= sIterations)
+                if (fIterations < sIterations)
                 {
                     return new LeftConflictResolver();
                 }
