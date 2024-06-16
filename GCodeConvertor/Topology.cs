@@ -180,17 +180,17 @@ namespace GCodeConvertor
             for (int i = 1; i < route.Count; i++)
             {
                 double angle; 
-                if (i == route.Count - 1)
+                if (i == route.Count-1)
                 {
                     angle = getAngleBisector(route[i - 1], route[i], start);
                     pointForNozzle = getPointForNozzle(route[i], angle, model.NozzleDiameter);
-                    addPoints(route, i, angle, route[i - 1], route[i], start);
+                    i = addPoints(route, i, angle, route[i - 1], route[i], start);
                 }
                 else
                 {
                     angle = getAngleBisector(route[i - 1], route[i], route[i + 1]);
                     pointForNozzle = getPointForNozzle(route[i], angle, model.NozzleDiameter);
-                    addPoints(route, i, angle, route[i - 1], route[i], route[i + 1]);
+                    i = addPoints(route, i, angle, route[i - 1], route[i], route[i + 1]);
                 }
                 for (int x = (int)Math.Ceiling(pointForNozzle.X - model.NozzleDiameter / 2.0); x <(int)Math.Ceiling(pointForNozzle.X + model.NozzleDiameter / 2.0); x++)
                 {
@@ -200,68 +200,74 @@ namespace GCodeConvertor
                     }
                 }
                 
-                i += 2;
             }
             for (int i = 0; i < route.Count; i++)
             {
                 route[i] = new Point(route[i].X + 0.5, route[i].Y + 0.5);
             }
-            route.Add(start);
+            route.Add(new Point(start.X + 0.5, start.Y + 0.5));
             layer.thread.AddRange(route);
         }
 
-        private static void addPoints(List<Point> route, int i, double angle, Point a, Point b, Point c)
+        private static int addPoints(List<Point> route, int i, double angle, Point a, Point b, Point c)
         {
             if (-Math.PI / 8 <= angle && angle < Math.PI / 8)
             {
                 if (a.Y < c.Y)
                 {
                     route.Insert(i, new Point(b.X, b.Y - 1));
-                    route.Insert(i, new Point(b.X, b.Y + 1));
+                    route.Insert(i+2, new Point(b.X, b.Y + 1));
                 }
                 else
                 {
                     route.Insert(i, new Point(b.X, b.Y + 1));
-                    route.Insert(i, new Point(b.X, b.Y - 1));
+                    route.Insert(i+2, new Point(b.X, b.Y - 1));
                 }
-                return;
+                return i +2;
             }
             if (3 * Math.PI / 8 <= angle && angle < 5 * Math.PI / 8)
             {
                 if (a.X < c.X)
                 {
                     route.Insert(i, new Point(b.X - 1, b.Y ));
-                    route.Insert(i, new Point(b.X + 1, b.Y));
+                    route.Insert(i + 2, new Point(b.X + 1, b.Y));
                 }
                 else
                 {
                     route.Insert(i, new Point(b.X+1, b.Y));
-                    route.Insert(i, new Point(b.X-1,b.Y));
+                    route.Insert(i + 2, new Point(b.X-1,b.Y));
                 }
+                return i + 2;
             }
             if (-3 * Math.PI / 8 >= angle && angle > -5 * Math.PI / 8)
             {
                 if (a.X < c.X)
                 {
                     route.Insert(i, new Point(b.X + 1, b.Y));
-                    route.Insert(i, new Point(b.X - 1, b.Y));
+                    route.Insert(i + 2, new Point(b.X - 1, b.Y));
                 }
                 else
                 {
                     route.Insert(i, new Point(b.X - 1, b.Y));
-                    route.Insert(i, new Point(b.X + 1, b.Y));
+                    route.Insert(i + 2, new Point(b.X + 1, b.Y));
                 }
+                return i + 2;
             }
-            if (a.Y < c.Y)
+            if (-7 * Math.PI / 8 >= angle || angle > 7 * Math.PI / 8)
             {
-                route.Insert(i, new Point(b.X, b.Y - 1));
-                route.Insert(i, new Point(b.X, b.Y + 1));
+                if (a.Y < c.Y)
+                {
+                    route.Insert(i, new Point(b.X, b.Y - 1));
+                    route.Insert(i + 2, new Point(b.X, b.Y + 1));
+                }
+                else
+                {
+                    route.Insert(i, new Point(b.X, b.Y + 1));
+                    route.Insert(i + 2, new Point(b.X, b.Y - 1));
+                }
+                return i + 2;
             }
-            else
-            {
-                route.Insert(i, new Point(b.X, b.Y + 1));
-                route.Insert(i, new Point(b.X, b.Y - 1));
-            }
+            return i;   
         }
         private static double getAngleBisector(Point A, Point B, Point C)
         {
