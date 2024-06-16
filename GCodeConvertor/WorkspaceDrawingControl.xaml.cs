@@ -480,7 +480,16 @@ namespace GCodeConvertor
                     Point point = resolver.resolve(midX, midY, cellSize);
                     midX = point.X;
                     midY = point.Y;
-                    
+
+                    int indexPoint = activeLayer.getThreadPoint(new Point(getThreadValueByTopologyValue((int)Math.Floor(point.X / cellSize)),
+                                               getThreadValueByTopologyValue((int)Math.Floor(point.Y / cellSize))));
+                    if (indexPoint != -1) 
+                    {
+                        point = resolver.resolve(midX, midY, cellSize);
+                        midX = point.X;
+                        midY = point.Y;
+                    }
+
                     ellipseGeometry = new EllipseGeometry(new Point(midX, midY), ELLIPSE_SIZE, ELLIPSE_SIZE);
                     intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
                     foreach (Rectangle rectIn in rectangles)
@@ -496,7 +505,6 @@ namespace GCodeConvertor
                     Debug.WriteLine($"Moved to ({midX}, {midY}), new intersection detail: {intersectionDetail}");
                 }
             }
-
             addLine(line, midX, midY);
             Debug.WriteLine($"Ellipse placed at ({midX}, {midY})");
         }
