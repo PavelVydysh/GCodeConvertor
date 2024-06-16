@@ -169,7 +169,7 @@ namespace GCodeConvertor
 
         public int getThreadPoint(Point point)
         {
-            for(int i = 1; i < thread.Count; i++)
+            for (int i = thread.Count - 1; i >= 0; i--)
             {
                 if (thread[i].Equals(point)) return i;
             }
@@ -178,7 +178,7 @@ namespace GCodeConvertor
 
         public int getSelectedThreadPoint(Point point)
         {
-            for (int i = 1; i < selectedThread.Count; i++)
+            for (int i = selectedThread.Count - 1; i >= 0; i--)
             {
                 if (selectedThread[i].Equals(point)) return i;
             }

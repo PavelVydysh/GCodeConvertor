@@ -445,10 +445,7 @@ namespace GCodeConvertor
             {
                 if(conflictLines.Count > 0)
                 {
-                    foreach (Line conflictLine in conflictLines)
-                    {
-                        resolveConflict(conflictLine);
-                    }
+                    resolveConflict(conflictLines[conflictLines.Count - 1]);
                     repaint();
                 }
             }
@@ -465,7 +462,7 @@ namespace GCodeConvertor
             ConflictResolver resolver = null;
 
             EllipseGeometry ellipseGeometry = new EllipseGeometry(new Point(midX, midY), ELLIPSE_SIZE, ELLIPSE_SIZE);
-            foreach (Rectangle rect in needles)
+            foreach (Rectangle rect in rectangles)
             {
                 RectangleGeometry rectGeom = new RectangleGeometry(new Rect(Canvas.GetLeft(rect), Canvas.GetTop(rect), rect.Width, rect.Height));
                 IntersectionDetail intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
@@ -486,7 +483,7 @@ namespace GCodeConvertor
                     
                     ellipseGeometry = new EllipseGeometry(new Point(midX, midY), ELLIPSE_SIZE, ELLIPSE_SIZE);
                     intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
-                    foreach (Rectangle rectIn in needles)
+                    foreach (Rectangle rectIn in rectangles)
                     {
                         rectGeom = new RectangleGeometry(new Rect(Canvas.GetLeft(rectIn), Canvas.GetTop(rectIn), rectIn.Width, rectIn.Height));
                         intersectionDetail = ellipseGeometry.FillContainsWithDetail(rectGeom);
@@ -520,6 +517,7 @@ namespace GCodeConvertor
             int indexOfEndPoint = activeLayer.getThreadPoint(threadEndPoint);
 
             activeLayer.insertBeforePositionThreadPoint(point, indexOfEndPoint);
+            MessageBox.Show("");
         }
 
         private double getThreadValueByTopologyValue(double topologyValue)
