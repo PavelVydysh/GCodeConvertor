@@ -48,7 +48,7 @@ namespace GCodeConvertor
         {
             var result = Topology.fillNozzlesAndLayer(model);
             topology = result.topology;
-            layers = new List<Layer>() { result.layer };
+            layers = result.layer;
         }
 
         public bool isPointTopologyCorrect(Point topologyPoint)

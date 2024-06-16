@@ -124,7 +124,7 @@ namespace GCodeConvertor
             return (maxX - minX + 3, maxY - minY + 3);
         }
 
-        public static (Topology topology, Layer layer) fillNozzlesAndLayer(TopologyByLineModel model)
+        public static (Topology topology, List<Layer> layer) fillNozzlesAndLayer(TopologyByLineModel model)
         {
             Shape shape = new Shape();
             bool isLoaded = shape.loadPreset(model.PathShape);
@@ -132,25 +132,30 @@ namespace GCodeConvertor
             TensionLines tensionLines = new TensionLines();
             tensionLines.loadPreset(model.PathTensionLines);
 
-            //Point[] shape = new Point[1]; // из файла
-            //Point[][] tensionLines = {new Point[1], new Point[1], new Point[2]}; // из файла
+            List<Layer> layers = new List<Layer>();
 
             Topology topology = new Topology(model, shape.points, tensionLines.points);
-            Layer layer = new Layer();
+            Layer layer;
             //линии
             foreach (List<Point> line in tensionLines.points)
             {
+                layer = new Layer();
                 makeFigure(topology, layer, model, line);
+                layers.Add(layer);
             }
 
             //форма
+            layer = new Layer();
             makeFigure(topology, layer, model, shape.points);
-
+            layers.Add(layer);
             //штриховка
+
+            layer = new Layer();
             List<Point> hatchingPoints = GetHatchingPoints(shape.points, model.Step);
             makeFigure(topology, layer, model, hatchingPoints);
+            layers.Add(layer);
 
-            return (topology, layer);
+            return (topology, layers);
         }
 
         private static void makeFigure(Topology topology, Layer layer, TopologyByLineModel model, List<Point> shape)
