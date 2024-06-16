@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
+using static System.Windows.Forms.LinkLabel;
 
 namespace GCodeConvertor
 {
@@ -157,17 +158,17 @@ namespace GCodeConvertor
             List<Point> route = new List<Point>();
 
             Point[] startPoints = new Point[4];
-            startPoints[0] = new Point(0, 0);
-            startPoints[1] = new Point(topology.map.GetUpperBound(0), 0);
-            startPoints[2] = new Point(0, topology.map.GetUpperBound(1));
-            startPoints[3] = new Point(topology.map.GetUpperBound(0), topology.map.GetUpperBound(1));
+            startPoints[0] = new Point(0.5, 0.5);
+            startPoints[1] = new Point(topology.map.GetUpperBound(0) - 0.5, 0.5);
+            startPoints[2] = new Point(0.5, topology.map.GetUpperBound(1) - 0.5);
+            startPoints[3] = new Point(topology.map.GetUpperBound(0) - 0.5, topology.map.GetUpperBound(1) - 0.5);
 
             Point start = findNearestToStart(startPoints, shape[0]);
 
             route.Add(start);
             for (int i = 0; i < shape.Count; i++)
             {
-                route.Add(new Point(shape[i].X + model.HeadIdentationX + 2, shape[i].Y + model.HeadIdentationY + 2));
+                route.Add(new Point(shape[i].X + model.HeadIdentationX + 1, shape[i].Y + model.HeadIdentationY+1));
             }
             Point pointForNozzle;
             for (int i = 1; i < route.Count; i++)
@@ -180,66 +181,90 @@ namespace GCodeConvertor
                 {
                     pointForNozzle = getPointForNozzle(route[i], getAngleBisector(route[i - 1], route[i], route[i + 1]), model.NozzleDiameter);
                 }
-                for (int x = (int)(pointForNozzle.X - model.NozzleDiameter / 2); x < (int)(pointForNozzle.X + model.NozzleDiameter / 2); x++)
+                for (int x = (int)Math.Ceiling(pointForNozzle.X - model.NozzleDiameter / 2.0); x <(int)Math.Ceiling(pointForNozzle.X + model.NozzleDiameter / 2.0); x++)
                 {
-                    for (int y = (int)(pointForNozzle.Y - model.NozzleDiameter / 2); y < (int)(pointForNozzle.Y + model.NozzleDiameter / 2); y++)
+                    for (int y = (int)Math.Ceiling(pointForNozzle.Y - model.NozzleDiameter / 2.0); y < (int)Math.Ceiling(pointForNozzle.Y + model.NozzleDiameter / 2.0); y++)
                     {
                         topology.map[x, y] = 3;
                     }
                 }
+            }
+            for (int i = 0; i < route.Count; i++)
+            {
+                route[i] = new Point(route[i].X + 0.5, route[i].Y + 0.5);
             }
             route.Add(start);
             layer.thread.AddRange(route);
         }
 
 
-        private static double getAngleBisector(Point a, Point b, Point c)
+        private static double getAngleBisector(Point A, Point B, Point C)
         {
-            // Векторы, образующие угол
-            var vectorAB = new Point(a.X - b.X, a.Y - b.Y);
-            var vectorCB = new Point(c.X - b.X, c.Y - b.Y);
+            A = new Point(A.X, - A.Y);
+            B = new Point(B.X, - B.Y);
+            C = new Point(C.X, - C.Y);
+            double ABx = A.X - B.X;
+            double ABy = A.Y - B.Y;
+            double BCx = C.X - B.X;
+            double BCy = C.Y - B.Y;
 
-            // Углы векторов относительно оси X
-            double angleAB = Math.Atan2(vectorAB.Y, vectorAB.X);
-            double angleCB = Math.Atan2(vectorCB.Y, vectorCB.X);
+            // Длины векторов AB и BC
+            double lengthAB = Math.Sqrt(ABx * ABx + ABy * ABy);
+            double lengthBC = Math.Sqrt(BCx * BCx + BCy * BCy);
 
-            // Средний угол
-            double bisectorAngle = (angleAB + angleCB) / 2;
+            // Нормализуем векторы AB и BC
+            double unitABx = ABx / lengthAB;
+            double unitABy = ABy / lengthAB;
+            double unitBCx = BCx / lengthBC;
+            double unitBCy = BCy / lengthBC;
 
-            return bisectorAngle;
+            // Найдем сумму нормализованных векторов
+            double bisectorDirectionX = unitABx + unitBCx;
+            double bisectorDirectionY = unitABy + unitBCy;
+
+            // Длина суммы нормализованных векторов
+            double lengthBisector = Math.Sqrt(bisectorDirectionX * bisectorDirectionX + bisectorDirectionY * bisectorDirectionY);
+
+            // Нормализуем направление биссектрисы
+            double bisectorUnitX = bisectorDirectionX / lengthBisector;
+            double bisectorUnitY = bisectorDirectionY / lengthBisector;
+
+
+            // Биссектриса из точки B
+            return Math.Atan2(bisectorUnitY,bisectorUnitX);
         }
 
         private static Point getPointForNozzle(Point point, double angle, float nozzleDiameter)
         {
             //вообще не уверен
-            int nozzleHalf = (int)nozzleDiameter / 2;
+            int nozzleHalf = (int)Math.Ceiling(nozzleDiameter / 2.0);
             if (-Math.PI / 8 <= angle && angle < Math.PI / 8)
             {
                 return new Point(point.X + nozzleHalf, point.Y);
             }
             if (Math.PI / 8 <= angle && angle < 3 * Math.PI / 8)
             {
-                return new Point(point.X + nozzleHalf, point.Y + nozzleHalf);
+                return new Point(point.X + nozzleHalf, point.Y - nozzleHalf);
             }
             if (3 * Math.PI / 8 <= angle && angle < 5 * Math.PI / 8)
             {
-                return new Point(point.X, point.Y + nozzleHalf);
+                return new Point(point.X, point.Y - nozzleHalf);
             }
             if (5 * Math.PI / 8 <= angle && angle < 7 * Math.PI / 8)
             {
-                return new Point(point.X - nozzleHalf, point.Y + nozzleHalf);
-            }
-            if (-Math.PI / 8 <= angle && angle < -3 * Math.PI / 8)
-            {
-                return new Point(point.X + nozzleHalf, point.Y - nozzleHalf);
-            }
-            if (-3 * Math.PI / 8 <= angle && angle < -5 * Math.PI / 8)
-            {
-                return new Point(point.X, point.Y - nozzleHalf);
-            }
-            if (-5 * Math.PI / 8 <= angle && angle < -7 * Math.PI / 8)
-            {
                 return new Point(point.X - nozzleHalf, point.Y - nozzleHalf);
+            }
+            if (-Math.PI / 8 >= angle && angle > -3 * Math.PI / 8)
+            {
+                return new Point(point.X + nozzleHalf, point.Y + nozzleHalf);
+            }
+            if (-3 * Math.PI / 8 >= angle && angle > -5 * Math.PI / 8)
+            {
+                return new Point(point.X, point.Y + nozzleHalf);
+            }
+            if (-5 * Math.PI / 8 >= angle && angle > -7 * Math.PI / 8)
+            {
+                return new Point(point.X - nozzleHalf, point.Y + nozzleHalf);
             }
 
             return new Point(point.X - nozzleHalf, point.Y);
