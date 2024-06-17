@@ -730,10 +730,14 @@ namespace GCodeConvertor
                     Point[] segment = new Point[i - sigmentStart];
                     Array.Copy(route, sigmentStart, segment, 0, i - sigmentStart);
 
-                    double leftTopMinDistance = GetAvgDistance(leftTop, segment, 30);
-                    double rightTopMinDistance = GetAvgDistance(rightTop, segment, 30);
-                    double rightDownMinDistance = GetAvgDistance(rightDown, segment, 30);
-                    double leftDownMinDistance = GetAvgDistance(leftDown, segment, 30);
+                    double leftTopMinDistance = GetMinDistance(leftTop, segment);
+                    //double leftTopMinDistance = GetAvgDistance(leftTop, segment, 150);
+                    double rightTopMinDistance = GetMinDistance(rightTop, segment);
+                    //double rightTopMinDistance = GetAvgDistance(rightTop, segment, 150);
+                    double rightDownMinDistance = GetMinDistance(rightDown, segment);
+                    //double rightDownMinDistance = GetAvgDistance(rightDown, segment, 150);
+                    double leftDownMinDistance = GetMinDistance(leftDown, segment);
+                    //double leftDownMinDistance = GetAvgDistance(leftDown, segment, 150);
 
 
                     double minDistance = double.MaxValue;
@@ -770,8 +774,8 @@ namespace GCodeConvertor
                 }
             }
             if (result.Count > 1) result.Add(route.Last());
-            return RemoveExtraPoints(result, 1);
-            //return result;
+            //return RemoveExtraPoints(result, 1);
+            return result;
         }
 
         public static Point[] RoutePreprocessing(Point[] route, double segmentLength)
@@ -865,6 +869,24 @@ namespace GCodeConvertor
                 return GetAvgDistance(point, route, distanceToPoint * 2);
             }
             return avgDistance / count;
+        }
+
+
+        private static double GetMinDistance(Point point, Point[] route)
+        {
+            double minDistance = double.MaxValue;
+            double distance = 0;
+
+            foreach (Point p in route)
+            {
+                distance = GetDistance(p, point);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                }
+            }
+
+            return minDistance;
         }
 
         private static double GetDistance(Point p1, Point p2)
