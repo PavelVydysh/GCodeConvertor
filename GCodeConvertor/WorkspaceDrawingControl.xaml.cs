@@ -730,10 +730,10 @@ namespace GCodeConvertor
                     Point[] segment = new Point[i - sigmentStart];
                     Array.Copy(route, sigmentStart, segment, 0, i - sigmentStart);
 
-                    double leftTopMinDistance = GetAvgDistance(leftTop, segment);
-                    double rightTopMinDistance = GetAvgDistance(rightTop, segment);
-                    double rightDownMinDistance = GetAvgDistance(rightDown, segment);
-                    double leftDownMinDistance = GetAvgDistance(leftDown, segment);
+                    double leftTopMinDistance = GetAvgDistance(leftTop, segment, 30);
+                    double rightTopMinDistance = GetAvgDistance(rightTop, segment, 30);
+                    double rightDownMinDistance = GetAvgDistance(rightDown, segment, 30);
+                    double leftDownMinDistance = GetAvgDistance(leftDown, segment, 30);
 
 
                     double minDistance = double.MaxValue;
@@ -847,7 +847,7 @@ namespace GCodeConvertor
             return Math.Abs(ABC - (ABP + APC + PBC)) < 5;
         }
 
-        private static double GetAvgDistance(Point point, Point[] route)
+        private static double GetAvgDistance(Point point, Point[] route, int distanceToPoint)
         {
             double avgDistance = 0;
             double distance = 0;
@@ -855,11 +855,14 @@ namespace GCodeConvertor
             foreach (Point p in route)
             {
                 distance = GetDistance(p, point);
-                if (distance < 100)
+                if (distance < distanceToPoint)
                 {
                     avgDistance += distance;
                     count++;
                 }
+            }
+            if (avgDistance == 0) {
+                return GetAvgDistance(point, route, distanceToPoint * 2);
             }
             return avgDistance / count;
         }

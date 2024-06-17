@@ -243,13 +243,13 @@ namespace GCodeConvertor
             {
                 if (a.X < c.X)
                 {
-                    route.Insert(i, new Point(b.X + 1, b.Y));
-                    route.Insert(i + 2, new Point(b.X - 1, b.Y));
+                    route.Insert(i, new Point(b.X - 1, b.Y ));
+                    route.Insert(i + 2, new Point(b.X + 1, b.Y));
                 }
                 else
                 {
-                    route.Insert(i, new Point(b.X - 1, b.Y));
-                    route.Insert(i + 2, new Point(b.X + 1, b.Y));
+                    route.Insert(i, new Point(b.X+1, b.Y));
+                    route.Insert(i + 2, new Point(b.X-1,b.Y));
                 }
                 return i + 2;
             }
