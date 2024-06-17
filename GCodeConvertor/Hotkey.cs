@@ -1,4 +1,5 @@
-﻿using GCodeConvertor.WorkspaceInstruments;
+﻿using GCodeConvertor.ProjectForm;
+using GCodeConvertor.WorkspaceInstruments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,25 +13,29 @@ namespace GCodeConvertor
     {
         public List<Key> keys {  get; }
 
-        public WorkspaceInstrument workspaceInstrument { get; }
+        public InstrumentButtonInfo workspaceInstrument { get; }
 
-        public WorkspaceDrawingControl workspaceDrawingControl { get; }
+        public ProjectWindow projectWindow { get; }
 
         public Hotkey(
-            List<Key> keys, 
-            WorkspaceInstrument workspaceInstrument,
-            WorkspaceDrawingControl workspaceDrawingControl) 
+            List<Key> keys,
+            InstrumentButtonInfo workspaceInstrument,
+            ProjectWindow projectWindow) 
         {
             this.keys = keys;
             this.workspaceInstrument = workspaceInstrument;
-            this.workspaceDrawingControl = workspaceDrawingControl;
+            this.projectWindow = projectWindow;
         }
 
         public void selectInstrument(List<Key> pressedKeys)
         {
             if (pressedKeys.All(keys.Contains) && keys.All(pressedKeys.Contains))
             {
-                workspaceDrawingControl.workspaceIntrument = workspaceInstrument;
+                int indexOfInstrument = projectWindow.workspaceInstruments.IndexOf(workspaceInstrument);
+                if(indexOfInstrument != -1)
+                {
+                    projectWindow.setSelectedInstrument(indexOfInstrument);
+                }
             }
         }
 

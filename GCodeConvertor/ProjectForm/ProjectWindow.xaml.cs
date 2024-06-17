@@ -52,7 +52,7 @@ namespace GCodeConvertor.ProjectForm
         public string projectName { get; set; }
 
         List<Hotkey> hotkeys;
-        List<Key> pressedKeys;
+        HashSet<Key> pressedKeys;
 
         public ProjectWindow(OpenProjectForm openProjectForm)
         {
@@ -71,9 +71,12 @@ namespace GCodeConvertor.ProjectForm
             WorkspaceInstrument drawing = new DrawingWorkspaceInstrument(wdc);
             WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(wdc);
             WorkspaceInstrument moving = new MoveWorkspaceInstrument(wdc);
-            workspaceInstruments.Add(new InstrumentButtonInfo("Кисть", drawing, "pack://application:,,,/Resources/brush_icon.png"));
-            workspaceInstruments.Add(new InstrumentButtonInfo("Зум", zooming, "pack://application:,,,/Resources/zoom_icon.png"));
-            workspaceInstruments.Add(new InstrumentButtonInfo("Движение", moving, "pack://application:,,,/Resources/move_icon.png"));
+            InstrumentButtonInfo instrumentButtonInfoDrawing = new InstrumentButtonInfo("Кисть", drawing, "pack://application:,,,/Resources/brush_icon.png");
+            InstrumentButtonInfo instrumentButtonInfoZooming = new InstrumentButtonInfo("Зум", zooming, "pack://application:,,,/Resources/zoom_icon.png");
+            InstrumentButtonInfo instrumentButtonInfoMoving = new InstrumentButtonInfo("Движение", moving, "pack://application:,,,/Resources/move_icon.png");
+            workspaceInstruments.Add(instrumentButtonInfoDrawing);
+            workspaceInstruments.Add(instrumentButtonInfoZooming);
+            workspaceInstruments.Add(instrumentButtonInfoMoving);
 
             IntrumentListBox.SelectedIndex = 0;
 
@@ -89,20 +92,23 @@ namespace GCodeConvertor.ProjectForm
             PreviewKeyDown += Window_KeyDown;
 
             hotkeys = new List<Hotkey>();
-            pressedKeys = new List<Key>();
+            pressedKeys = new HashSet<Key>();
 
             List<Key> drawingHotkeys = new List<Key>();
-            drawingHotkeys.Add(Key.F2);
+            drawingHotkeys.Add(Key.LeftShift);
+            drawingHotkeys.Add(Key.D);
 
             List<Key> zoomingHotkeys = new List<Key>();
-            zoomingHotkeys.Add(Key.F1);
+            zoomingHotkeys.Add(Key.LeftShift);
+            zoomingHotkeys.Add(Key.Z);
 
             List<Key> movingHotkeys = new List<Key>();
-            movingHotkeys.Add(Key.F3);
+            movingHotkeys.Add(Key.LeftShift);
+            movingHotkeys.Add(Key.M);
 
-            hotkeys.Add(new Hotkey(drawingHotkeys, drawing, wdc));
-            hotkeys.Add(new Hotkey(zoomingHotkeys, zooming, wdc));
-            hotkeys.Add(new Hotkey(movingHotkeys, moving, wdc));
+            hotkeys.Add(new Hotkey(drawingHotkeys, instrumentButtonInfoDrawing, this));
+            hotkeys.Add(new Hotkey(zoomingHotkeys, instrumentButtonInfoZooming, this));
+            hotkeys.Add(new Hotkey(movingHotkeys, instrumentButtonInfoMoving, this));
         }
 
         private void OpenScriptForm(object sender, RoutedEventArgs e)
@@ -140,6 +146,11 @@ namespace GCodeConvertor.ProjectForm
                     wdc.setActiveWorkspaceInstrument(instrument.workspaceInstrument);
                 }
             }
+        }
+
+        public void setSelectedInstrument(int indexOfInstrument)
+        {
+            IntrumentListBox.SelectedIndex = indexOfInstrument;
         }
 
         private void ShowLayersPopup(object sender, RoutedEventArgs e)
@@ -191,7 +202,7 @@ namespace GCodeConvertor.ProjectForm
         {
             foreach (Hotkey hotkey in hotkeys)
             {
-                hotkey.selectInstrument(pressedKeys);
+                hotkey.selectInstrument(pressedKeys.ToList());
             }
 
             pressedKeys.Remove(e.Key);
