@@ -124,11 +124,19 @@ namespace GCodeConvertor
                         {
                             error = "Отступ платформы по оси X должен быть больше 0 мм";
                         }
+                        if (HeadIdentationX > 50)
+                        {
+                            error = "Отступ платформы по оси X должен быть меньше или равен 50 мм";
+                        }
                         break;
                     case "HeadIdentationY":
                         if (HeadIdentationY <= 0)
                         {
                             error = "Отступ платформы по оси Y должен быть больше 0 мм";
+                        }
+                        if (HeadIdentationY > 50)
+                        {
+                            error = "Отступ платформы по оси Y должен быть меньше или равен 50 мм";
                         }
                         break;
                     case "NozzleDiameter":
@@ -136,11 +144,19 @@ namespace GCodeConvertor
                         {
                             error = "Диаметр сопла должен быть больше 0 мм";
                         }
+                        if (NozzleDiameter > 5)
+                        {
+                            error = "Диаметр сопла должен быть меньше или равен 5 мм";
+                        }
                         break;
                     case "NeedleDiameter":
                         if (NeedleDiameter <= 0)
                         {
                             error = "Диаметр иглы должен быть больше 0 мм";
+                        }
+                        if (NeedleDiameter > 5)
+                        {
+                            error = "Диаметр иглы должен быть меньше или равен 5 мм";
                         }
                         break;
                     case "Accuracy":
@@ -152,7 +168,11 @@ namespace GCodeConvertor
                     case "Step":
                         if (Step < 10)
                         {
-                            error = "Шаг должен быть больше, либо равен 10 мм";
+                            error = "Шаг должен быть не меньше 10 мм";
+                        }
+                        if (Step > 50)
+                        {
+                            error = "Шаг должен быть меньше или равен 50 мм";
                         }
                         break;
                     case "PathShape":
