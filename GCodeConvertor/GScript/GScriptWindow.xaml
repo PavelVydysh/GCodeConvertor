@@ -1,0 +1,233 @@
+﻿<Window x:Name="GScriptFrame" x:Class="GCodeConvertor.GScript.GScriptWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GCodeConvertor.GScript"
+        mc:Ignorable="d"
+        Title="G-скрипт" 
+        WindowStyle="None"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico"
+        Background="Transparent" AllowsTransparency="true"
+        Height="500" Width="600">
+    <Window.Resources>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <ScrollViewer x:Name="PART_ContentHost"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+      BorderBrush="{TemplateBinding BorderBrush}" 
+      BorderThickness="{TemplateBinding BorderThickness}" 
+      CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{StaticResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CommandButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                 BorderBrush="{TemplateBinding BorderBrush}" 
+                 BorderThickness="{TemplateBinding BorderThickness}" 
+                 CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                           Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CreateButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource CreateButtonBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CreateButtonBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+         BorderBrush="{TemplateBinding BorderBrush}" 
+         BorderThickness="{TemplateBinding BorderThickness}" 
+         CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                   Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TextBlockStyle" TargetType="TextBlock">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Border Grid.Row="0"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid  Background="{DynamicResource BackgroundBrush}" 
+                   MouseLeftButtonDown="MoveWindow">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                    <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
+                    <TextBlock Text="G-скрипт" FontSize="14" VerticalAlignment="Center" Foreground="{StaticResource SecondaryBrush}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Style="{StaticResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+                <Button Grid.Column="3" Style="{StaticResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+            </Grid>
+        </Border>
+        
+        <Grid Grid.Row="1" Background="{DynamicResource BackgroundBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="200"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="0,0,1,0">
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden" Name="lineNumbersScrollViewer"
+                                         BorderBrush ="{DynamicResource BorderBrush}"
+                                         BorderThickness="0,0,1,0">
+                                                        <TextBox x:Name="lineNumbersTextBox" 
+                                         IsReadOnly="True" 
+                                         VerticalScrollBarVisibility="Auto" 
+                                         TextWrapping="Wrap" 
+                                         FontSize="16" 
+                                         FontFamily="Arial"
+                                         Style="{DynamicResource TextBoxStyle}"></TextBox>
+                        </ScrollViewer>
+                    </Border>
+                    
+                    <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" Name="textScrollViewer" ScrollChanged="textScrollViewer_ScrollChanged"
+                                  BorderBrush ="{DynamicResource BorderBrush}"
+                                  BorderThickness="0,0,1,0">
+                        <TextBox x:Name="textBox" 
+                                 TextWrapping="Wrap" 
+                                 AcceptsReturn="True" 
+                                 VerticalScrollBarVisibility="Auto" 
+                                 FontSize="16" FontFamily="Arial" 
+                                 TextChanged="TextBox_TextChanged"
+                                 Style="{DynamicResource TextBoxStyle}"/>
+                    </ScrollViewer>
+                    <Border Grid.Column="2"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1,0,0,0">
+                        <Grid Background="{DynamicResource BackgroundBrush}">
+                            <StackPanel Orientation="Vertical" Margin="5">
+                                <TextBlock Style="{DynamicResource TextBlockStyle}" Text="Список команд" HorizontalAlignment="Center" Margin="0, 0, 0, 10"></TextBlock>
+                                <Button x:Name="upSDutton" Style="{DynamicResource CommandButtonStyle}" Content="ВВЕРХ" HorizontalAlignment="Stretch" Margin="0, 0, 0, 5" Click="upSDutton_Click"/>
+                                <Grid Margin="0, 0, 0, 5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button x:Name="leftSButton" Grid.Column="0" Style="{DynamicResource CommandButtonStyle}" Content="ВЛЕВО" HorizontalAlignment="Stretch"  Click="leftSButton_Click" Margin="0,0,2.5,0"/>
+                                    <Button x:Name="rightSButton" Grid.Column="1" Style="{DynamicResource CommandButtonStyle}" Content="ВПРАВО" HorizontalAlignment="Stretch" Click="rightSButton_Click" Margin="2.5,0,0,0"/>
+                                </Grid>
+                                <Button x:Name="downSButton" Style="{DynamicResource CommandButtonStyle}" Content="ВНИЗ" HorizontalAlignment="Stretch" Margin="0, 0, 0, 5" Click="downSButton_Click"/>
+                                <Button x:Name="setDotButton" Style="{DynamicResource CommandButtonStyle}" Content="ТОЧКА" HorizontalAlignment="Stretch" Margin="0, 0, 0, 5" Click="setDotButton_Click"/>
+                                <Button x:Name="startDrawButton_Copy" Style="{DynamicResource CommandButtonStyle}" Content="СТАРТ-РИСУНОК" HorizontalAlignment="Stretch"  Margin="0, 0, 0, 5" Click="startDrawButton_Copy_Click"/>
+                                <Button x:Name="drawButton" Style="{DynamicResource CommandButtonStyle}" Content="РИСУНОК" HorizontalAlignment="Stretch" Click="drawButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <Border Grid.Row="1"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="0,1,0,1">
+                    <ScrollViewer  VerticalScrollBarVisibility="Auto" Name="consoleScroll" ScrollChanged="textScrollViewer_ScrollChanged">
+                        <TextBox x:Name="console" 
+                                 TextWrapping="Wrap" 
+                                 AcceptsReturn="True" 
+                                 VerticalScrollBarVisibility="Auto" 
+                                 FontSize="16" 
+                                 FontFamily="Arial" 
+                                 Height="150" 
+                                 IsReadOnly="True"
+                                 Style="{DynamicResource TextBoxStyle}"
+                                 Padding="5"/>
+                    </ScrollViewer>
+                </Border>
+                
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="2" Background="{StaticResource BackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Style="{StaticResource CreateButtonStyle}" Height="30" Content="Запустить" Click="startScriptButton_Click" Margin="0, 0, 10, 0" />
+        </Grid>
+    </Grid>
+</Window>

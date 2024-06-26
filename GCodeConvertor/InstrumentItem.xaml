@@ -1,0 +1,11 @@
+﻿<UserControl x:Class="GCodeConvertor.WorkspaceInstruments.InstrumentItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GCodeConvertor.WorkspaceInstruments"
+             mc:Ignorable="d" Grid.Column="0">
+    <StackPanel x:Name="panelInstrument" Background="Transparent" Width="50" Height="50">
+        <TextBlock Name="labelInstrument" Text="{Binding elementName}" VerticalAlignment="Center" />
+    </StackPanel>
+</UserControl>

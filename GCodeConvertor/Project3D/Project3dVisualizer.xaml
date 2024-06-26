@@ -1,0 +1,291 @@
+﻿<Window x:Class="GCodeConvertor.Project3D.Project3dVisualizer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:HelixToolkit="clr-namespace:HelixToolkit.Wpf;assembly=HelixToolkit.Wpf"
+        Title="3D визуализация" Width="1200" Height="900"
+        WindowStyle="None"
+        StateChanged="Window_StateChanged"
+        Background="Transparent" AllowsTransparency="True"
+        Icon="pack://application:,,,/Resources/gcode_logo.ico"
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
+    <Window.Resources>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+BorderBrush="{TemplateBinding BorderBrush}" 
+BorderThickness="{TemplateBinding BorderThickness}" 
+CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SecondaryBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+         BorderBrush="{TemplateBinding BorderBrush}" 
+         BorderThickness="{TemplateBinding BorderThickness}" 
+         CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                   Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource SecondaryBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource ForegroundBrush}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Margin" Value="0,5,0,1.5"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource CreateButtonBrush}"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                </Trigger>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource ErrorBrush}"/>
+                    <Setter Property="BorderThickness" Value="3"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="CustomThumbStyle" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Ellipse Fill="Blue" Width="20" Height="20"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+        <!-- Define a custom style for the Slider -->
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{DynamicResource BackgroundBrush}" MouseLeftButtonDown="MoveWindow" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" Margin="10, 0, 10, 0" >
+                <Image Source="pack://application:,,,/Resources/gcode_logo.ico" Width="20" Height="20" Margin="0,0,10,0"/>
+                <TextBlock Text="3D визуализация" FontSize="14" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryBrush}"/>
+            </StackPanel>
+
+            <Button Grid.Column="1" Style="{DynamicResource HeaderButtonStyle}" Content="_"  Width="50" Height="40" Click="HideWindow"/>
+            <Button Grid.Column="3" Style="{DynamicResource HeaderButtonStyle}" Content="x" Width="50" Height="40" Click="CloseWindow"/>
+        </Grid>
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,1,0,1">
+            <Grid Background="{DynamicResource BackgroundBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="80"/>
+                    </Grid.RowDefinitions>
+                    <HelixToolkit:HelixViewport3D 
+                        x:Name="Viewport3D" 
+                        ZoomExtentsWhenLoaded="True" 
+                        Background="{DynamicResource WorkspaceBackgroundBrush}"
+                        Loaded="Viewport3D_Loaded"
+                        Grid.Row="0">
+                        <HelixToolkit:SunLight/>
+                        
+                        <HelixToolkit:LinesVisual3D Points="0,0,0 0,50,0" Color="Green" Thickness="2"/>
+                        <HelixToolkit:LinesVisual3D Points="0,0,0 50,0,0" Color="Red" Thickness="2"/>
+                        <HelixToolkit:LinesVisual3D Points="0,0,0 0,0,50" Color="Blue"  Thickness="2"/>
+                    </HelixToolkit:HelixViewport3D>
+                    <Border Grid.Row="1"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="0,1,0,0">
+                        <Grid Margin="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" 
+                                       Text="Временная шкала"
+                                       TextAlignment="Center" 
+                                       Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"/>
+                            <Slider x:Name="TimelineSlider"
+                                    Grid.Row="1"
+                                    VerticalAlignment="Center"
+                                    ValueChanged="TimelineSlider_ValueChanged"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <Border Grid.Column="1"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1,0,0,0">
+                    <StackPanel Orientation="Vertical">
+                        <Border BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="0,0,0,1">
+                            <Grid Margin="10">
+                                <TextBlock Text="Характеристики моделирования" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"/>
+                            </Grid>
+                        </Border>
+                        <Border BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="0,0,0,1">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" 
+                                           Text="Текущее модельное время" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="14" Margin="0,0,0,10"/>
+                                <TextBlock Grid.Row="1" 
+                                           Text="{Binding workTime}" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="20"
+                                           FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" 
+                                           Text="секунд" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="20"
+                                           FontWeight="Bold"/>
+                            </Grid>
+                        </Border>
+                        <Border BorderBrush="{DynamicResource BorderBrush}"
+        BorderThickness="0,0,0,1">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" 
+                                           Text="Расход нити" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="14" Margin="0,0,0,10"/>
+                                <TextBlock Grid.Row="1" 
+                                           Text="{Binding lineLength}" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="20"
+                                           FontWeight="Bold"/>
+                                <TextBlock Grid.Row="2" 
+                                           Text="мм" 
+                                           TextAlignment="Center" 
+                                           Foreground="{DynamicResource ForegroundBrush}"
+                                           FontSize="20"
+                                           FontWeight="Bold"/>
+                            </Grid>
+                        </Border>
+                        <Border BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="0,0,0,1">
+                            <Grid Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" 
+                                   Text="Пользовательские настройки моделирования" 
+                                   TextTrimming="WordEllipsis"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center" 
+                                   Foreground="{DynamicResource ForegroundBrush}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold" 
+                                           Margin="0,0,0,10"/>
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Скорость сопла:" 
+                                               TextAlignment="Left"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource ForegroundBrush}"
+                                               FontSize="14" Margin="0,0,10,0"/>
+                                    <TextBox Grid.Column="1" 
+                                             Style="{DynamicResource TextBoxStyle}" 
+                                             Text="{Binding speed}"
+                                             x:Name="SpeedTextBox">
+                                    </TextBox>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Background="{DynamicResource BackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="2" Style="{DynamicResource CancelButtonStyle}" Height="30" Content="Выйти" Click="CloseWindow" Margin="0, 0, 15, 0"/>
+        </Grid>
+    </Grid>
+</Window>

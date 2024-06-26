@@ -1,4 +1,6 @@
 ﻿using GCodeConvertor;
+using GCodeConvertor.ProjectForm;
+using GCodeConvertor.UI;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -53,11 +55,11 @@ namespace GCodeConvertor
 
             if (openFileDialog.ShowDialog() == true)
             {
-                string pathToPreset = openFileDialog.FileName;
-                ProjectSettings.preset.loadPreset(openFileDialog.FileName);
-                ProjectWindow pw = new ProjectWindow();
-                pw.Show();
-                this.Close();
+                //string pathToPreset = openFileDialog.FileName;
+                //ProjectSettings.preset.loadPreset(openFileDialog.FileName);
+                //ProjectWindow pw = new ProjectWindow();
+                //pw.Show();
+                //this.Close();
             }
         }
 
@@ -82,19 +84,24 @@ namespace GCodeConvertor
     {
         public void create(TopologyModel topologyModel, MainWindow window)
         {
-            if (string.IsNullOrEmpty(topologyModel.error))
+            if (topologyModel.Errors.Count == 0)
             {
-                ProjectSettings.preset = new GlobalPreset(topologyModel);
-                ProjectWindow pw = new ProjectWindow();
-                pw.Show();
-                window.Close();
+                //ProjectSettings.preset = new GlobalPreset(topologyModel);
+                //ProjectWindow pw = new ProjectWindow();
+                //pw.Show();
+                //window.Close();
             }
             else
             {
-                MessageBox.Show("В настройках проекта указаны не все поля, либо допущены ошибки в оформлении полей.",
-                                "[Code 0] Не удалось создать проект",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
+                //string errorMessage = topologyModel.Errors.Count;
+                //foreach (string error in topologyModel.Errors.Values)
+                //{
+                //    errorMessage += error + "\n";
+                //}
+
+                //MessageBox.Show("Причина ошибки: \n" + topologyModel.error + "\nСуммарное количество неверно заполненных полей - " + topologyModel.Errors.Count, "Ошибка!",
+                //                MessageBoxButton.OK,
+                //                MessageBoxImage.Error);
             }
         }
 
