@@ -134,43 +134,27 @@ namespace GCodeConvertor
                         break;
 
                     case "PlatformH":
-                        if (PlatformH < 50)
+                        if (PlatformH < 0)
                         {
-                            error = "Длина платформы по оси Y не может быть меньше 50 мм";
-                        }
-                        if (PlatformH > 120)
-                        {
-                            error = "Длина платформы по оси Y должна быть меньше или равна 120 мм";
+                            error = "Длина платформы по оси Y не может быть меньше 0 мм";
                         }
                         break;
                     case "PlatformW":
-                        if (PlatformW < 50)
+                        if (PlatformW < 0)
                         {
-                            error = "Длина платформы по оси X не может быть меньше 50 мм";
-                        }
-                        if (PlatformW > 120)
-                        {
-                            error = "Длина платформы по оси X должна быть меньше или равна 120 мм";
+                            error = "Длина платформы по оси X не может быть меньше 0 мм";
                         }
                         break;
                     case "HeadIdentationX":
-                        if (HeadIdentationX <= 0)
+                        if (HeadIdentationX < 0)
                         {
-                            error = "Отступ платформы по оси X должен быть больше 0 мм";
-                        }
-                        if (HeadIdentationX > 50)
-                        {
-                            error = "Отступ платформы по оси X должен быть меньше или равен 50 мм";
+                            error = "Отступ платформы по оси X не может быть меньше 0 мм";
                         }
                         break;
                     case "HeadIdentationY":
-                        if (HeadIdentationY <= 0)
+                        if (HeadIdentationY < 0)
                         {
-                            error = "Отступ платформы по оси Y должен быть больше 0 мм";
-                        }
-                        if (HeadIdentationY > 50)
-                        {
-                            error = "Отступ платформы по оси Y должен быть меньше или равен 50 мм";
+                            error = "Отступ платформы по оси Y не может быть меньше 0 мм";
                         }
                         break;
                     case "NozzleDiameter":
@@ -178,39 +162,23 @@ namespace GCodeConvertor
                         {
                             error = "Диаметр сопла должен быть больше 0 мм";
                         }
-                        if (NozzleDiameter > 5)
-                        {
-                            error = "Диаметр сопла должен быть меньше или равен 5 мм";
-                        }
                         break;
                     case "NeedleDiameter":
                         if (NeedleDiameter <= 0)
                         {
                             error = "Диаметр иглы должен быть больше 0 мм";
                         }
-                        if (NeedleDiameter > 5)
-                        {
-                            error = "Диаметр иглы должен быть меньше или равен 5 мм";
-                        }
                         break;
                     case "StartNeedleOffsetX":
-                        if (StartNeedleOffsetX <= 0)
+                        if (StartNeedleOffsetX < 0)
                         {
-                            error = "Отступ стартовой иглы от края платформы по оси X должен быть больше 0 мм";
-                        }
-                        if (StartNeedleOffsetX > 10)
-                        {
-                            error = "Отступ стартовой иглы от края платформы по оси X должен быть меньше или равен 10 мм";
+                            error = "Отступ стартовой иглы от края платформы по оси X не может быть меньше 0 мм";
                         }
                         break;
                     case "StartNeedleOffsetY":
-                        if (StartNeedleOffsetY <= 0)
+                        if (StartNeedleOffsetY < 0)
                         {
-                            error = "Отступ стартовой иглы от края платформы по оси Y должен быть больше 0 мм";
-                        }
-                        if (StartNeedleOffsetY > 10)
-                        {
-                            error = "Отступ стартовой иглы от края платформы по оси Y должен быть меньше или равен 10 мм";
+                            error = "Отступ стартовой иглы от края платформы по оси Y не может быть меньше 0 мм";
                         }
                         break;
                     case "StepNeedlesX":
@@ -218,19 +186,11 @@ namespace GCodeConvertor
                         {
                             error = "Шаг между иглами по оси X должен быть больше 0 мм";
                         }
-                        if (StepNeedlesX > 10)
-                        {
-                            error = "Шаг между иглами по оси X должен быть меньше или равен 10 мм";
-                        }
                         break;
                     case "StepNeedlesY":
                         if (StepNeedlesY <= 0)
                         {
                             error = "Шаг между иглами по оси Y должен быть больше 0 мм";
-                        }
-                        if (StepNeedlesY <= 0)
-                        {
-                            error = "Шаг между иглами по оси Y должен быть меньше или равен 10 мм";
                         }
                         break;
                     case "Accuracy":
