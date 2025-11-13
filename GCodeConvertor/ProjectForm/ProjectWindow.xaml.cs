@@ -29,6 +29,7 @@ using System.Windows.Controls.Primitives;
 using static System.Net.Mime.MediaTypeNames;
 using System.Diagnostics;
 using System.IO;
+using GCodeConvertor.ProjectForm.WorkspaceInstruments;
 
 namespace GCodeConvertor.ProjectForm
 {
@@ -71,12 +72,15 @@ namespace GCodeConvertor.ProjectForm
             WorkspaceInstrument drawing = new DrawingWorkspaceInstrument(wdc);
             WorkspaceInstrument zooming = new ZoomingWorkspaceInstrument(wdc);
             WorkspaceInstrument moving = new MoveWorkspaceInstrument(wdc);
+            WorkspaceInstrument needle = new NeedleManagingWorkspaceInstrument(wdc);
             InstrumentButtonInfo instrumentButtonInfoDrawing = new InstrumentButtonInfo("Кисть", drawing, "pack://application:,,,/Resources/brush_icon.png");
             InstrumentButtonInfo instrumentButtonInfoZooming = new InstrumentButtonInfo("Зум", zooming, "pack://application:,,,/Resources/zoom_icon.png");
             InstrumentButtonInfo instrumentButtonInfoMoving = new InstrumentButtonInfo("Движение", moving, "pack://application:,,,/Resources/move_icon.png");
+            InstrumentButtonInfo instrumentButtonNeedle = new InstrumentButtonInfo("Игла", needle, "pack://application:,,,/Resources/needle_instrument_icon.png");
             workspaceInstruments.Add(instrumentButtonInfoDrawing);
             workspaceInstruments.Add(instrumentButtonInfoZooming);
             workspaceInstruments.Add(instrumentButtonInfoMoving);
+            workspaceInstruments.Add(instrumentButtonNeedle);
 
             IntrumentListBox.SelectedIndex = 0;
 
