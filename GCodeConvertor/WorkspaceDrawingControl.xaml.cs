@@ -52,6 +52,7 @@ namespace GCodeConvertor
         // Константы имён элементов
         private const string WORKSPACE_CANVAS_NAME = "WorkspaceCanvas";
         private const string CUSTOM_ELEMENT_TAG = "custom";
+        private const string FIELD_CELL_ELEMENT_TAG = "field_cell";
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -164,10 +165,16 @@ namespace GCodeConvertor
 
         public void repaint()
         {
+            needles.Clear();
+            rectangles.Clear();
+            deleteItemsByTag(FIELD_CELL_ELEMENT_TAG);
+            initWorkspace();
+
             customLineStorage.clear();
             ellipses.Clear();
             conflictLines.Clear();
-            deleteCustomItems();
+            deleteItemsByTag(CUSTOM_ELEMENT_TAG);
+
             if (activeLayer.isStarted() && checkRubberBandStatus())
             {
                 initSpringLines();
@@ -264,13 +271,13 @@ namespace GCodeConvertor
             repaint();
         }
 
-        private void deleteCustomItems()
+        private void deleteItemsByTag(string tagToDelete)
         {
             var canvasChildrens = workspaceCanvas.Children.Cast<FrameworkElement>().ToList();
 
             foreach (var child in canvasChildrens)
             {
-                if(child.Tag is not null && child.Tag.Equals(CUSTOM_ELEMENT_TAG))
+                if(child.Tag is not null && child.Tag.Equals(tagToDelete))
                     workspaceCanvas.Children.Remove(child);
             }
         }
@@ -326,6 +333,7 @@ namespace GCodeConvertor
         {
             Rectangle cell = new Rectangle();
 
+            cell.Tag = FIELD_CELL_ELEMENT_TAG;
             cell.Height = cellSize;
             cell.Width = cellSize;
             cell.StrokeThickness = 1;
